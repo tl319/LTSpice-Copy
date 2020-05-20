@@ -10,8 +10,10 @@
 #include <string>
 #include <vector>
 #include <sstream>
-using namespace std;
+#include <Eigen>
 
+using namespace std;
+using namespace Eigen;
 struct Component
 {
 	char type;
@@ -26,6 +28,14 @@ bool isComponent(string x)
 	if(isalpha(x[0])){
 		return true;}
 	return false;
+}
+
+VectorXd matrixSolve(MatrixXd m,VectorXd v)
+{
+	MatrixXd inverse = m.inverse();
+	return v * inverse;
+
+
 }
 
 
