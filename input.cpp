@@ -34,8 +34,8 @@ ostream& operator<<(ostream& os, const Component& c)
     os << c.type << ':' << c.name << ':' << c.nA << ':' << c.nB << ':' << c.value << endl;
     return os;
 }
-
-int main() {
+vector<Component> readInput()
+{
 	string x;
 	vector<string> strings;
 	vector<Component> components;
@@ -56,16 +56,14 @@ int main() {
 			else{name =(properties[0]).substr (3,(properties[0].length())-1);}
 			Component c1 = {(properties[0])[0],name,properties[1],properties[2],stof(properties[3])};
 			components.push_back(c1);
-			cout << c1;
+
 		}
 		}
 
 
-	return 0;
+	return components;
 
 }
-
-
 
 
 
