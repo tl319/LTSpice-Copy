@@ -1,0 +1,8 @@
+* C:\Users\Jason\Desktop\Draft4.asc
+R2 a 0 5
+Voltage N001 0 1
+R1 N001 a 10
+.op
+.backanno
+.end
+
