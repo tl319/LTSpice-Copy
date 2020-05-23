@@ -14,36 +14,60 @@
 
 using namespace std;
 using namespace Eigen;
+
+struct Node
+{
+	int number;
+	string label;
+	int super;
+	Node(){;}
+	Node(string l){label=l;}
+};
+
 struct Component
 {
 	char type;
 	string name;
-	string nA;
-	string nB;
+	Node A;
+	Node B;
 	float value;
+
+	Component(char t,string n, string nA,string nB,float v){
+		type = t;
+		name = n;
+		A.label = nA;
+		B.label = nB;
+		value = v;
+	}
 };
+
 
 bool isComponent(string x)
 {
 	if(isalpha(x[0])){
 		return true;}
-	return false;
-}
+	return false;}
 
 VectorXd matrixSolve(MatrixXd m,VectorXd v)
 {
 	MatrixXd inverse = m.inverse();
-	return v * inverse;
-
-
-}
+	return inverse *v;}
 
 
 ostream& operator<<(ostream& os, const Component& c)
 {
-    os << c.type << ':' << c.name << ':' << c.nA << ':' << c.nB << ':' << c.value << endl;
+    os << c.type << ':' << c.name << ':' << c.A.label << ':' << c.B.label << ':' << c.value << endl;
     return os;
 }
+
+vector<Node> findNodes(vector<Component> list)
+{
+	vector<Node> Nodes;
+	for (Component part : list){
+		if(find (Nodes.begin(), Nodes.end(), part.A) !=Nodes.end()){
+			Nodes.push_back(part.A);
+			cout << "found " << part.A.label;}
+
 vector<Component> readInput()
 {
 	string x;
@@ -64,7 +88,8 @@ vector<Component> readInput()
 			string name;
 			if(isalnum((properties[0])[1])){name = properties[0];}
 			else{name =(properties[0]).substr (3,(properties[0].length())-1);}
-			Component c1 = {(properties[0])[0],name,properties[1],properties[2],stof(properties[3])};
+
+			Component c1((properties[0])[0],name,properties[1],properties[2],stof(properties[3]));
 			components.push_back(c1);
 
 		}
@@ -74,6 +99,12 @@ vector<Component> readInput()
 	return components;
 
 }
+int main()
+{
+	vector<Component> test = readInput();
+	for (auto x : test)
+	{
+		cout << x;
+	}
 
-
-
+}
