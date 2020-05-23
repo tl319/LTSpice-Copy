@@ -59,14 +59,32 @@ ostream& operator<<(ostream& os, const Component& c)
     os << c.type << ':' << c.name << ':' << c.A.label << ':' << c.B.label << ':' << c.value << endl;
     return os;
 }
+ostream& operator<<(ostream& os, const vector<Node>& c)
+{
+    for(Node x : c)
+    {
+    	os << x.label << endl;
+    }
+    return os;
+}
+
+bool operator == (Node const &n1, Node const &n2)
+{
+     return(n1.label == n2.label);
+}
 
 vector<Node> findNodes(vector<Component> list)
 {
 	vector<Node> Nodes;
 	for (Component part : list){
-		if(find (Nodes.begin(), Nodes.end(), part.A) !=Nodes.end()){
-			Nodes.push_back(part.A);
-			cout << "found " << part.A.label;}
+		if(find (Nodes.begin(), Nodes.end(), part.A) == Nodes.end()){
+			Nodes.push_back(part.A);}
+		if(find (Nodes.begin(), Nodes.end(), part.B) == Nodes.end()){
+					Nodes.push_back(part.B);}
+
+	}
+	return Nodes;
+}
 
 vector<Component> readInput()
 {
@@ -102,9 +120,6 @@ vector<Component> readInput()
 int main()
 {
 	vector<Component> test = readInput();
-	for (auto x : test)
-	{
-		cout << x;
-	}
-
+	vector<Node> n = findNodes(test);
+	cout << n;
 }
