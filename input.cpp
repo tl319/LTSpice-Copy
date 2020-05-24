@@ -11,7 +11,7 @@
 #include <vector>
 #include <sstream>
 #include <Eigen>
-
+#include <bits/stdc++.h>
 using namespace std;
 using namespace Eigen;
 
@@ -20,8 +20,11 @@ struct Node
 	int number;
 	string label;
 	int super;
-	Node(){;}
-	Node(string l){label=l;}
+	Node(){number = -1; label = "N/A"; super = -1;}
+	Node(string l){number = -1; super = -1; label=l;}
+
+	
+
 };
 
 struct Component
@@ -39,6 +42,7 @@ struct Component
 		B.label = nB;
 		value = v;
 	}
+       
 };
 
 
@@ -63,7 +67,7 @@ ostream& operator<<(ostream& os, const vector<Node>& c)
 {
     for(Node x : c)
     {
-    	os << x.label << endl;
+    	os << "Number :" << x.number  << " label :"<<x.label << " supernode :"<< x.super << endl;
     }
     return os;
 }
@@ -78,12 +82,36 @@ vector<Node> findNodes(vector<Component> list)
 	vector<Node> Nodes;
 	for (Component part : list){
 		if(find (Nodes.begin(), Nodes.end(), part.A) == Nodes.end()){
-			Nodes.push_back(part.A);}
+			if (part.A.label=="0")
+				Nodes.insert(Nodes.begin(),part.A);
+			else
+				Nodes.push_back(part.A);}
 		if(find (Nodes.begin(), Nodes.end(), part.B) == Nodes.end()){
-					Nodes.push_back(part.B);}
+			if (part.B.label=="0")
+							Nodes.insert(Nodes.begin(),part.B);
+						else
+							Nodes.push_back(part.B);}
 
 	}
 	return Nodes;
+}
+vector<Component> patchComponents(vector<Component> list)
+{
+	vector<Component> out = list;
+	vector<Node> nodes = findNodes(out);
+	for(int i=0;i<nodes.size();i++){
+		for(int j = 0;j<out.size();j++){
+			if ((out[j].A.label)==nodes[i].label){
+				out[j].A.number=i;
+				cout << "set " << out[j].A.label <<  " " << out[j].A.number << endl;
+			}
+			if ((out[j].B.label)==nodes[i].label){
+                                out[j].B.number=i;
+                                cout << "set " << out[j].B.label <<  " " << out[j].B.number << endl;
+						}
+		}
+	}
+	return out;
 }
 
 vector<Component> readInput()
@@ -120,6 +148,9 @@ vector<Component> readInput()
 int main()
 {
 	vector<Component> test = readInput();
-	vector<Node> n = findNodes(test);
-	cout << n;
+	vector<Component> out = patchComponents(test);
+	for(auto x : out)
+	{
+		cout << x.A.number << " b " << x.B.number << endl;
+	}
 }
