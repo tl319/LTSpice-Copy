@@ -1,7 +1,8 @@
 * C:\Users\Jason\Desktop\Draft4.asc
-R§BR a 0 5
-V§BVoltage N001 0 1
-R§AR N001 a 10
+Voltage a d 5
+R1 a b 5
+R2 c b 6
+R3 c d 7
 .op
 .backanno
 .end
