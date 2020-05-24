@@ -22,9 +22,7 @@ struct Node
 	int super;
 	Node(){number = -1; label = "N/A"; super = -99;}
 	Node(string l){number = -1; super = -1; label=l;}
-        void superset(int i)
-	{super =i;
-        }
+
         
 
 };
@@ -44,6 +42,7 @@ struct Component
 		B.label = nB;
 		value = v;
 	}
+        
        
 };
 
@@ -95,6 +94,49 @@ vector<Node> findNodes(vector<Component> list)
 	}
 	return Nodes;
 }
+vector<Component> patchSupernodes(vector<Component> list)
+{
+    vector<Component> out = list;
+    for(int i=0;i<out.size();i++){
+            if(out[i].type == 'V'){
+                int topnode = 99;
+                int botnode = 99;
+                //cout << out[i].A.number << " b is: " << out[i].B.number << endl;
+                if(out[i].A.number>out[i].B.number)
+                {topnode = out[i].A.number;
+                botnode =out[i].B.number;}
+                else {topnode = out[i].B.number;
+                botnode =out[i].A.number;}
+                 //cout << "topnode is :" << topnode << " botnode is: " << botnode << endl;
+                 
+                for(int x=0;x<out.size();x++){
+                    //cout << "loop: " << x << endl;
+                    if(out[x].A.number == botnode){
+                    out[x].A.super = topnode;
+                    //cout << "set " << out[x].name << out[x].A.number << "to " <<  out[x].A.super << endl;
+                    }
+                    else
+                    {out[x].A.super = out[x].A.number;
+                    //cout <<  out[x].name << "has " << out[x].A.number << " not equal " << botnode << endl;       
+                    }
+                    
+                    if(out[x].B.number == botnode){
+                    out[x].B.super = topnode;
+                    //cout << "set " << out[x].name << out[x].B.number << " to " <<  out[x].B.super << endl;
+                    }
+                    else
+                    {out[x].B.super = out[x].A.number;
+                    //cout << out[x].B.number << " not equal " << botnode << endl;
+                    }
+
+                }
+                }
+                
+                
+            }
+    return out;
+}
+
 vector<Component> patchComponents(vector<Component> list)
 {
 	vector<Component> out = list;
@@ -104,50 +146,17 @@ vector<Component> patchComponents(vector<Component> list)
 			if ((out[j].A.label)==nodes[i].label){
 				out[j].A.number=i;
                                 out[j].A.super=i;
-				cout << "set " << out[j].A.label <<  " " << out[j].A.number << endl;
+				//cout << "set " << out[j].A.label <<  " " << out[j].A.number << endl;
 			}
 			if ((out[j].B.label)==nodes[i].label){
                                 out[j].B.number=i;
                                 out[j].B.super=i;
-                                cout << "set " << out[j].B.label <<  " " << out[j].B.number << endl;
+                                //cout << "set " << out[j].B.label <<  " " << out[j].B.number << endl;
 						}
 		}
-	}
-        for(int i=0;i<out.size();i++){
-            if(out[i].type == 'V'){
-                int topnode = 99;
-                int botnode = 99;
-                cout << out[i].A.number << " b is: " << out[i].B.number << endl;
-                
-                if(out[i].A.number>out[i].B.number)
-                {topnode = out[i].A.number;
-                botnode =out[i].B.number;}
-                else {topnode = out[i].B.number;
-                botnode =out[i].A.number;}
-                
-                for(int j=0;j<out.size();j++){
-                    cout << "topnode is :" << topnode << " botnode is: " << botnode << endl;
-                    cout << "checking that " << out[i].A.number << "equals to " << botnode << endl;
-                    if(out[i].A.number == botnode){
-                    out[i].A.super = topnode;
-                    cout << "top :" << topnode << "bot :" << botnode << endl;
-                    }
-                    else
-                    {out[i].A.superset(out[i].A.number);}
-                    if(out[i].B.number == botnode){
-                    out[i].B.super = topnode;
-                    cout << "top :" << topnode << "bot :" << botnode << endl;
-                    }
-                    else
-                    {out[i].B.super = out[i].A.number;}
-
-                }
-                }
-                
-                
-            }
+	}    
         
-	return out;
+	return patchSupernodes(out);
 }
 
 vector<Component> readInput()
