@@ -63,12 +63,10 @@ ostream& operator<<(ostream& os, const Component& c)
     os << c.type << ':' << c.name << ':' << c.A.label << ':' << c.B.label << ':' << c.value << endl;
     return os;
 }
-ostream& operator<<(ostream& os, const vector<Node>& c)
+ostream& operator<<(ostream& os, const Node& c)
 {
-    for(Node x : c)
-    {
-    	os << "Number :" << x.number  << " label :"<<x.label << " supernode :"<< x.super << endl;
-    }
+
+    os << "Number: " << c.number  << " label: "<< c.label << " supernode: "<< c.super << endl;
     return os;
 }
 
@@ -111,6 +109,35 @@ vector<Component> patchComponents(vector<Component> list)
 						}
 		}
 	}
+        for(int i=0;i<out.size();i++){
+            if(out[i].type == 'V'){
+                int topnode;
+                int botnode;
+                
+                if(out[i].A.number>out[i].B.number)
+                {int topnode = out[i].A.number;
+                int botnode =out[i].B.number;}
+                else {int topnode = out[i].B.number;
+                int botnode =out[i].A.number;}
+                
+                for(int j=0;j<out.size();j++){
+                    if(out[i].A.number = botnode){
+                    out[i].A.super = topnode;
+                    }
+                    else
+                        out[i].A.super = out[i].A.number;
+                    if(out[i].B.number = botnode){
+                    out[i].B.super = topnode;
+                    }
+                    else
+                        out[i].B.super = out[i].A.number;
+
+                }
+                }
+                
+                
+            }
+        
 	return out;
 }
 
@@ -151,6 +178,6 @@ int main()
 	vector<Component> out = patchComponents(test);
 	for(auto x : out)
 	{
-		cout << x.A.number << " b " << x.B.number << endl;
+		cout << "A :"<< x.A << "B :" << x.B << endl;
 	}
 }
