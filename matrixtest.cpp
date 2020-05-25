@@ -1,15 +1,21 @@
 #include <iostream>
 #include <Eigen>
 
-using Eigen::MatrixXd;
+using namespace Eigen;
+using namespace std;
 
+/*
 int main()
 {
+  VectorXd v(2);
+  v << 5, 15;
   MatrixXd m(2,2);
-  m(0,0) = 3;
-  m(1,0) = 2.5;
-  m(0,1) = -1;
-  m(1,1) = m(1,0) + m(0,1);
-  std::cout << m << std::endl;
+  m(0,0) = 12;
+  m(1,0) = -5;
+  m(0,1) = -4;
+  m(1,1) = 7;
+  cout << "m * v =" << endl << m * v << endl;
 
 }
+
+*/
