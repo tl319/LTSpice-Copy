@@ -5,14 +5,19 @@ using namespace std;
 
 int main()
 {
-    Component R1 {'R', "R1", 1, 2, 1};
-    Component R2 {'V', "V1", 0, 1, 2};
-    Component R3 {'R', "R3", 3, 2, 4};
-    Component R4 {'R', "R4", 3, 0, 3};
+    Node a {1, "a", 1};
+    Node b {2, "b", 2};
+    Node c {3, "c", 3};
+    Node d {0, "d", 0};
+
+    Component R1 {'R', "R1", a, b, 1};
+    Component R2 {'V', "V1", d, a, 2};
+    Component R3 {'R', "R3", c, b, 4};
+    Component R4 {'R', "R4", c, d, 3};
 
     vector<Component> comps {R1, R2, R3, R4};
 
-    vector<int> nodes {0, 1, 2, 3};
+    vector<Node> nodes {d, a, b, c};
 
     int noden = compute_noden(nodes);
 
