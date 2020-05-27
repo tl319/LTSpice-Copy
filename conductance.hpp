@@ -253,7 +253,20 @@ pair<MatrixXd, vector<float>> conductance_current (vector<Component> comps, int 
             
         }
 
-            //test(noden, conducts, currents);
+        if(comps[i].type == 'I')
+        {
+            if(nA(comps[i]) != 0)
+            {
+                currents[nA(comps[i]) -1] = comps[i].value;
+            }
+
+            if(nB(comps[i]) != 0)
+            {
+                currents[nB(comps[i]) -1] = (-1)*comps[i].value;
+            }
+        }
+
+        //test(noden, conducts, currents);
     }
 
     return {conducts, currents};
