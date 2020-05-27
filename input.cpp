@@ -67,25 +67,25 @@ vector<Component> patchSupernodes(vector<Component> list)
                 int topnode = 99;
                 int botnode = 99;
                 //cout << out[i].A.number << " b is: " << out[i].B.number << endl;
-                if(out[i].A.number>out[i].B.number)
-                {topnode = out[i].A.number;
-                botnode =out[i].B.number;}
-                else {topnode = out[i].B.number;
-                botnode =out[i].A.number;}
+                if(out[i].A.super>out[i].B.super)
+                {topnode = out[i].A.super;
+                botnode =out[i].B.super;}
+                else {topnode = out[i].B.super;
+                botnode =out[i].A.super;}
                  //cout << "topnode is :" << topnode << " botnode is: " << botnode << endl;
                  
                 for(int x=0;x<out.size();x++){
                     //cout << "loop: " << x << endl;
-                    if(out[x].A.number == botnode){
+                    if(out[x].A.super == botnode){
                     out[x].A.super = topnode;
                     //cout << "set " << out[x].name << out[x].A.number << "to " <<  out[x].A.super << endl;
                     }
                     else
-                    {out[x].A.super = out[x].A.number;
+                    {out[x].A.super = out[x].A.super;
                     //cout <<  out[x].name << "has " << out[x].A.number << " not equal " << botnode << endl;       
                     }
                     
-                    if(out[x].B.number == botnode){
+                    if(out[x].B.super == botnode){
                     out[x].B.super = topnode;
                     //cout << "set " << out[x].name << out[x].B.number << " to " <<  out[x].B.super << endl;
                     }
@@ -156,9 +156,16 @@ vector<Component> readInput()
 }
 int main()
 {
+    
 	vector<Component> test = readInput();
 	vector<Component> out = patchComponents(test);
+        out[0].B.super=0;
+        out[1].B.super=2;
+        out[2].B.super=2;
+        out[3].B.super=0;
         vector<Node> nlist = findNodes(out);
+        
+        
         for (auto x : nlist)
         { cout << "Name is :" << x.label <<  " number is :" << x.number << endl; 
         }
@@ -166,17 +173,44 @@ int main()
 	{
 		cout << x.name << endl << "A :"<< x.A << "B :" << x.B << endl;
 	}
-   
+        
+            
         int noden = compute_noden(findNodes(out));
-
         pair<MatrixXd, vector<float>> knowns = conductance_current (out, noden);
-        cout << knowns.first;
-        for(auto x : knowns.second){
-        cout << x;}
-        //VectorXd v(noden);
-        //for(auto x : knowns.second)
-        //{v  << x;}
-        //cout << matrixSolve(knowns.first,v);
-       //test(noden, knowns.first, knowns.second);
+
+    //test(noden, knowns.first, knowns.second);
+
+    cout << knowns.first;
+    for(auto x : knowns.second){
+    cout << x;}
+   
+    Node a(1, "a", 1);
+    Node b(3, "b", 3);
+    Node c(2, "c", 2);
+    Node e(0, "e", 0);
+
+    Component R1('R', "R1", a, c, 1);
+    Component V1('V', "V1", a, e, 5);
+    Component R2('R', "R2", b, c, 3);
+    Component R3('R', "R4", b, e, 2);
+
+    vector<Component> comps {R1, V1, R2, R3};
+
+    vector<Node> nodes {e, a, b, c};
+    noden = compute_noden(nodes);
+    cout << endl << endl << endl;
+    pair<MatrixXd, vector<float>> knowns1 = conductance_current (comps, noden);
+
+    //test(noden, knowns.first, knowns.second);
+
+    cout << knowns1.first;
+    for(auto x : knowns1.second){
+    cout << x;}
+    //VectorXd v(noden);
+    //for(auto x : knowns.second)
+    //{v  << x;}
+    //cout << matrixSolve(knowns.first,v);
+   //test(noden, knowns.first, knowns.second);
+        
 
 }

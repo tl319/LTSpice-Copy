@@ -28,7 +28,9 @@ struct Node
 	int super;
 	Node(){number = -1; label = "N/A"; super = -99;}
 	Node(string l){number = -1; super = -1; label=l;}
-
+        Node(int n, string l, int s)
+        {number = n; super = s; label=l;
+        }
         
 
 };
@@ -48,7 +50,14 @@ struct Component
 		B.label = nB;
 		value = v;
 	}
-        
+
+        Component(char t,string n, Node nA,Node nB,float v){
+		type = t;
+		name = n;
+		A = nA;
+		B = nB;
+		value = v;
+	}
        
 };
 
