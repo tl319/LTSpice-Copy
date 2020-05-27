@@ -1,11 +1,5 @@
-//============================================================================
-// Name        : HelloWorld.cpp
-// Author      :
-// Version     :
-// Copyright   : Your copyright notice
-// Description : Hello World in C++, Ansi-style
-//============================================================================
 
+#include "Circut_Simulator.hpp"
 #include <iostream>
 #include <string>
 #include <vector>
@@ -14,37 +8,6 @@
 #include <bits/stdc++.h>
 using namespace std;
 using namespace Eigen;
-
-struct Node
-{
-	int number;
-	string label;
-	int super;
-	Node(){number = -1; label = "N/A"; super = -99;}
-	Node(string l){number = -1; super = -1; label=l;}
-
-        
-
-};
-
-struct Component
-{
-	char type;
-	string name;
-	Node A;
-	Node B;
-	float value;
-
-	Component(char t,string n, string nA,string nB,float v){
-		type = t;
-		name = n;
-		A.label = nA;
-		B.label = nB;
-		value = v;
-	}
-        
-       
-};
 
 
 bool isComponent(string x)
@@ -98,7 +61,7 @@ vector<Component> patchSupernodes(vector<Component> list)
 {
     vector<Component> out = list;
     for(int i=0;i<out.size();i++){
-            if(out[i].type == 'V'){
+            if(out[i].type == 'V' || out[i].type == 'v'){
                 int topnode = 99;
                 int botnode = 99;
                 //cout << out[i].A.number << " b is: " << out[i].B.number << endl;
