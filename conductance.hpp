@@ -12,8 +12,8 @@ struct Node
 	int number;
 	string label;
 	int super;
-	Node(){number = -1; label = "N/A"; super = -99;}
-	Node(string l){number = -1; super = -1; label=l;}
+	//Node(){number = -1; label = "N/A"; super = -99;}
+	//Node(string l){number = -1; super = -1; label=l;}
 };
 
 struct Component
@@ -24,13 +24,13 @@ struct Component
 	Node B;
 	float value;
 
-	Component(char t,string n, string nA,string nB,float v){
+	/*/Component(char t,string n, string nA,string nB,float v){
 		type = t;
 		name = n;
 		A.label = nA;
 		B.label = nB;
 		value = v;
-	}       
+	}/*/       
 };
 
 //calculate number of non-ground nodes from node vector
@@ -164,56 +164,93 @@ pair<MatrixXd, vector<float>> conductance_current (vector<Component> comps, int 
 
         }
 
-        //add case for nA = nB = 0?
+        //dealing with voltage sources                  add case for nA = nB = 0?
         if(comps[i].type == 'V')
         {
-            if( nB(comps[i]) == 0)
+            //negative terminal to ground
+            if( nB(comps[i]) == 0 && nA(comps[i]) != 0)
             {
+                //prevent ulterior editing of the matrix row assigned to represent the voltage source
                 locked[nA(comps[i])-1] = 1;
+                //cycle through all columns to  edit the row corresponding to the positive terminal node
                 for(int j = 0; j<noden; j++)
                 {
+                    //at the column corresponding to the positive terminal, write 1
                     if(j == (nA(comps[i]) -1))
                     {
                         conducts (j, j) = 1;
+                        //also write the source voltage to this index in the rhs vector
                         currents[j] = comps[i].value; 
                     } else {
+                        //other columns are set to 0
                         conducts (nA(comps[i]) -1, j) = 0;
                     }
                 }
             }
 
-            if(nA(comps[i]) == 0)
+            //positive terminal to ground
+            if(nA(comps[i]) == 0 && nB(comps[i]) != 0)
             {
+                //prevent ulterior editing of the matrix row assigned to represent the voltage source
                 locked[nB(comps[i])-1] = 1;
+                //cycle through all columns to  edit the row corresponding to the negative terminal node
                 for(int j = 0; j<noden; j++)
                 {
+                    //at the column corresponding to the negative terminal, write 1
                     if(j == (nB(comps[i]) -1))
                     {
                         conducts (j, j) = 1;
+                        //also write -1* the source voltage to this index in the rhs vector
                         currents[j] = (-1)*comps[i].value; 
                     } else {
+                        //other columns are set to 0
                         conducts (nB(comps[i]) -1, j) = 0;
                     }
                 }
             }
 
-            /*/
+            //floating voltage source
             if(nA(comps[i]) != 0 && nB(comps[i]) != 0)
             {
+                //assign the row corresponding to the lowest numbered node as that representing the voltage source
+                int row;
+
                 if( nA(comps[i]) > nB(comps[i]) )
-                locked[comps[i].nA-1] = 1;
+                {
+                    locked[nB(comps[i])-1] = 1;
+                    row = nB(comps[i]) -1;
+                } else {
+                    locked[nA(comps[i])-1] = 1;
+                    row = nA(comps[i]) -1;
+                }
+
+                //in that row of the rhs vector, write the current source value
+                currents[row] = comps[i].value; 
+
+                //write the 1, -1 and 0s in the appropriate columns
                 for(int j = 0; j<noden; j++)
                 {
-                    if(j == (comps[i].nA -1))
+                    if(j == (nA(comps[i]) -1))
                     {
-                        conducts (nA(comps[i]) -1, j) = 1;
-                        currents[j] = comps[i].value; 
+                        conducts (row, j) = 1;
                     } else {
-                        conducts (nA(comps[i]) -1, j) = 0;
+                        if(j == (nB(comps[i]) -1))
+                        {
+                            conducts (row, j) = (-1);
+                        } else {
+                            conducts (row, j) = 0;
+                        }
                     }
                 }
             }
-            /*/
+
+            //short circuit
+            if(nA(comps[i]) == 0 && nB(comps[i]) == 0)
+            {
+                cout << "bruh";
+                assert(0);
+            }
+            
         }
 
             //test(noden, conducts, currents);
