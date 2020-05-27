@@ -170,7 +170,7 @@ int main()
         int noden = compute_noden(findNodes(out));
 
         pair<MatrixXd, vector<float>> knowns = conductance_current (out, noden);
-        cout << knowns.first << endl;
+        cout << knowns.first;
         for(auto x : knowns.second){
         cout << x;}
         //VectorXd v(noden);
