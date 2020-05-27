@@ -53,7 +53,7 @@ vector<Node> findNodes(vector<Component> list)
 		if(find (Nodes.begin(), Nodes.end(), part.B) == Nodes.end()){
 			if (part.B.label=="0")
 				Nodes.insert(Nodes.begin(),part.B);
-						else
+			else
 				Nodes.push_back(part.B);}
 
 	}
@@ -106,7 +106,13 @@ vector<Component> patchComponents(vector<Component> list)
 {
 	vector<Component> out = list;
 	vector<Node> nodes = findNodes(out);
-	for(int i=0;i<nodes.size();i++){
+        int i;
+        if(nodes[0].label=="0")
+            i = 0;
+        else
+            i = 1;
+        
+	for(i;i<nodes.size();i++){
 		for(int j = 0;j<out.size();j++){
 			if ((out[j].A.label)==nodes[i].label){
 				out[j].A.number=i;
@@ -157,61 +163,26 @@ vector<Component> readInput()
 int main()
 {
     
-	vector<Component> test = readInput();
-	vector<Component> out = patchComponents(test);
-        //out[0].B.super=0;
-        //out[1].B.super=2;
-        //out[2].B.super=2;
-        vector<Node> nlist = findNodes(out);
-        
-        
-        for (auto x : nlist)
-        { cout << "Name is :" << x.label <<  " number is :" << x.number << endl; 
-        }
-	for(auto x : out)
-	{
-		cout << x.name << endl << "A :"<< x.A << "B :" << x.B << endl;
-	}
-        
-            
-        int noden = compute_noden(findNodes(out));
-        pair<MatrixXd, vector<float>> knowns = conductance_current (out, noden);
-        VectorXd v(noden);
-    //test(noden, knowns.first, knowns.second);
-
-    cout << knowns.first << endl;
-    for(int i =0;i<noden;i++){
-    v(i) = knowns.second[i];
+    vector<Component> test = readInput();
+    vector<Component> out = patchComponents(test);
+    vector<Node> nlist = findNodes(out);
+    
+    for (auto x : nlist)
+    { cout << "Name is :" << x.label <<  " number is :" << x.number << endl; 
     }
-    cout << v;
-   
-    Node a(1, "a", 1);
-    Node b(3, "b", 3);
-    Node c(2, "c", 2);
-    Node e(0, "e", 0);
+    for(auto x : out)
+    {
+            cout << x.name << endl << "A :"<< x.A << "B :" << x.B << endl;
+    }
 
-    Component R1('R', "R1", a, c, 1);
-    Component V1('V', "V1", a, e, 5);
-    Component R2('R', "R2", b, c, 3);
-    Component R3('R', "R4", b, e, 2);
 
-    vector<Component> comps {R1, V1, R2, R3};
-
-    vector<Node> nodes {e, a, b, c};
-    noden = compute_noden(nodes);
-    cout << endl << endl << endl;
-    pair<MatrixXd, vector<float>> knowns1 = conductance_current (comps, noden);
-
-    //test(noden, knowns.first, knowns.second);
-
-    cout << knowns1.first;
-    for(auto x : knowns1.second){
-    cout << x;}
-    //VectorXd v(noden);
-    //for(auto x : knowns.second)
-    //{v  << x;}
-    //cout << matrixSolve(knowns.first,v);
-   //test(noden, knowns.first, knowns.second);
+    int noden = compute_noden(findNodes(out));
+    pair<MatrixXd, vector<float>> knowns = conductance_current (out, noden);
+    cout << knowns.first << endl;
+    VectorXd v(noden);
+    for(int i =0;i<noden;i++){v(i) = knowns.second[i];}
+    cout << v << endl << endl;
+ 
+    cout << matrixSolve(knowns.first,v);
         
-
 }
