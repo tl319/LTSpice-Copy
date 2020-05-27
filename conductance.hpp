@@ -1,3 +1,4 @@
+#include "Circut_Simulator.hpp"
 #include <iostream>
 #include <string>
 #include <vector>
@@ -7,31 +8,6 @@
 using namespace Eigen;
 using namespace std;
 
-struct Node
-{
-	int number;
-	string label;
-	int super;
-	//Node(){number = -1; label = "N/A"; super = -99;}
-	//Node(string l){number = -1; super = -1; label=l;}
-};
-
-struct Component
-{
-	char type;
-	string name;
-	Node A;
-	Node B;
-	float value;
-
-	/*/Component(char t,string n, string nA,string nB,float v){
-		type = t;
-		name = n;
-		A.label = nA;
-		B.label = nB;
-		value = v;
-	}/*/       
-};
 
 //calculate number of non-ground nodes from node vector
 int compute_noden(vector<int> nodes);
