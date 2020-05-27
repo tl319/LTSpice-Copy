@@ -3,6 +3,27 @@
 using namespace Eigen;
 using namespace std;
 
+/*/
+//move functions to header
+
+//how are variable sources implemented
+vector<pair<MatriXxd, vector<float>>> transient(vector<Components> comps, int noden, float length, float interval)
+{
+    vector<pair<MatriXxd, vector<float>>> v;
+    for(float t = 0; t < length; t += interval)
+    {
+        v.push_back(conductance_current(comps, noden));
+    }
+} 
+
+vector<float> solve_eqn(pair<MatrixXd, vector<float>> knowns)
+{
+    //invert matrix
+
+    //multiply currents by inverse
+}
+/*/
+
 int main()
 {
     Node a {1, "a", 1};

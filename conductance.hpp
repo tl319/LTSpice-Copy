@@ -257,12 +257,12 @@ pair<MatrixXd, vector<float>> conductance_current (vector<Component> comps, int 
         {
             if(nA(comps[i]) != 0)
             {
-                currents[nA(comps[i]) -1] = comps[i].value;
+                currents[nA(comps[i]) -1] += comps[i].value;
             }
 
             if(nB(comps[i]) != 0)
             {
-                currents[nB(comps[i]) -1] = (-1)*comps[i].value;
+                currents[nB(comps[i]) -1] -= comps[i].value;
             }
         }
 
