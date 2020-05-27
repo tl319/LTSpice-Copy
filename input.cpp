@@ -72,26 +72,26 @@ vector<Component> patchSupernodes(vector<Component> list)
                 botnode =out[i].B.super;}
                 else {topnode = out[i].B.super;
                 botnode =out[i].A.super;}
-                 //cout << "topnode is :" << topnode << " botnode is: " << botnode << endl;
+                 cout << "topnode is :" << topnode << " botnode is: " << botnode << endl;
                  
                 for(int x=0;x<out.size();x++){
                     //cout << "loop: " << x << endl;
                     if(out[x].A.super == botnode){
                     out[x].A.super = topnode;
-                    //cout << "set " << out[x].name << out[x].A.number << "to " <<  out[x].A.super << endl;
+                    cout << "set " << out[x].name << out[x].A.number << "to " <<  out[x].A.super << endl;
                     }
                     else
-                    {out[x].A.super = out[x].A.super;
-                    //cout <<  out[x].name << "has " << out[x].A.number << " not equal " << botnode << endl;       
+                    {//out[x].A.super = out[x].A.super;
+                    cout <<  out[x].name << "has " << out[x].A.number << " not equal " << botnode << endl;       
                     }
                     
                     if(out[x].B.super == botnode){
                     out[x].B.super = topnode;
-                    //cout << "set " << out[x].name << out[x].B.number << " to " <<  out[x].B.super << endl;
+                    cout << "set " << out[x].name << out[x].B.number << " to " <<  out[x].B.super << endl;
                     }
                     else
-                    {out[x].B.super = out[x].A.number;
-                    //cout << out[x].B.number << " not equal " << botnode << endl;
+                    {//out[x].B.super = out[x].A.number;
+                    cout << out[x].B.number << " not equal " << botnode << endl;
                     }
 
                 }
@@ -120,7 +120,7 @@ vector<Component> patchComponents(vector<Component> list)
 						}
 		}
 	}    
-        
+        //return out;
 	return patchSupernodes(out);
 }
 
@@ -159,10 +159,9 @@ int main()
     
 	vector<Component> test = readInput();
 	vector<Component> out = patchComponents(test);
-        out[0].B.super=0;
-        out[1].B.super=2;
-        out[2].B.super=2;
-        out[3].B.super=0;
+        //out[0].B.super=0;
+        //out[1].B.super=2;
+        //out[2].B.super=2;
         vector<Node> nlist = findNodes(out);
         
         
@@ -177,12 +176,14 @@ int main()
             
         int noden = compute_noden(findNodes(out));
         pair<MatrixXd, vector<float>> knowns = conductance_current (out, noden);
-
+        VectorXd v(noden);
     //test(noden, knowns.first, knowns.second);
 
-    cout << knowns.first;
-    for(auto x : knowns.second){
-    cout << x;}
+    cout << knowns.first << endl;
+    for(int i =0;i<noden;i++){
+    v(i) = knowns.second[i];
+    }
+    cout << v;
    
     Node a(1, "a", 1);
     Node b(3, "b", 3);
