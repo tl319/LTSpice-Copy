@@ -26,7 +26,10 @@ VectorXd matrixSolve(MatrixXd m,VectorXd v)
 
 ostream& operator<<(ostream& os, const Component& c)
 {
-    os << c.type << ':' << c.name << ':' << c.A.label << ':' << c.B.label << ':' << c.value << endl;
+    if(c.isSignal)
+    {os << c.type << ':' << c.name << ':' << c.A.label << ':' << c.B.label << ':' << c.DCOff << ':' << c.amplitude << ':' << c.frequency << endl;}
+    else
+    {os << c.type << ':' << c.name << ':' << c.A.label << ':' << c.B.label << ':' << c.value << endl;}
     return os;
 }
 ostream& operator<<(ostream& os, const Node& c)
@@ -130,6 +133,35 @@ vector<Component> patchComponents(vector<Component> list)
 	return patchSupernodes(out);
 }
 
+float procData(string x)
+{
+    float num = stof(removeChar(x,'D'));
+    if(removeChar(x,'S') != "")
+    {
+        cout << "working for now";
+    }
+    return num;
+}
+bool isData(char c){
+    if(isdigit(c) || c == '.')
+        return false;
+    return true;}
+
+bool isSci(char c){
+    if(c == 'p' || c == 'n' || c == 'u' || c == 'm' || c == 'k' || c == 'M' || c == 'G')
+        return false;
+    return true;}
+
+string removeChar(string s, char style)
+{
+    string x = s;
+    if(style == 'D'){   
+        x.erase(std::remove_if(x.begin(), x.end(), isData), x.end());}
+    
+    if(style == 'S'){
+    x.erase(std::remove_if(x.begin(), x.end(), isSci), x.end());}
+    
+}
 vector<Component> readInput()
 {
 	string x;
@@ -142,17 +174,29 @@ vector<Component> readInput()
 
 	for(auto line : strings){
 		if(isComponent(line)){
-			string properties[4];
+			vector<string> properties;
 			stringstream ss(line);
 			int count=0;
-			 while (ss >> properties[count]){
-					count++; }
+			 while (ss >> x){
+                             properties.push_back(x);
+					}
 			string name;
 			if(isalnum((properties[0])[1])){name = properties[0];}
 			else{name =(properties[0]).substr (3,(properties[0].length())-1);}
-
+                        if(properties.size()<5){
 			Component c1((properties[0])[0],name,properties[1],properties[2],stof(properties[3]));
-			components.push_back(c1);
+                        components.push_back(c1);}
+                        else{
+                            string DC = properties[3];
+                            DC.erase(std::remove_if(DC.begin(), DC.end(), isData), DC.end());
+                            cout << DC;
+                            string freq = properties[5];
+                            freq.erase(std::remove_if(freq.begin(), freq.end(), isData), freq.end());
+                            cout << DC;
+			Component c1((properties[0])[0],name,properties[1],properties[2],procData(properties[3]),procData(properties[4]),procData(properties[5]));
+                        components.push_back(c1);}
+			
+                        
 		}
 		}
 
@@ -166,7 +210,11 @@ int main()
     vector<Component> test = readInput();
     vector<Component> out = patchComponents(test);
     vector<Node> nlist = findNodes(out);
-    
+    for(auto x : out)
+    {
+        cout << x;
+    }
+    /*
     for (auto x : nlist)
     { cout << "Name is :" << x.label <<  " number is :" << x.number << endl; 
     }
@@ -184,5 +232,5 @@ int main()
     cout << v << endl << endl;
  
     cout << matrixSolve(knowns.first,v);
-        
+      */  
 }
