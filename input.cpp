@@ -7,6 +7,7 @@
 #include <Eigen>
 #include <bits/stdc++.h>
 #include <numeric>
+#include <cmath>
 
 using namespace std;
 using namespace Eigen;
@@ -133,22 +134,13 @@ vector<Component> patchComponents(vector<Component> list)
 	return patchSupernodes(out);
 }
 
-float procData(string x)
-{
-    float num = stof(removeChar(x,'D'));
-    if(removeChar(x,'S') != "")
-    {
-        cout << "working for now";
-    }
-    return num;
-}
 bool isData(char c){
     if(isdigit(c) || c == '.')
         return false;
     return true;}
 
 bool isSci(char c){
-    if(c == 'p' || c == 'n' || c == 'u' || c == 'm' || c == 'k' || c == 'M' || c == 'G')
+    if(c == 'p' || c == 'P' ||c == 'N' || c == 'u' || c == 'U' || c == 'm' || c == 'K' || c == 'k' || c == 'M' || c == 'G')
         return false;
     return true;}
 
@@ -161,6 +153,21 @@ string removeChar(string s, char style)
     if(style == 'S'){
     x.erase(std::remove_if(x.begin(), x.end(), isSci), x.end());}
     
+    return x;
+}
+
+float procData(string x)
+{
+
+    float num = stof(removeChar(x,'D'));
+    if(removeChar(x,'S') != "")
+    {
+        string sci = removeChar(x,'S');
+        if(tolower(sci[0]) == tolower('k'))
+            return num * 1000;
+        
+    }
+    return num;
 }
 vector<Component> readInput()
 {
@@ -184,15 +191,9 @@ vector<Component> readInput()
 			if(isalnum((properties[0])[1])){name = properties[0];}
 			else{name =(properties[0]).substr (3,(properties[0].length())-1);}
                         if(properties.size()<5){
-			Component c1((properties[0])[0],name,properties[1],properties[2],stof(properties[3]));
+			Component c1((properties[0])[0],name,properties[1],properties[2],procData(properties[3]));
                         components.push_back(c1);}
                         else{
-                            string DC = properties[3];
-                            DC.erase(std::remove_if(DC.begin(), DC.end(), isData), DC.end());
-                            cout << DC;
-                            string freq = properties[5];
-                            freq.erase(std::remove_if(freq.begin(), freq.end(), isData), freq.end());
-                            cout << DC;
 			Component c1((properties[0])[0],name,properties[1],properties[2],procData(properties[3]),procData(properties[4]),procData(properties[5]));
                         components.push_back(c1);}
 			
