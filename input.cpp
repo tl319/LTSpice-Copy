@@ -6,6 +6,8 @@
 #include <sstream>
 #include <Eigen>
 #include <bits/stdc++.h>
+#include <numeric>
+
 using namespace std;
 using namespace Eigen;
 
@@ -156,8 +158,25 @@ int main()
 {
 	vector<Component> test = readInput();
 	vector<Component> out = patchComponents(test);
+        vector<Node> nlist = findNodes(out);
+        for (auto x : nlist)
+        { cout << "Name is :" << x.label <<  " number is :" << x.number << endl; 
+        }
 	for(auto x : out)
 	{
 		cout << x.name << endl << "A :"<< x.A << "B :" << x.B << endl;
 	}
+   
+        int noden = compute_noden(findNodes(out));
+
+        pair<MatrixXd, vector<float>> knowns = conductance_current (out, noden);
+        cout << knowns.first << endl;
+        for(auto x : knowns.second){
+        cout << x;}
+        //VectorXd v(noden);
+        //for(auto x : knowns.second)
+        //{v  << x;}
+        //cout << matrixSolve(knowns.first,v);
+       //test(noden, knowns.first, knowns.second);
+
 }

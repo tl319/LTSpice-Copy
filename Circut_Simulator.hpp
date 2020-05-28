@@ -87,4 +87,24 @@ bool isComponent(string x);
 //returns true if a line from a string (probs from stdin) is a component or not
 
 
+
+
+
+
+
+//calculate number of non-ground nodes from node vector
+int compute_noden(vector<Node>  nodes);
+
+//return complete conductance matrix and current vector
+pair<MatrixXd, vector<float>> conductance_current(vector<Component> comps, int noden);
+
+//print out conductance matrix and current vector
+void test(int noden, MatrixXd conducts, vector<float> currents);
+
+//read node/supernode A/B of a given component
+int nA(Component c);
+int nB(Component c);
+int SnA(Component c);
+int SnB(Component c);
+
 #endif
