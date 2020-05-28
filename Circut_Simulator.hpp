@@ -93,11 +93,31 @@ vector<Component> patchComponents(vector<Component> list);
 VectorXd matrixSolve(MatrixXd m,VectorXd v);
 //takes in the vector of currents and conductance matrix, and spits out the node voltage vector. 
 
+pair<MatrixXd, vector<float>> conductance_current(vector<Component> comps, int noden);
+//return complete conductance matrix and current vector
+
+
+
+
+
+
 
 // *** Quality of Life functions ***
 ostream& operator<<(ostream& os, const Component& c);
 ostream& operator<<(ostream& os, const Node& c);
+
+float procData(string x);
+//used to extract data ie. remove braces get K
+
 // allows you to cout both components and nodes.
+
+
+void test(int noden, MatrixXd conducts, vector<float> currents);
+//print out conductance matrix and current vector
+
+
+
+
 
 
 
@@ -111,25 +131,22 @@ vector<Component> patchSupernodes(vector<Component> list);
 bool isComponent(string x);
 //returns true if a line from a string (probs from stdin) is a component or not
 
+string removeChar(string s, char style);
+// removes unused charaters. Input 'D' extracts data input 'S' extracts scientific notation
+bool isSci(char c);
+bool isData(char c);
+//used in above function
 
 
 
-
-
-
-//calculate number of non-ground nodes from node vector
 int compute_noden(vector<Node>  nodes);
+//calculate number of non-ground nodes from node vector
 
-//return complete conductance matrix and current vector
-pair<MatrixXd, vector<float>> conductance_current(vector<Component> comps, int noden);
 
-//print out conductance matrix and current vector
-void test(int noden, MatrixXd conducts, vector<float> currents);
 
-//read node/supernode A/B of a given component
 int nA(Component c);
 int nB(Component c);
 int SnA(Component c);
 int SnB(Component c);
-
+//read node/supernode A/B of a given component
 #endif

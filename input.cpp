@@ -165,7 +165,17 @@ float procData(string x)
         string sci = removeChar(x,'S');
         if(tolower(sci[0]) == tolower('k'))
             return num * 1000;
-        
+        else if(tolower(sci[0]) == tolower('p'))
+            return num * pow(10,-12);
+        else if(tolower(sci[0]) == tolower('n'))
+            return num * pow(10,-9);
+        else if(tolower(sci[0]) == tolower('u'))
+            return num * pow(10,-3);
+        else if(sci[0] == 'M')
+            return num * pow(10,6);
+        else if(sci[0] == tolower('G'))
+            return num * pow(10,-3);
+        else return num;
     }
     return num;
 }
