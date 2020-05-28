@@ -26,7 +26,10 @@ VectorXd matrixSolve(MatrixXd m,VectorXd v)
 
 ostream& operator<<(ostream& os, const Component& c)
 {
-    os << c.type << ':' << c.name << ':' << c.A.label << ':' << c.B.label << ':' << c.value << endl;
+    if(c.isSignal)
+    {os << c.type << ':' << c.name << ':' << c.A.label << ':' << c.B.label << ':' << c.DCOff << ':' << c.amplitude << ':' << c.frequency << endl;}
+    else
+    {os << c.type << ':' << c.name << ':' << c.A.label << ':' << c.B.label << ':' << c.value << endl;}
     return os;
 }
 ostream& operator<<(ostream& os, const Node& c)
@@ -53,7 +56,7 @@ vector<Node> findNodes(vector<Component> list)
 		if(find (Nodes.begin(), Nodes.end(), part.B) == Nodes.end()){
 			if (part.B.label=="0")
 				Nodes.insert(Nodes.begin(),part.B);
-						else
+			else
 				Nodes.push_back(part.B);}
 
 	}
@@ -67,31 +70,31 @@ vector<Component> patchSupernodes(vector<Component> list)
                 int topnode = 99;
                 int botnode = 99;
                 //cout << out[i].A.number << " b is: " << out[i].B.number << endl;
-                if(out[i].A.number>out[i].B.number)
-                {topnode = out[i].A.number;
-                botnode =out[i].B.number;}
-                else {topnode = out[i].B.number;
-                botnode =out[i].A.number;}
-                 //cout << "topnode is :" << topnode << " botnode is: " << botnode << endl;
+                if(out[i].A.super>out[i].B.super)
+                {topnode = out[i].A.super;
+                botnode =out[i].B.super;}
+                else {topnode = out[i].B.super;
+                botnode =out[i].A.super;}
+                 cout << "topnode is :" << topnode << " botnode is: " << botnode << endl;
                  
                 for(int x=0;x<out.size();x++){
                     //cout << "loop: " << x << endl;
-                    if(out[x].A.number == botnode){
+                    if(out[x].A.super == botnode){
                     out[x].A.super = topnode;
-                    //cout << "set " << out[x].name << out[x].A.number << "to " <<  out[x].A.super << endl;
+                    cout << "set " << out[x].name << out[x].A.number << "to " <<  out[x].A.super << endl;
                     }
                     else
-                    {out[x].A.super = out[x].A.number;
-                    //cout <<  out[x].name << "has " << out[x].A.number << " not equal " << botnode << endl;       
+                    {//out[x].A.super = out[x].A.super;
+                    cout <<  out[x].name << "has " << out[x].A.number << " not equal " << botnode << endl;       
                     }
                     
-                    if(out[x].B.number == botnode){
+                    if(out[x].B.super == botnode){
                     out[x].B.super = topnode;
-                    //cout << "set " << out[x].name << out[x].B.number << " to " <<  out[x].B.super << endl;
+                    cout << "set " << out[x].name << out[x].B.number << " to " <<  out[x].B.super << endl;
                     }
                     else
-                    {out[x].B.super = out[x].A.number;
-                    //cout << out[x].B.number << " not equal " << botnode << endl;
+                    {//out[x].B.super = out[x].A.number;
+                    cout << out[x].B.number << " not equal " << botnode << endl;
                     }
 
                 }
@@ -106,7 +109,13 @@ vector<Component> patchComponents(vector<Component> list)
 {
 	vector<Component> out = list;
 	vector<Node> nodes = findNodes(out);
-	for(int i=0;i<nodes.size();i++){
+        int i;
+        if(nodes[0].label=="0")
+            i = 0;
+        else
+            i = 1;
+        
+	for(i;i<nodes.size();i++){
 		for(int j = 0;j<out.size();j++){
 			if ((out[j].A.label)==nodes[i].label){
 				out[j].A.number=i;
@@ -120,10 +129,39 @@ vector<Component> patchComponents(vector<Component> list)
 						}
 		}
 	}    
-        
+        //return out;
 	return patchSupernodes(out);
 }
 
+float procData(string x)
+{
+    float num = stof(removeChar(x,'D'));
+    if(removeChar(x,'S') != "")
+    {
+        cout << "working for now";
+    }
+    return num;
+}
+bool isData(char c){
+    if(isdigit(c) || c == '.')
+        return false;
+    return true;}
+
+bool isSci(char c){
+    if(c == 'p' || c == 'n' || c == 'u' || c == 'm' || c == 'k' || c == 'M' || c == 'G')
+        return false;
+    return true;}
+
+string removeChar(string s, char style)
+{
+    string x = s;
+    if(style == 'D'){   
+        x.erase(std::remove_if(x.begin(), x.end(), isData), x.end());}
+    
+    if(style == 'S'){
+    x.erase(std::remove_if(x.begin(), x.end(), isSci), x.end());}
+    
+}
 vector<Component> readInput()
 {
 	string x;
@@ -136,17 +174,29 @@ vector<Component> readInput()
 
 	for(auto line : strings){
 		if(isComponent(line)){
-			string properties[4];
+			vector<string> properties;
 			stringstream ss(line);
 			int count=0;
-			 while (ss >> properties[count]){
-					count++; }
+			 while (ss >> x){
+                             properties.push_back(x);
+					}
 			string name;
 			if(isalnum((properties[0])[1])){name = properties[0];}
 			else{name =(properties[0]).substr (3,(properties[0].length())-1);}
-
+                        if(properties.size()<5){
 			Component c1((properties[0])[0],name,properties[1],properties[2],stof(properties[3]));
-			components.push_back(c1);
+                        components.push_back(c1);}
+                        else{
+                            string DC = properties[3];
+                            DC.erase(std::remove_if(DC.begin(), DC.end(), isData), DC.end());
+                            cout << DC;
+                            string freq = properties[5];
+                            freq.erase(std::remove_if(freq.begin(), freq.end(), isData), freq.end());
+                            cout << DC;
+			Component c1((properties[0])[0],name,properties[1],properties[2],procData(properties[3]),procData(properties[4]),procData(properties[5]));
+                        components.push_back(c1);}
+			
+                        
 		}
 		}
 
@@ -156,27 +206,31 @@ vector<Component> readInput()
 }
 int main()
 {
-	vector<Component> test = readInput();
-	vector<Component> out = patchComponents(test);
-        vector<Node> nlist = findNodes(out);
-        for (auto x : nlist)
-        { cout << "Name is :" << x.label <<  " number is :" << x.number << endl; 
-        }
-	for(auto x : out)
-	{
-		cout << x.name << endl << "A :"<< x.A << "B :" << x.B << endl;
-	}
-   
-        int noden = compute_noden(findNodes(out));
+    
+    vector<Component> test = readInput();
+    vector<Component> out = patchComponents(test);
+    vector<Node> nlist = findNodes(out);
+    for(auto x : out)
+    {
+        cout << x;
+    }
+    /*
+    for (auto x : nlist)
+    { cout << "Name is :" << x.label <<  " number is :" << x.number << endl; 
+    }
+    for(auto x : out)
+    {
+            cout << x.name << endl << "A :"<< x.A << "B :" << x.B << endl;
+    }
 
-        pair<MatrixXd, vector<float>> knowns = conductance_current (out, noden);
-        cout << knowns.first << endl;
-        for(auto x : knowns.second){
-        cout << x;}
-        //VectorXd v(noden);
-        //for(auto x : knowns.second)
-        //{v  << x;}
-        //cout << matrixSolve(knowns.first,v);
-       //test(noden, knowns.first, knowns.second);
 
+    int noden = compute_noden(findNodes(out));
+    pair<MatrixXd, vector<float>> knowns = conductance_current (out, noden);
+    cout << knowns.first << endl;
+    VectorXd v(noden);
+    for(int i =0;i<noden;i++){v(i) = knowns.second[i];}
+    cout << v << endl << endl;
+ 
+    cout << matrixSolve(knowns.first,v);
+      */  
 }

@@ -28,7 +28,9 @@ struct Node
 	int super;
 	Node(){number = -1; label = "N/A"; super = -99;}
 	Node(string l){number = -1; super = -1; label=l;}
-
+        Node(int n, string l, int s)
+        {number = n; super = s; label=l;
+        }
         
 
 };
@@ -40,6 +42,12 @@ struct Component
 	Node A;
 	Node B;
 	float value;
+        
+        //no zero when dealing with a time dependent signal
+        bool isSignal = false;
+        float DCOff=0;
+        float amplitude=0;
+        float frequency=0;
 
 	Component(char t,string n, string nA,string nB,float v){
 		type = t;
@@ -48,7 +56,24 @@ struct Component
 		B.label = nB;
 		value = v;
 	}
-        
+
+        Component(char t,string n, Node nA,Node nB,float v){
+		type = t;
+		name = n;
+		A = nA;
+		B = nB;
+		value = v;
+	}
+        Component(char t,string n, string nA,string nB,float DC, float a, float f){
+		type = t;
+		name = n;
+		A.label = nA;
+		B.label = nB;
+		DCOff=DC;
+                amplitude=a;
+                frequency=f;
+                isSignal = true;
+	}
        
 };
 
