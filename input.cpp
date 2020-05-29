@@ -202,6 +202,8 @@ void writeFile(float time, float voltage)
 {
     cout << time << '\t' << voltage << endl;
 }
+
+
 pair<vector<Component>, Simulation> readInput()
 {
 	string x;
