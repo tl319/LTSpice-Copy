@@ -34,6 +34,19 @@ struct Node
         
 
 };
+struct Simulation
+{
+	string type;
+	float stop;
+        float step;
+        
+	Simulation(){;}
+	Simulation(string t, float stp, float sep)
+        {type = t;
+        stop = stp;
+        sep = sep;
+        }
+};
 
 struct Component
 {
@@ -79,8 +92,8 @@ struct Component
 
 // *** Component Management Functions ***
 
-vector<Component> readInput();
-//reads a netlist from stdin and sorts them into a vec of components
+pair<vector<Component>, Simulation> readInput();
+//reads a netlist from stdin and sorts them into a vec of components and a simulation;
 
 vector<Node> findNodes(vector<Component> list);
 // returns a list of node. Duplicates are not counted and 0 is set to ground if it exits

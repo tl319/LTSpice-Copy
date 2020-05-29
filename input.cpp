@@ -18,6 +18,11 @@ bool isComponent(string x)
 	if(isalpha(x[0])){
 		return true;}
 	return false;}
+bool isCmd(string x)
+{
+	if(x[0] == '.' && x[1]!='e'){
+		return true;}
+	return false;}
 
 VectorXd matrixSolve(MatrixXd m,VectorXd v)
 {
@@ -37,6 +42,12 @@ ostream& operator<<(ostream& os, const Node& c)
 {
 
     os << "Number: " << c.number  << " label: "<< c.label << " supernode: "<< c.super << endl;
+    return os;
+}
+ostream& operator<<(ostream& os, const Simulation& c)
+{
+
+    os << "Type: " << c.type  << " stop: "<< c.stop << " timestep: "<< c.step << endl;
     return os;
 }
 
@@ -170,6 +181,8 @@ float procData(string x)
         else if(tolower(sci[0]) == tolower('n'))
             return num * pow(10,-9);
         else if(tolower(sci[0]) == tolower('u'))
+            return num * pow(10,-6);
+        else if(sci[0] == 'm')
             return num * pow(10,-3);
         else if(sci[0] == 'M')
             return num * pow(10,6);
@@ -189,11 +202,12 @@ void writeFile(float time, float voltage)
 {
     cout << time << '\t' << voltage << endl;
 }
-vector<Component> readInput()
+pair<vector<Component>, Simulation> readInput()
 {
 	string x;
 	vector<string> strings;
 	vector<Component> components;
+        Simulation sim;
 	while(getline(cin, x))
 	{
 		strings.push_back(x);
@@ -219,23 +233,42 @@ vector<Component> readInput()
 			
                         
 		}
-		}
+                if(isCmd(line))
+                {
+                    vector<string> properties;
+			stringstream ss(line);
+			int count=0;
+			 while (ss >> x){
+                             properties.push_back(x);
+					}
+                        string type =(properties[0]).substr (1,(properties[0].length())-1);
+                        if(type == "op")
+                        {sim.type=type;}
+                        if(type == "tran"){
+                        sim.type=(properties[0]).substr (1,(properties[0].length())-1);
+                        sim.stop=(procData(properties[2]));
+                        sim.step=(procData(properties[4]));
+                        }
+                }
+	}
+        
 
 
-	return components;
+	return make_pair(components, sim);
 
 }
 int main()
 {
     
-    vector<Component> test = readInput();
-    vector<Component> out = patchComponents(test);
+    pair<vector<Component>, Simulation> test = readInput();
+    vector<Component> out = patchComponents(test.first);
     vector<Node> nlist = findNodes(out);
+    cout << test.second;
     for(auto x : out)
     {
         cout << x;
     }
-    /*
+    
     for (auto x : nlist)
     { cout << "Name is :" << x.label <<  " number is :" << x.number << endl; 
     }
@@ -244,7 +277,7 @@ int main()
             cout << x.name << endl << "A :"<< x.A << "B :" << x.B << endl;
     }
 
-
+    /*
     int noden = compute_noden(findNodes(out));
     pair<MatrixXd, vector<float>> knowns = conductance_current (out, noden);
     cout << knowns.first << endl;
@@ -253,5 +286,5 @@ int main()
     cout << v << endl << endl;
  
     cout << matrixSolve(knowns.first,v);
-      */  
+     */ 
 }
