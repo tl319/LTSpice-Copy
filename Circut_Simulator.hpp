@@ -89,6 +89,8 @@ vector<Component> patchComponents(vector<Component> list);
 // returns a new vector of components that have their number and super vaules updated. Has to be new, as functions take in a copy for the vector.
 
 
+
+
 //  *** Matrix Functions ***
 VectorXd matrixSolve(MatrixXd m,VectorXd v);
 //takes in the vector of currents and conductance matrix, and spits out the node voltage vector. 
@@ -96,7 +98,11 @@ VectorXd matrixSolve(MatrixXd m,VectorXd v);
 pair<MatrixXd, vector<float>> conductance_current(vector<Component> comps, int noden);
 //return complete conductance matrix and current vector
 
-
+void writeFile(Node n);
+void writeFile(float time, float voltage);
+//writes out in the format specified by LTspice/matlab
+//input of node just writes the header *** NEEDED ***
+//use the function after to write time and voltage.
 
 
 
@@ -105,12 +111,10 @@ pair<MatrixXd, vector<float>> conductance_current(vector<Component> comps, int n
 // *** Quality of Life functions ***
 ostream& operator<<(ostream& os, const Component& c);
 ostream& operator<<(ostream& os, const Node& c);
+// allows you to cout both components and nodes.
 
 float procData(string x);
 //used to extract data ie. remove braces get K
-
-// allows you to cout both components and nodes.
-
 
 void test(int noden, MatrixXd conducts, vector<float> currents);
 //print out conductance matrix and current vector
@@ -137,12 +141,8 @@ bool isSci(char c);
 bool isData(char c);
 //used in above function
 
-
-
 int compute_noden(vector<Node>  nodes);
 //calculate number of non-ground nodes from node vector
-
-
 
 int nA(Component c);
 int nB(Component c);

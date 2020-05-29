@@ -179,6 +179,16 @@ float procData(string x)
     }
     return num;
 }
+
+void writeFile(Node n)
+{
+    cout << "time" << '\t' << n.label << endl;
+}
+
+void writeFile(float time, float voltage)
+{
+    cout << time << '\t' << voltage << endl;
+}
 vector<Component> readInput()
 {
 	string x;
