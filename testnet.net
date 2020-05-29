@@ -1,7 +1,7 @@
 * C:\Users\Jason\Desktop\Draft4.asc
 R1 a c 1
 R2 N001 c 3
-R3 N001 0 2k
+R3 N001 0 2Meg
 V1 a 0 SINE(0 10k 1K)
 .op
 .backanno
