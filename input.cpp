@@ -7,6 +7,7 @@
 #include <Eigen>
 #include <bits/stdc++.h>
 #include <numeric>
+#include <cmath>
 
 using namespace std;
 using namespace Eigen;
@@ -15,6 +16,11 @@ using namespace Eigen;
 bool isComponent(string x)
 {
 	if(isalpha(x[0])){
+		return true;}
+	return false;}
+bool isCmd(string x)
+{
+	if(x[0] == '.' && x[1]!='e'){
 		return true;}
 	return false;}
 
@@ -36,6 +42,12 @@ ostream& operator<<(ostream& os, const Node& c)
 {
 
     os << "Number: " << c.number  << " label: "<< c.label << " supernode: "<< c.super << endl;
+    return os;
+}
+ostream& operator<<(ostream& os, const Simulation& c)
+{
+
+    os << "Type: " << c.type  << " stop: "<< c.stop << " timestep: "<< c.step << endl;
     return os;
 }
 
@@ -133,22 +145,13 @@ vector<Component> patchComponents(vector<Component> list)
 	return patchSupernodes(out);
 }
 
-float procData(string x)
-{
-    float num = stof(removeChar(x,'D'));
-    if(removeChar(x,'S') != "")
-    {
-        cout << "working for now";
-    }
-    return num;
-}
 bool isData(char c){
     if(isdigit(c) || c == '.')
         return false;
     return true;}
 
 bool isSci(char c){
-    if(c == 'p' || c == 'n' || c == 'u' || c == 'm' || c == 'k' || c == 'M' || c == 'G')
+    if(c == 'p' || c == 'P' ||c == 'N' || c == 'u' || c == 'U' || c == 'm' || c == 'K' || c == 'k' || c == 'M' || c == 'G')
         return false;
     return true;}
 
@@ -161,12 +164,52 @@ string removeChar(string s, char style)
     if(style == 'S'){
     x.erase(std::remove_if(x.begin(), x.end(), isSci), x.end());}
     
+    return x;
 }
-vector<Component> readInput()
+
+float procData(string x)
+{
+
+    float num = stof(removeChar(x,'D'));
+    if(removeChar(x,'S') != "")
+    {
+        string sci = removeChar(x,'S');
+        if(tolower(sci[0]) == tolower('k'))
+            return num * 1000;
+        else if(tolower(sci[0]) == tolower('p'))
+            return num * pow(10,-12);
+        else if(tolower(sci[0]) == tolower('n'))
+            return num * pow(10,-9);
+        else if(tolower(sci[0]) == tolower('u'))
+            return num * pow(10,-6);
+        else if(sci[0] == 'm')
+            return num * pow(10,-3);
+        else if(sci[0] == 'M')
+            return num * pow(10,6);
+        else if(sci[0] == tolower('G'))
+            return num * pow(10,-3);
+        else return num;
+    }
+    return num;
+}
+
+void writeFile(Node n)
+{
+    cout << "time" << '\t' << n.label << endl;
+}
+
+void writeFile(float time, float voltage)
+{
+    cout << time << '\t' << voltage << endl;
+}
+
+
+pair<vector<Component>, Simulation> readInput()
 {
 	string x;
 	vector<string> strings;
 	vector<Component> components;
+        Simulation sim;
 	while(getline(cin, x))
 	{
 		strings.push_back(x);
@@ -184,37 +227,50 @@ vector<Component> readInput()
 			if(isalnum((properties[0])[1])){name = properties[0];}
 			else{name =(properties[0]).substr (3,(properties[0].length())-1);}
                         if(properties.size()<5){
-			Component c1((properties[0])[0],name,properties[1],properties[2],stof(properties[3]));
+			Component c1((properties[0])[0],name,properties[1],properties[2],procData(properties[3]));
                         components.push_back(c1);}
                         else{
-                            string DC = properties[3];
-                            DC.erase(std::remove_if(DC.begin(), DC.end(), isData), DC.end());
-                            cout << DC;
-                            string freq = properties[5];
-                            freq.erase(std::remove_if(freq.begin(), freq.end(), isData), freq.end());
-                            cout << DC;
 			Component c1((properties[0])[0],name,properties[1],properties[2],procData(properties[3]),procData(properties[4]),procData(properties[5]));
                         components.push_back(c1);}
 			
                         
 		}
-		}
+                if(isCmd(line))
+                {
+                    vector<string> properties;
+			stringstream ss(line);
+			int count=0;
+			 while (ss >> x){
+                             properties.push_back(x);
+					}
+                        string type =(properties[0]).substr (1,(properties[0].length())-1);
+                        if(type == "op")
+                        {sim.type=type;}
+                        if(type == "tran"){
+                        sim.type=(properties[0]).substr (1,(properties[0].length())-1);
+                        sim.stop=(procData(properties[2]));
+                        sim.step=(procData(properties[4]));
+                        }
+                }
+	}
+        
 
 
-	return components;
+	return make_pair(components, sim);
 
 }
 int main()
 {
     
-    vector<Component> test = readInput();
-    vector<Component> out = patchComponents(test);
+    pair<vector<Component>, Simulation> test = readInput();
+    vector<Component> out = patchComponents(test.first);
     vector<Node> nlist = findNodes(out);
+    cout << test.second;
     for(auto x : out)
     {
         cout << x;
     }
-    /*
+    
     for (auto x : nlist)
     { cout << "Name is :" << x.label <<  " number is :" << x.number << endl; 
     }
@@ -223,7 +279,7 @@ int main()
             cout << x.name << endl << "A :"<< x.A << "B :" << x.B << endl;
     }
 
-
+    /*
     int noden = compute_noden(findNodes(out));
     pair<MatrixXd, vector<float>> knowns = conductance_current (out, noden);
     cout << knowns.first << endl;
@@ -232,5 +288,5 @@ int main()
     cout << v << endl << endl;
  
     cout << matrixSolve(knowns.first,v);
-      */  
+     */ 
 }

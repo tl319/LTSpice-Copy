@@ -34,6 +34,19 @@ struct Node
         
 
 };
+struct Simulation
+{
+	string type;
+	float stop = -1;
+        float step = -1;
+        
+	Simulation(){;}
+	Simulation(string t, float stp, float sep)
+        {type = t;
+        stop = stp;
+        sep = sep;
+        }
+};
 
 struct Component
 {
@@ -79,8 +92,8 @@ struct Component
 
 // *** Component Management Functions ***
 
-vector<Component> readInput();
-//reads a netlist from stdin and sorts them into a vec of components
+pair<vector<Component>, Simulation> readInput();
+//reads a netlist from stdin and sorts them into a vec of components and a simulation;
 
 vector<Node> findNodes(vector<Component> list);
 // returns a list of node. Duplicates are not counted and 0 is set to ground if it exits
@@ -89,15 +102,39 @@ vector<Component> patchComponents(vector<Component> list);
 // returns a new vector of components that have their number and super vaules updated. Has to be new, as functions take in a copy for the vector.
 
 
+
+
 //  *** Matrix Functions ***
 VectorXd matrixSolve(MatrixXd m,VectorXd v);
 //takes in the vector of currents and conductance matrix, and spits out the node voltage vector. 
+
+pair<MatrixXd, vector<float>> conductance_current(vector<Component> comps, int noden);
+//return complete conductance matrix and current vector
+
+void writeFile(Node n);
+void writeFile(float time, float voltage);
+//writes out in the format specified by LTspice/matlab
+//input of node just writes the header *** NEEDED ***
+//use the function after to write time and voltage.
+
+
+
 
 
 // *** Quality of Life functions ***
 ostream& operator<<(ostream& os, const Component& c);
 ostream& operator<<(ostream& os, const Node& c);
 // allows you to cout both components and nodes.
+
+float procData(string x);
+//used to extract data ie. remove braces get K
+
+void test(int noden, MatrixXd conducts, vector<float> currents);
+//print out conductance matrix and current vector
+
+
+
+
 
 
 
@@ -111,25 +148,18 @@ vector<Component> patchSupernodes(vector<Component> list);
 bool isComponent(string x);
 //returns true if a line from a string (probs from stdin) is a component or not
 
+string removeChar(string s, char style);
+// removes unused charaters. Input 'D' extracts data input 'S' extracts scientific notation
+bool isSci(char c);
+bool isData(char c);
+//used in above function
 
-
-
-
-
-
-//calculate number of non-ground nodes from node vector
 int compute_noden(vector<Node>  nodes);
+//calculate number of non-ground nodes from node vector
 
-//return complete conductance matrix and current vector
-pair<MatrixXd, vector<float>> conductance_current(vector<Component> comps, int noden);
-
-//print out conductance matrix and current vector
-void test(int noden, MatrixXd conducts, vector<float> currents);
-
-//read node/supernode A/B of a given component
 int nA(Component c);
 int nB(Component c);
 int SnA(Component c);
 int SnB(Component c);
-
+//read node/supernode A/B of a given component
 #endif
