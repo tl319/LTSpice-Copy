@@ -13,10 +13,10 @@ using namespace std;
 int compute_noden(vector<int> nodes);
 
 //return complete conductance matrix and current vector
-pair<MatrixXd, vector<float>> conductance_current (vector<Component> comps, int noden);
+pair<MatrixXd, VectorXd> conductance_current (vector<Component> comps, int noden);
 
 //print out conductance matrix and current vector
-void test(int noden, MatrixXd conducts, vector<float> currents);
+void test(int noden, MatrixXd conducts, VectorXd currents);
 
 //read node/supernode A/B of a given component
 int nA(Component c);
@@ -26,9 +26,10 @@ int SnB(Component c);
 
 //function declarations
 
-void test(int noden, MatrixXd conducts, vector<float> currents)
+void test(int noden, MatrixXd conducts, VectorXd currents)
 {
     //print each line of the matrix
+    /*/
     for(int i = 0; i<noden; i++)
     {
         for(int j = 0; j<noden; j++)
@@ -37,14 +38,18 @@ void test(int noden, MatrixXd conducts, vector<float> currents)
         }
         cout << endl;
     }
+    /*/
+    cout << conducts << endl;
 
     //print current vector
+    /*/
     for(int i = 0; i<noden; i++)
     {
-        cout << currents[i] << endl;
+        cout << currents(i) << endl;
     }
+    /*/
 
-    cout << endl;
+    cout << currents << endl;
 }
 
 int nA(Component c)
@@ -83,13 +88,13 @@ int compute_noden(vector<Node> nodes)
     return noden;
 }
 
-pair<MatrixXd, vector<float>> conductance_current(vector<Component> comps, int noden)
+pair<MatrixXd, VectorXd> conductance_current(vector<Component> comps, int noden)
 {
 
     //conductance matrix
     MatrixXd conducts = MatrixXd::Zero (noden, noden);
     //rhs vector
-    vector<float> currents(noden, 0);
+    VectorXd currents = VectorXd::Zero (noden);
 
     //used to tell where the first empty spot in the node vector is
     int nodes_added = 0;
@@ -156,7 +161,7 @@ pair<MatrixXd, vector<float>> conductance_current(vector<Component> comps, int n
                     {
                         conducts (j, j) = 1;
                         //also write the source voltage to this index in the rhs vector
-                        currents[j] = comps[i].value; 
+                        currents(j) = comps[i].value; 
                     } else {
                         //other columns are set to 0
                         conducts (nA(comps[i]) -1, j) = 0;
@@ -177,7 +182,7 @@ pair<MatrixXd, vector<float>> conductance_current(vector<Component> comps, int n
                     {
                         conducts (j, j) = 1;
                         //also write -1* the source voltage to this index in the rhs vector
-                        currents[j] = (-1)*comps[i].value; 
+                        currents(j) = (-1)*comps[i].value; 
                     } else {
                         //other columns are set to 0
                         conducts (nB(comps[i]) -1, j) = 0;
@@ -201,7 +206,7 @@ pair<MatrixXd, vector<float>> conductance_current(vector<Component> comps, int n
                 }
 
                 //in that row of the rhs vector, write the current source value
-                currents[row] = comps[i].value; 
+                currents(row) = comps[i].value; 
 
                 //write the 1, -1 and 0s in the appropriate columns
                 for(int j = 0; j<noden; j++)
@@ -233,12 +238,12 @@ pair<MatrixXd, vector<float>> conductance_current(vector<Component> comps, int n
         {
             if(nA(comps[i]) != 0)
             {
-                currents[nA(comps[i]) -1] += comps[i].value;
+                currents(nA(comps[i]) -1) += comps[i].value;
             }
 
             if(nB(comps[i]) != 0)
             {
-                currents[nB(comps[i]) -1] -= comps[i].value;
+                currents(nB(comps[i]) -1) -= comps[i].value;
             }
         }
 
@@ -256,21 +261,15 @@ pair<MatrixXd, vector<float>> conductance_current(vector<Component> comps, int n
 
 //create a new function that just updates the current vector
 /*/
-vector<pair<MatrixXd, vector<float>>> transient(vector<Component> comps, int noden, float length, float interval)
+vector<pair<MatrixXd, VectorXd>> transient(vector<Component> comps, int noden, float length, float interval)
 {
-    vector<pair<MatrixXd, vector<float>>> v;
+    vector<pair<MatrixXd, VectorXd>> v;
     for(float t = 0; t < length; t += interval)
     {
         v.push_back(conductance_current(comps, noden));
     }
 } 
 
-vector<float> solve_eqn(pair<MatrixXd, vector<float>> knowns)
-{
-    //invert matrix
-
-    //multiply currents by inverse
-}
 /*/
 /*
 int main()

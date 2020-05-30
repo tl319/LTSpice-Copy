@@ -108,7 +108,7 @@ vector<Component> patchComponents(vector<Component> list);
 VectorXd matrixSolve(MatrixXd m,VectorXd v);
 //takes in the vector of currents and conductance matrix, and spits out the node voltage vector. 
 
-pair<MatrixXd, vector<float>> conductance_current(vector<Component> comps, int noden);
+pair<MatrixXd, VectorXd> conductance_current(vector<Component> comps, int noden);
 //return complete conductance matrix and current vector
 
 void writeFile(Node n);
@@ -129,7 +129,7 @@ ostream& operator<<(ostream& os, const Node& c);
 float procData(string x);
 //used to extract data ie. remove braces get K
 
-void test(int noden, MatrixXd conducts, vector<float> currents);
+void test(int noden, MatrixXd conducts, VectorXd currents);
 //print out conductance matrix and current vector
 
 
@@ -162,4 +162,5 @@ int nB(Component c);
 int SnA(Component c);
 int SnB(Component c);
 //read node/supernode A/B of a given component
+
 #endif

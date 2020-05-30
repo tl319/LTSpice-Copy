@@ -262,10 +262,10 @@ pair<vector<Component>, Simulation> readInput()
 int main()
 {
     
-    pair<vector<Component>, Simulation> test = readInput();
-    vector<Component> out = patchComponents(test.first);
+    pair<vector<Component>, Simulation> testm = readInput();
+    vector<Component> out = patchComponents(testm.first);
     vector<Node> nlist = findNodes(out);
-    cout << test.second;
+    cout << testm.second;
     for(auto x : out)
     {
         cout << x;
@@ -279,14 +279,22 @@ int main()
             cout << x.name << endl << "A :"<< x.A << "B :" << x.B << endl;
     }
 
-    /*
-    int noden = compute_noden(findNodes(out));
-    pair<MatrixXd, vector<float>> knowns = conductance_current (out, noden);
-    cout << knowns.first << endl;
+    
+    int noden = compute_noden(nlist);
+
+    pair<MatrixXd, VectorXd> knowns = conductance_current (out, noden);
+
+    //cout << knowns.first << endl;
+
+    test(noden, knowns.first, knowns.second);
+    
+    /*/ not quit sure that this is
     VectorXd v(noden);
     for(int i =0;i<noden;i++){v(i) = knowns.second[i];}
     cout << v << endl << endl;
- 
-    cout << matrixSolve(knowns.first,v);
-     */ 
+    /*/
+
+    cout << matrixSolve(knowns.first, knowns.second);
+    
+     
 }
