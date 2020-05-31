@@ -1,7 +1,8 @@
 * C:\Users\david\Desktop\École\Université\Undergrad\Work\Labs\ADC4\Draft5.asc
-V1 a 0 5
+V1 a c 5
 R1 a b 2
-R3 0 c 4
-R2 b c 3
+R3 c 0 4
+R2 b 0 3
+.op
 .backanno
 .end

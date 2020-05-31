@@ -90,6 +90,8 @@ int compute_noden(vector<Node> nodes)
 
 pair<MatrixXd, VectorXd> conductance_current(vector<Component> comps, int noden)
 {
+    //value to take from sources
+    float val;
 
     //conductance matrix
     MatrixXd conducts = MatrixXd::Zero (noden, noden);
@@ -110,10 +112,19 @@ pair<MatrixXd, VectorXd> conductance_current(vector<Component> comps, int noden)
     for(int i = 0; i<comps.size(); i++)
     {
 
+        //value is either component value member or signal at t = 0
+        if( (comps[i].isSignal == 1) && (comps[i].type != 'R') )
+        {
+            val = comps[i].DCOff;
+        } else {
+            val = comps[i].value;
+        }
+        //cout << val << " ";
+
         //dealing with resistors
         if(comps[i].type == 'R')
         {
-            conductance = 1/comps[i].value;
+            conductance = 1/val;
 
             //if row nA has not already been edited to represent a voltage source and nA is not ground, 
             //then add and subtract conductance in columns nA and nB 
@@ -161,7 +172,7 @@ pair<MatrixXd, VectorXd> conductance_current(vector<Component> comps, int noden)
                     {
                         conducts (j, j) = 1;
                         //also write the source voltage to this index in the rhs vector
-                        currents(j) = comps[i].value; 
+                        currents(j) = val; 
                     } else {
                         //other columns are set to 0
                         conducts (nA(comps[i]) -1, j) = 0;
@@ -182,7 +193,7 @@ pair<MatrixXd, VectorXd> conductance_current(vector<Component> comps, int noden)
                     {
                         conducts (j, j) = 1;
                         //also write -1* the source voltage to this index in the rhs vector
-                        currents(j) = (-1)*comps[i].value; 
+                        currents(j) = (-1)*val; 
                     } else {
                         //other columns are set to 0
                         conducts (nB(comps[i]) -1, j) = 0;
@@ -206,7 +217,7 @@ pair<MatrixXd, VectorXd> conductance_current(vector<Component> comps, int noden)
                 }
 
                 //in that row of the rhs vector, write the current source value
-                currents(row) = comps[i].value; 
+                currents(row) = val; 
 
                 //write the 1, -1 and 0s in the appropriate columns
                 for(int j = 0; j<noden; j++)
@@ -234,16 +245,38 @@ pair<MatrixXd, VectorXd> conductance_current(vector<Component> comps, int noden)
             
         }
 
+        //current sources
         if(comps[i].type == 'I')
         {
             if(nA(comps[i]) != 0)
             {
-                currents(nA(comps[i]) -1) += comps[i].value;
+                currents(nA(comps[i]) -1) += val;
             }
 
             if(nB(comps[i]) != 0)
             {
-                currents(nB(comps[i]) -1) -= comps[i].value;
+                currents(nB(comps[i]) -1) -= val;
+            }
+        }
+
+        //capacitors are open circuits at t = 0/.op so are not processed
+        //inductors
+        if(comps[i].type == 'L')
+        {
+            //write the 1, -1 and 0s in the appropriate columns
+            for(int j = 0; j<noden; j++)
+            {
+                if(j == (nA(comps[i]) -1))
+                {
+                    conducts (row, j) = 1;
+                } else {
+                    if(j == (nB(comps[i]) -1))
+                    {
+                        conducts (row, j) = (-1);
+                    } else {
+                        conducts (row, j) = 0;
+                    }
+                }
             }
         }
 
@@ -253,22 +286,6 @@ pair<MatrixXd, VectorXd> conductance_current(vector<Component> comps, int noden)
     return {conducts, currents};
 
 }
-
-/*/
-//move functions to header
-
-//how are variable sources implemented
-
-//create a new function that just updates the current vector
-/*/
-vector<pair<MatrixXd, VectorXd>> transient(vector<Component> comps, int noden, float length, float interval)
-{
-    vector<pair<MatrixXd, VectorXd>> v;
-    for(float t = 0; t < length; t += interval)
-    {
-        v.push_back(conductance_current(comps, noden));
-    }
-} 
 
 /*/
 /*

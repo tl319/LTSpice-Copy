@@ -18,6 +18,7 @@
 #include <sstream>
 #include <Eigen>
 #include <bits/stdc++.h>
+#include <cmath>
 using namespace std;
 using namespace Eigen;
 
@@ -117,7 +118,8 @@ void writeFile(float time, float voltage);
 //input of node just writes the header *** NEEDED ***
 //use the function after to write time and voltage.
 
-
+VectorXd VectorUpdate (vector<Component> comps, int noden, float time, VectorXd pastnodes, float interval);
+//updates the rhs ("current") vector during transient simulations
 
 
 
