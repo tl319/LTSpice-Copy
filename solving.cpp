@@ -87,3 +87,23 @@ VectorXd VectorUpdate (vector<Component> comps, int noden, float time, VectorXd 
     
     return currents;
 }
+
+vector<Component> common_node (vector<Component> comps, Component C, Node A)
+{
+    vector<Component> shared_node;
+    for(int i = 0; i<comps.size(); i++)
+    {
+        if( ( nA(comps[i]) == A.number || nB(comps[i]) == A.number ) && comps[i].name != C.name )
+        {
+            shared_node.push_back(comps[i]);
+        }
+    }
+
+    return shared_node;
+}
+
+VectorXd comp_currents (vector<Component> comps, vector<Node> nlist, VectorXd nodev)
+{
+    
+}
+

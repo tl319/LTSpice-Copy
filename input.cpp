@@ -305,7 +305,10 @@ int main()
     cout << pastnodes;
 
     VectorXd transrhs;
+
+    cout << endl;
     
+    /*/
     for(int i = 1; i <= 10; i++)
     {
         cout << endl;
@@ -314,5 +317,5 @@ int main()
         pastnodes << matrixSolve(knowns.first, transrhs);
         cout << pastnodes;
     }
-    
+    /*/
 }

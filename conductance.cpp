@@ -263,6 +263,18 @@ pair<MatrixXd, VectorXd> conductance_current(vector<Component> comps, int noden)
         //inductors
         if(comps[i].type == 'L')
         {
+            //assign the row corresponding to the lowest numbered node as that representing the voltage source
+                int row;
+
+            if( nA(comps[i]) > nB(comps[i]) )
+            {
+                //locked[nB(comps[i])-1] = 1;
+                row = nB(comps[i]) -1;
+            } else {
+                //locked[nA(comps[i])-1] = 1;
+                row = nA(comps[i]) -1;
+            }
+
             //write the 1, -1 and 0s in the appropriate columns
             for(int j = 0; j<noden; j++)
             {

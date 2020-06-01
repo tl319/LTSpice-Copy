@@ -121,6 +121,8 @@ void writeFile(float time, float voltage);
 VectorXd VectorUpdate (vector<Component> comps, int noden, float time, VectorXd pastnodes, float interval);
 //updates the rhs ("current") vector during transient simulations
 
+VectorXd comp_currents (vector<Component> comps, vector<Node> nlist, VectorXd nodev);
+//compute current accross each component
 
 
 // *** Quality of Life functions ***
@@ -164,5 +166,8 @@ int nB(Component c);
 int SnA(Component c);
 int SnB(Component c);
 //read node/supernode A/B of a given component
+
+vector<Component> common_node (vector<Component> comps, Component C, Node A);
+//find all other components attached to a component C at a given node A
 
 #endif
