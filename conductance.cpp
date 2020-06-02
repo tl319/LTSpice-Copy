@@ -88,7 +88,7 @@ int compute_noden(vector<Node> nodes)
     return noden;
 }
 
-pair<MatrixXd, VectorXd> conductance_current(vector<Component> comps, int noden)
+pair<MatrixXd, VectorXd> conductance_current(vector<Component> comps, int noden, float time, float interval, VectorXd comp_currents)
 {
     //value to take from sources
     float val;
@@ -264,7 +264,7 @@ pair<MatrixXd, VectorXd> conductance_current(vector<Component> comps, int noden)
         if(comps[i].type == 'L')
         {
             //assign the row corresponding to the lowest numbered node as that representing the voltage source
-                int row;
+            int row;
 
             if( nA(comps[i]) > nB(comps[i]) )
             {
@@ -290,6 +290,45 @@ pair<MatrixXd, VectorXd> conductance_current(vector<Component> comps, int noden)
                     }
                 }
             }
+        }
+
+        //add case for grounded
+        if(comps[i].type == 'C' && time != 0)
+        {
+            cout << "CCC";
+            //assign the row corresponding to the lowest numbered node as that representing the voltage source
+            int row;
+
+            if( nA(comps[i]) > nB(comps[i]) )
+            {
+                //locked[nB(comps[i])-1] = 1;
+                row = nB(comps[i]) -1;
+            } else {
+                //locked[nA(comps[i])-1] = 1;
+                row = nA(comps[i]) -1;
+            }
+
+            currents(row) = comp_currents(i)*interval/comps[i].value;
+
+            cout << "val";
+
+            //write the 1, -1 and 0s in the appropriate columns
+            for(int j = 0; j<noden; j++)
+            {
+                if(j == (nA(comps[i]) -1))
+                {
+                    conducts (row, j) = 1;
+                } else {
+                    if(j == (nB(comps[i]) -1))
+                    {
+                        conducts (row, j) = (-1);
+                    } else {
+                        conducts (row, j) = 0;
+                    }
+                }
+            }
+
+
         }
 
         //test(noden, conducts, currents);

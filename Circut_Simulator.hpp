@@ -109,7 +109,7 @@ vector<Component> patchComponents(vector<Component> list);
 VectorXd matrixSolve(MatrixXd m,VectorXd v);
 //takes in the vector of currents and conductance matrix, and spits out the node voltage vector. 
 
-pair<MatrixXd, VectorXd> conductance_current(vector<Component> comps, int noden);
+pair<MatrixXd, VectorXd> conductance_current(vector<Component> comps, int noden, float time, float interval, VectorXd comp_currents);
 //return complete conductance matrix and current vector
 
 void writeFile(Node n);
@@ -121,7 +121,7 @@ void writeFile(float time, float voltage);
 VectorXd VectorUpdate (vector<Component> comps, int noden, float time, VectorXd pastnodes, float interval);
 //updates the rhs ("current") vector during transient simulations
 
-VectorXd comp_currents (vector<Component> comps, vector<Node> nlist, VectorXd nodev);
+VectorXd comp_currents (vector<Component> comps, vector<Node> nlist, VectorXd nodev, float interval);
 //compute current accross each component
 
 
@@ -169,5 +169,11 @@ int SnB(Component c);
 
 vector<Component> common_node (vector<Component> comps, Component C, Node A);
 //find all other components attached to a component C at a given node A
+
+int component_index (vector<Component> comps, Component C);
+//returns the index of a component in the component vector, useful since this and component current vector are ordered identically
+
+float vs_current (vector<Component> comps, Component C, vector<bool> & computed, VectorXd currents);
+//used to compute current through voltage sources or capacitors
 
 #endif

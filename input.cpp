@@ -266,6 +266,8 @@ int main()
     vector<Component> out = patchComponents(testm.first);
     vector<Node> nlist = findNodes(out);
 
+    VectorXd component_currents = VectorXd::Zero (out.size());
+
     /*/
     cout << testm.second;
     for(auto x : out)
@@ -286,7 +288,7 @@ int main()
 
     cout << endl;
 
-    pair<MatrixXd, VectorXd> knowns = conductance_current (out, noden);
+    pair<MatrixXd, VectorXd> knowns = conductance_current (out, noden, 0, 0, component_currents);
 
     cout << endl;
 
@@ -298,24 +300,33 @@ int main()
     cout << v << endl << endl;
     /*/
 
+    test(noden, knowns.first, knowns.second);
+
+    cout << endl;
+
     VectorXd pastnodes;
 
     pastnodes = matrixSolve(knowns.first, knowns.second);
 
-    cout << pastnodes;
-
-    VectorXd transrhs;
+    cout << pastnodes << endl;
 
     cout << endl;
+
+    component_currents = comp_currents (out, nlist, pastnodes, 0);
+
+    cout << component_currents << endl;    
     
-    /*/
+    cout << "f ";
+
+    VectorXd transrhs;
     for(int i = 1; i <= 10; i++)
     {
-        cout << endl;
-        cout << endl;
+        cout << "test" << endl;
         transrhs = VectorUpdate (out, noden, i, pastnodes, 1);
+        //knowns = conductance_current (out, noden, i, 1, component_currents);
         pastnodes << matrixSolve(knowns.first, transrhs);
+        cout << endl;
         cout << pastnodes;
     }
-    /*/
+    
 }
