@@ -321,15 +321,17 @@ int main()
     
     cout << "f ";
 
+    /*/
     VectorXd transrhs;
     for(int i = 1; i <= 10; i++)
     {
         cout << "test" << endl;
-        //transrhs = VectorUpdate (out, noden, i, pastnodes, component_currents, 1);
+        transrhs = VectorUpdate (out, noden, i, pastnodes, component_currents, 1);
         knowns = conductance_current (out, noden, i, 1, component_currents);
         pastnodes << matrixSolve(knowns.first, knowns.second);
         cout << endl;
         cout << pastnodes;
     }
+    /*/
     
 }

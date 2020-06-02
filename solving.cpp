@@ -140,8 +140,9 @@ float vs_current (vector<Component> comps, Component C, vector<bool> & computed,
         checked_node = C.A;
     }
     shared_node = common_node(comps, C, checked_node);
+    cout << checked_node.label << " ";
     
-    cout << shared_node.size() << " " << shared_node[0].name << "|";
+    cout << shared_node.size() << " " << shared_node[0].name << "| ";
     //sum up the currents entering node A of the component
     for(int j = 0; j<shared_node.size(); j++)
     {
@@ -226,7 +227,10 @@ VectorXd comp_currents (vector<Component> comps, vector<Node> nlist, VectorXd no
             computed[i] = 1;
             //cout << currents(i) << " ";
         }
+    }
 
+    for(int i = 0; i<comps.size(); i++)
+    {
         //recursively obtaining currents through components functioning as voltage sources (i.e. other currents into one of their nodes)
         if(comps[i].type == 'C' || comps[i].type == 'V')
         {
@@ -236,6 +240,7 @@ VectorXd comp_currents (vector<Component> comps, vector<Node> nlist, VectorXd no
             cout << comps[i].name << " " << currents(i) << " ";
         }
     }
+
     cout << endl;
     return currents;
 }
