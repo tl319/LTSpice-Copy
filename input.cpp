@@ -78,7 +78,7 @@ vector<Component> patchSupernodes(vector<Component> list)
 {
     vector<Component> out = list;
     for(int i=0;i<out.size();i++){
-            if(out[i].type == 'V' || out[i].type == 'v'){
+            if(out[i].type == 'V' || out[i].type == 'v' || out[i].type == 'C' || out[i].type == 'c' || out[i].type == 'I' || out[i].type == 'i'){
                 int topnode = 99;
                 int botnode = 99;
                 //cout << out[i].A.number << " b is: " << out[i].B.number << endl;
@@ -188,7 +188,10 @@ float procData(string x)
             return num * pow(10,6);
         else if(sci[0] == tolower('G'))
             return num * pow(10,-3);
-        else return num;
+        else{
+            return num;
+        }
+               
     }
     return num;
 }
