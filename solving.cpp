@@ -231,7 +231,8 @@ VectorXd comp_currents (vector<Component> comps, vector<Node> nlist, VectorXd no
         if(comps[i].type == 'C' || comps[i].type == 'V')
         {
             cout << "hmmm ";
-            currents(i) = (-1) * vs_current(comps, comps[i], computed, currents);
+            //pass in node A by default, perhaps possible to optimise
+            currents(i) = (-1) * vs_current(comps, comps[i], computed, currents, comps[i].A);
             cout << comps[i].name << " " << currents(i) << " ";
         }
     }

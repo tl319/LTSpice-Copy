@@ -173,7 +173,7 @@ vector<Component> common_node (vector<Component> comps, Component C, Node A);
 int component_index (vector<Component> comps, Component C);
 //returns the index of a component in the component vector, useful since this and component current vector are ordered identically
 
-float vs_current (vector<Component> comps, Component C, vector<bool> & computed, VectorXd currents);
+float vs_current (vector<Component> comps, Component C, vector<bool> & computed, VectorXd currents, Node N);
 //used to compute current through voltage sources or capacitors
 
 #endif
