@@ -120,13 +120,28 @@ int component_index (vector<Component> comps, Component C)
 }
 
 //used to compute current through voltage sources or capacitors
-float vs_current (vector<Component> comps, Component C, vector<bool> & computed, VectorXd currents)
+//perhaps optimimse by replacing N with an int & by "looking both ways"
+float vs_current (vector<Component> comps, Component C, vector<bool> & computed, VectorXd currents, Node N)
 {
     vector<Component> shared_node;
+    //vector<Component> shared_node_B;
     float total_current = 0;
 
-    shared_node = common_node(comps, C, C.A);
-    cout << shared_node.size() << " " << shared_node[0].name << " ";
+    //bool cv_check = 1;
+
+    Node checked_node;
+
+    //to avoid infinite recursion, consistently check currents into "the other node"
+    if( N.number == nA(C) )
+    {
+        checked_node = C.B;
+    } else {
+        assert(N.number == nB(C));
+        checked_node = C.A;
+    }
+    shared_node = common_node(comps, C, checked_node);
+    
+    cout << shared_node.size() << " " << shared_node[0].name << "|";
     //sum up the currents entering node A of the component
     for(int j = 0; j<shared_node.size(); j++)
     {
@@ -136,10 +151,29 @@ float vs_current (vector<Component> comps, Component C, vector<bool> & computed,
             total_current += currents( component_index( comps, shared_node[j] ) );
         } else {
             //fix infinite loop bug
-            //cout << "mhm ";
-            total_current += vs_current (comps, shared_node[j], computed, currents);
+            cout << "mhm ";
+            total_current += vs_current (comps, shared_node[j], computed, currents, checked_node);
         }
     }
+    //checking known currents at node B
+    /*/
+    if(cv_check == 0)
+    {
+        cv_check = 1;
+        total_current = 0;
+        shared_node_B = common_node(comps, C, C.B);
+        for(int j = 0; j<shared_node_B.size(); j++)
+        {
+            if( computed[component_index( comps, shared_node_B[j] )] == 1 )
+            {
+                total_current += currents( component_index( comps, shared_node_B[j] ) );
+            } else {
+                cv_check = 0;
+            }
+        }
+    }
+    /*/
+    //recurrent calls
 
     computed[component_index(comps, C)] = 1;    
     return total_current;
