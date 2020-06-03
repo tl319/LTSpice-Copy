@@ -311,27 +311,31 @@ int main()
 
     pastnodes = matrixSolve(knowns.first, knowns.second);
 
-    cout << pastnodes << endl;
+    cout << "v " << pastnodes << endl;
 
     cout << endl;
 
     component_currents = comp_currents (out, nlist, pastnodes, 0);
 
-    cout << component_currents << endl;    
+    cout << "i " << component_currents << endl;    
     
-    cout << "f ";
+    cout << "f " << endl;
 
-    /*/
+    MatrixXd TransMat = MatrixUpdate (out, noden);
+
+    cout << "updated_matrix " << TransMat << endl;
+    
     VectorXd transrhs;
-    for(int i = 1; i <= 10; i++)
+    for(float i = 0.001; i <= 0.01; i = i + 0.001 )
     {
-        cout << "test" << endl;
-        transrhs = VectorUpdate (out, noden, i, pastnodes, component_currents, 1);
-        knowns = conductance_current (out, noden, i, 1, component_currents);
-        pastnodes << matrixSolve(knowns.first, knowns.second);
-        cout << endl;
-        cout << pastnodes;
-    }
-    /*/
+        cout << i << endl;
+        transrhs = VectorUpdate (out, noden, i, pastnodes, component_currents, 0.001);
+        //knowns = conductance_current (out, noden, i, 1, component_currents);
+        pastnodes << matrixSolve(TransMat, transrhs);
+        cout << "vt " << pastnodes << endl;
+        component_currents = comp_currents (out, nlist, pastnodes, 0);
+        cout << "it " << component_currents << endl; 
+    }  
+      
     
 }

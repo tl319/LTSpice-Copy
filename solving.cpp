@@ -16,9 +16,10 @@ VectorXd VectorUpdate (vector<Component> comps, int noden, float time, VectorXd 
 
     for(int i = 0; i<comps.size(); i++)
     {
+        //allow for transients with DC sources
         if(comps[i].type == 'V' || comps[i].type == 'I')
         {
-            val = comps[i].DCOff + (comps[i].amplitude)*sin( (comps[i].frequency)*time );
+            val = comps[i].DCOff + (comps[i].amplitude)*sin( (comps[i].frequency)*2*M_PI*time );
         } else {
             val = comps[i].value;
         }
