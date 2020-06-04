@@ -106,20 +106,30 @@ pair<MatrixXd, VectorXd> conductance_current(vector<Component> comps, int noden,
     float conductance;
 
     //"locked" matrix lines so that if they're written to by a v source they aren't written to again 
-    vector<int> locked (noden, 0);
+    vector<bool> locked (noden, 0);
 
     //cycle through each component
     for(int i = 0; i<comps.size(); i++)
     {
-
+        
         //value is either component value member or signal at t = 0
-        if( (comps[i].isSignal == 1) && (comps[i].type != 'R') )
+        if( (comps[i].isSignal == 1) && (comps[i].type == 'V') )
         {
             val = comps[i].DCOff;
         } else {
             val = comps[i].value;
         }
-        //cout << val << " ";
+        cout << comps[i].name << " " << val << "| " << endl;
+
+        if(nA(comps[i]) != 0)
+        {
+            cout << "locked A " << locked[nA(comps[i]) -1 ] << endl;
+        }
+
+        if(nB(comps[i]) != 0)
+        {
+            cout << "locked B " << locked[nB(comps[i]) -1 ] << endl;
+        }
 
         //dealing with resistors
         if(comps[i].type == 'R')
@@ -129,31 +139,36 @@ pair<MatrixXd, VectorXd> conductance_current(vector<Component> comps, int noden,
             //if row nA has not already been edited to represent a voltage source and nA is not ground, 
             //then add and subtract conductance in columns nA and nB 
             //Row corresponds to supernode (node if no supernode) and column to actual node
-            if(locked[ nA(comps[i])-1] == 0)
+            if(nA(comps[i]) != 0)
             {
-                if( nA(comps[i]) != 0)
+                if(locked[ nA(comps[i])-1] == 0)
                 {
-                    conducts ( SnA(comps[i]) -1, nA(comps[i]) -1) += conductance;
-                }
-                if( nA(comps[i]) != 0 && nB(comps[i]) != 0)
-                {
-                    conducts ( SnA(comps[i]) -1, nB(comps[i]) -1) -= conductance;
+                    if( nA(comps[i]) != 0)
+                    {
+                        conducts ( SnA(comps[i]) -1, nA(comps[i]) -1) += conductance;
+                    }
+                    if( nA(comps[i]) != 0 && nB(comps[i]) != 0)
+                    {
+                        conducts ( SnA(comps[i]) -1, nB(comps[i]) -1) -= conductance;
+                    }
                 }
             }
 
-            //Ditto for nB
-            if(locked[ nB(comps[i])-1] == 0)
+            if(nB(comps[i]) != 0)
             {
-                if( nB(comps[i]) != 0)
+                //Ditto for nB
+                if(locked[ nB(comps[i])-1] == 0)
                 {
-                    conducts ( SnB(comps[i]) -1, nB(comps[i]) -1) += conductance;
-                }
-                if( nA(comps[i]) != 0 && nB(comps[i]) != 0)
-                {
-                    conducts ( SnB(comps[i]) -1, nA(comps[i]) -1) -= conductance;
+                    if( nB(comps[i]) != 0)
+                    {
+                        conducts ( SnB(comps[i]) -1, nB(comps[i]) -1) += conductance;
+                    }
+                    if( nA(comps[i]) != 0 && nB(comps[i]) != 0)
+                    {
+                        conducts ( SnB(comps[i]) -1, nA(comps[i]) -1) -= conductance;
+                    }
                 }
             }
-
         }
 
         //dealing with voltage sources                  add case for nA = nB = 0?
@@ -292,47 +307,10 @@ pair<MatrixXd, VectorXd> conductance_current(vector<Component> comps, int noden,
             }
         }
 
-        //add case for grounded
-        if(comps[i].type == 'C' && time != 0)
-        {
-            cout << "CCC";
-            //assign the row corresponding to the lowest numbered node as that representing the voltage source
-            int row;
-
-            if( nA(comps[i]) > nB(comps[i]) )
-            {
-                //locked[nB(comps[i])-1] = 1;
-                row = nB(comps[i]) -1;
-            } else {
-                //locked[nA(comps[i])-1] = 1;
-                row = nA(comps[i]) -1;
-            }
-
-            currents(row) = comp_currents(i)*interval/comps[i].value;
-
-            cout << "val";
-
-            //write the 1, -1 and 0s in the appropriate columns
-            for(int j = 0; j<noden; j++)
-            {
-                if(j == (nA(comps[i]) -1))
-                {
-                    conducts (row, j) = 1;
-                } else {
-                    if(j == (nB(comps[i]) -1))
-                    {
-                        conducts (row, j) = (-1);
-                    } else {
-                        conducts (row, j) = 0;
-                    }
-                }
-            }
-
-
-        }
-
-        //test(noden, conducts, currents);
+        test(noden, conducts, currents);
     }
+
+    cout << "g" << endl;
 
     return {conducts, currents};
 
@@ -358,8 +336,12 @@ MatrixXd MatrixUpdate (vector<Component> comps, int noden)
 
     float conductance;
 
+    //mechanism to ensure that the 1/0/-1 and voltage values are written to the same row
+    //probably need smth similar for current sources
+    vector<int> c_vs_row (comps.size());
+
     //"locked" matrix lines so that if they're written to by a v source they aren't written to again 
-    vector<int> locked (noden, 0);
+    vector<bool> locked (noden, 0);
 
     for(int i = 0; i<comps.size(); i++)
     {
@@ -490,6 +472,43 @@ MatrixXd MatrixUpdate (vector<Component> comps, int noden)
                 if( nA(comps[i]) != 0 && nB(comps[i]) != 0)
                 {
                     conducts ( SnB(comps[i]) -1, nA(comps[i]) -1) -= conductance;
+                }
+            }
+        }
+
+        //add case for grounded
+        if(comps[i].type == 'C')
+        {
+            cout << "CCC";
+            //assign the row corresponding to the lowest numbered node as that representing the voltage source
+            int row;
+
+            if( nA(comps[i]) > nB(comps[i]) && locked[ nB(comps[i])-1] == 0 || locked[ nA(comps[i])-1] == 1 ) 
+            {
+                locked[nB(comps[i])-1] = 1;
+                row = nB(comps[i]) -1;
+            } else {
+                locked[nA(comps[i])-1] = 1;
+                row = nA(comps[i]) -1;
+            }
+
+            //currents(row) = comp_currents(i)*interval/comps[i].value;
+
+            //cout << "val";
+
+            //write the 1, -1 and 0s in the appropriate columns
+            for(int j = 0; j<noden; j++)
+            {
+                if(j == (nA(comps[i]) -1))
+                {
+                    conducts (row, j) = 1;
+                } else {
+                    if(j == (nB(comps[i]) -1))
+                    {
+                        conducts (row, j) = (-1);
+                    } else {
+                        conducts (row, j) = 0;
+                    }
                 }
             }
         }

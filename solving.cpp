@@ -88,7 +88,15 @@ VectorXd VectorUpdate (vector<Component> comps, int noden, float time, VectorXd 
 
         if(comps[i].type == 'C')
         {
+            if(nA(comps[i]) != 0)
+            {
+                currents(nA(comps[i]) -1) += (comp_currents(i)) * interval/val;
+            }
 
+            if(nB(comps[i]) != 0)
+            {
+                currents(nB(comps[i]) -1) -= (pastnodes(nA(comps[i]) -1) - pastnodes(nB(comps[i]) -1)) * interval/val;
+            }
         }
     }
     

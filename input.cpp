@@ -289,21 +289,17 @@ int main()
    
     int noden = compute_noden(nlist);
 
-    cout << endl;
+    cout << "conductance_current " << endl;
 
     pair<MatrixXd, VectorXd> knowns = conductance_current (out, noden, 0, 0, component_currents);
 
+    cout << knowns.first << endl;
+
     cout << endl;
 
-    //cout << knowns.first << endl;
-    
-    /*/ not quit sure what this is
-    VectorXd v(noden);
-    for(int i =0;i<noden;i++){v(i) = knowns.second[i];}
-    cout << v << endl << endl;
-    /*/
+    cout << knowns.second << endl;
 
-    test(noden, knowns.first, knowns.second);
+    //test(noden, knowns.first, knowns.second);
 
     cout << endl;
 
