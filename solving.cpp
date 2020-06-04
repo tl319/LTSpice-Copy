@@ -82,15 +82,30 @@ VectorXd VectorUpdate (vector<Component> comps, int noden, float time, VectorXd 
 
         if(comps[i].type == 'C')
         {
-            if(nA(comps[i]) != 0)
+            //negative terminal to ground
+            if( nB(comps[i]) == 0 && nA(comps[i]) != 0)
             {
-                currents(nA(comps[i]) -1) += (comp_currents(i)) * interval/val;
+                //write the source voltage to this index in the rhs vector
+                currents(nA(comps[i]) -1) = (comp_currents(i)) * interval/val; 
             }
 
-            if(nB(comps[i]) != 0)
+            //positive terminal to ground
+            //not too sure about this one
+            if(nA(comps[i]) == 0 && nB(comps[i]) != 0)
             {
-                currents(nB(comps[i]) -1) -= (pastnodes(nA(comps[i]) -1) - pastnodes(nB(comps[i]) -1)) * interval/val;
+                //also write -1* the source voltage to this index in the rhs vector
+                currents(nB(comps[i]) -1) = (-1)*(comp_currents(i)) * interval/val;
             }
+
+            //floating voltage source
+            //to optimise, make the row value saved after initial calculation
+            if(nA(comps[i]) != 0 && nB(comps[i]) != 0)
+            {
+                row = c_vs_row[i];
+
+                //in that row of the rhs vector, write the current source value
+                currents(row) = (comp_currents(i)) * interval/val; 
+            }    
         }
     }
     
@@ -143,9 +158,9 @@ float vs_current (vector<Component> comps, Component C, vector<bool> & computed,
         checked_node = C.A;
     }
     shared_node = common_node(comps, C, checked_node);
-    cout << checked_node.label << " ";
+    //cout << checked_node.label << " ";
     
-    cout << shared_node.size() << " " << shared_node[0].name << "| ";
+    //cout << shared_node.size() << " " << shared_node[0].name << "| ";
     //sum up the currents entering node A of the component
     for(int j = 0; j<shared_node.size(); j++)
     {
@@ -216,7 +231,7 @@ VectorXd comp_currents (vector<Component> comps, vector<Node> nlist, VectorXd no
         {
             currents(i) = ( VA - VB )/comps[i].value;
             computed[i] = 1;
-            cout << comps[i].name << " " << currents(i) << " ";
+            //cout << comps[i].name << " " << currents(i) << " ";
         }
         if(comps[i].type == 'I')
         {
@@ -237,10 +252,10 @@ VectorXd comp_currents (vector<Component> comps, vector<Node> nlist, VectorXd no
         //recursively obtaining currents through components functioning as voltage sources (i.e. other currents into one of their nodes)
         if(comps[i].type == 'C' || comps[i].type == 'V')
         {
-            cout << "hmmm ";
+            //cout << "hmmm ";
             //pass in node A by default, perhaps possible to optimise
             currents(i) = (-1) * vs_current(comps, comps[i], computed, currents, comps[i].A);
-            cout << comps[i].name << " " << currents(i) << " ";
+            //cout << comps[i].name << " " << currents(i) << " ";
         }
     }
 

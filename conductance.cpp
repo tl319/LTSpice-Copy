@@ -296,7 +296,7 @@ pair<MatrixXd, VectorXd> conductance_current(vector<Component> comps, int noden,
             }
         }
 
-        //test(noden, conducts, currents);
+        test(noden, conducts, currents);
     }
 
 
@@ -471,7 +471,6 @@ pair<MatrixXd, vector<int>> MatrixUpdate (vector<Component> comps, int noden)
             }
         }
 
-        //add case for grounded
         if(comps[i].type == 'C')
         {
             cout << "CCC";
@@ -486,6 +485,7 @@ pair<MatrixXd, vector<int>> MatrixUpdate (vector<Component> comps, int noden)
                 locked[nA(comps[i])-1] = 1;
                 row = nA(comps[i]) -1;
             }
+            c_vs_row[i] = row;
 
             //currents(row) = comp_currents(i)*interval/comps[i].value;
 
@@ -508,8 +508,6 @@ pair<MatrixXd, vector<int>> MatrixUpdate (vector<Component> comps, int noden)
             }
         }
     }
-
-
     return {conducts, c_vs_row};
 }
 
