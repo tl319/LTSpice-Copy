@@ -118,13 +118,13 @@ void writeFile(float time, float voltage);
 //input of node just writes the header *** NEEDED ***
 //use the function after to write time and voltage.
 
-VectorXd VectorUpdate (vector<Component> comps, int noden, float time, VectorXd pastnodes,  VectorXd comp_currents, float interval);
+VectorXd VectorUpdate (vector<Component> comps, int noden, float time, VectorXd pastnodes, VectorXd comp_currents, float interval, vector<int> c_vs_row);
 //updates the rhs ("current") vector during transient simulations
 
 VectorXd comp_currents (vector<Component> comps, vector<Node> nlist, VectorXd nodev, float interval);
 //compute current accross each component
 
-MatrixXd MatrixUpdate (vector<Component> comps, int noden);
+pair<MatrixXd, vector<int>> MatrixUpdate (vector<Component> comps, int noden);
 //update matrix to reflect the change in behaviour of reactive components
 
 

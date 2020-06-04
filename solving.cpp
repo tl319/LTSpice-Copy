@@ -3,7 +3,7 @@
 using namespace std;
 using namespace Eigen;
 
-VectorXd VectorUpdate (vector<Component> comps, int noden, float time, VectorXd pastnodes, VectorXd comp_currents, float interval)
+VectorXd VectorUpdate (vector<Component> comps, int noden, float time, VectorXd pastnodes, VectorXd comp_currents, float interval, vector<int> c_vs_row)
 {
     //assign the row corresponding to the lowest numbered node as that representing the voltage source
     //for floating voltage sources
@@ -17,7 +17,7 @@ VectorXd VectorUpdate (vector<Component> comps, int noden, float time, VectorXd 
     for(int i = 0; i<comps.size(); i++)
     {
         //allow for transients with DC sources
-        if(comps[i].type == 'V' || comps[i].type == 'I')
+        if(comps[i].type == 'V' && comps[i].isSignal == 1)
         {
             val = comps[i].DCOff + (comps[i].amplitude)*sin( (comps[i].frequency)*2*M_PI*time );
         } else {
@@ -45,14 +45,8 @@ VectorXd VectorUpdate (vector<Component> comps, int noden, float time, VectorXd 
             //to optimise, make the row value saved after initial calculation
             if(nA(comps[i]) != 0 && nB(comps[i]) != 0)
             {
-                if( nA(comps[i]) > nB(comps[i]) )
-                {
-                    //locked[nB(comps[i])-1] = 1;
-                    row = nB(comps[i]) -1;
-                } else {
-                    //locked[nA(comps[i])-1] = 1;
-                    row = nA(comps[i]) -1;
-                }
+                row = c_vs_row[i];
+
                 //in that row of the rhs vector, write the current source value
                 currents(row) = val; 
             }    

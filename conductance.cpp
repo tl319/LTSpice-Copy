@@ -119,17 +119,6 @@ pair<MatrixXd, VectorXd> conductance_current(vector<Component> comps, int noden,
         } else {
             val = comps[i].value;
         }
-        cout << comps[i].name << " " << val << "| " << endl;
-
-        if(nA(comps[i]) != 0)
-        {
-            cout << "locked A " << locked[nA(comps[i]) -1 ] << endl;
-        }
-
-        if(nB(comps[i]) != 0)
-        {
-            cout << "locked B " << locked[nB(comps[i]) -1 ] << endl;
-        }
 
         //dealing with resistors
         if(comps[i].type == 'R')
@@ -307,17 +296,16 @@ pair<MatrixXd, VectorXd> conductance_current(vector<Component> comps, int noden,
             }
         }
 
-        test(noden, conducts, currents);
+        //test(noden, conducts, currents);
     }
 
-    cout << "g" << endl;
 
     return {conducts, currents};
 
 }
 
 //update matrix to reflect the change in behaviour of reactive components
-MatrixXd MatrixUpdate (vector<Component> comps, int noden)
+pair<MatrixXd, vector<int>> MatrixUpdate (vector<Component> comps, int noden)
 {
     //code copied wholesale from above, trim redundancies later
 
@@ -415,6 +403,7 @@ MatrixXd MatrixUpdate (vector<Component> comps, int noden)
 
                 //in that row of the rhs vector, write the current source value
                 //currents(row) = val; 
+                c_vs_row[i] = row;
 
                 //write the 1, -1 and 0s in the appropriate columns
                 for(int j = 0; j<noden; j++)
@@ -450,28 +439,34 @@ MatrixXd MatrixUpdate (vector<Component> comps, int noden)
             //if row nA has not already been edited to represent a voltage source and nA is not ground, 
             //then add and subtract conductance in columns nA and nB 
             //Row corresponds to supernode (node if no supernode) and column to actual node
-            if(locked[ nA(comps[i])-1] == 0)
+            if(nA(comps[i]) != 0)
             {
-                if( nA(comps[i]) != 0)
+                if(locked[ nA(comps[i])-1] == 0)
                 {
-                    conducts ( SnA(comps[i]) -1, nA(comps[i]) -1) += conductance;
-                }
-                if( nA(comps[i]) != 0 && nB(comps[i]) != 0)
-                {
-                    conducts ( SnA(comps[i]) -1, nB(comps[i]) -1) -= conductance;
+                    if( nA(comps[i]) != 0)
+                    {
+                        conducts ( SnA(comps[i]) -1, nA(comps[i]) -1) += conductance;
+                    }
+                    if( nA(comps[i]) != 0 && nB(comps[i]) != 0)
+                    {
+                        conducts ( SnA(comps[i]) -1, nB(comps[i]) -1) -= conductance;
+                    }
                 }
             }
 
-            //Ditto for nB
-            if(locked[ nB(comps[i])-1] == 0)
+            if(nB(comps[i]) != 0)
             {
-                if( nB(comps[i]) != 0)
+                //Ditto for nB
+                if(locked[ nB(comps[i])-1] == 0)
                 {
-                    conducts ( SnB(comps[i]) -1, nB(comps[i]) -1) += conductance;
-                }
-                if( nA(comps[i]) != 0 && nB(comps[i]) != 0)
-                {
-                    conducts ( SnB(comps[i]) -1, nA(comps[i]) -1) -= conductance;
+                    if( nB(comps[i]) != 0)
+                    {
+                        conducts ( SnB(comps[i]) -1, nB(comps[i]) -1) += conductance;
+                    }
+                    if( nA(comps[i]) != 0 && nB(comps[i]) != 0)
+                    {
+                        conducts ( SnB(comps[i]) -1, nA(comps[i]) -1) -= conductance;
+                    }
                 }
             }
         }
@@ -515,7 +510,7 @@ MatrixXd MatrixUpdate (vector<Component> comps, int noden)
     }
 
 
-    return conducts;
+    return {conducts, c_vs_row};
 }
 
 /*/
