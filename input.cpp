@@ -291,15 +291,9 @@ int main()
 
     cout << "conductance_current " << endl;
 
-    pair<MatrixXd, VectorXd> knowns = conductance_current (out, noden, 0, 0, component_currents);
+    pair<MatrixXd, VectorXd> knowns = conductance_current (out, noden);
 
-    cout << knowns.first << endl;
-
-    cout << endl;
-
-    cout << knowns.second << endl;
-
-    //test(noden, knowns.first, knowns.second);
+    test(noden, knowns.first, knowns.second);
 
     cout << endl;
 
@@ -321,29 +315,10 @@ int main()
     pair<MatrixXd, vector<int>> TransMat = MatrixUpdate (out, noden);
 
     cout << "updated_matrix " << TransMat.first << endl;
-
-    /*/
     
-    VectorXd transrhs;
-
-    transrhs = VectorUpdate (out, noden, 1, pastnodes, component_currents, 0.001, TransMat.second);
-
-    cout << endl;
-    cout << "updated_vector" << transrhs << endl; 
-
-    pastnodes = matrixSolve(TransMat.first, transrhs);
-
-    cout << "vt " << pastnodes << endl;
-
-    cout << endl;
-
-    component_currents = comp_currents (out, nlist, pastnodes, 0);
-
-    cout << "it " << component_currents << endl;     
     /*/
-    
     VectorXd transrhs;
-    for(float i = 0.001; i <= 0.01; i = i + 0.001 )
+    for(float i = 0.001; i <= 0.01; i = i + 0.0000000001 )
     {
         cout << i << endl;
         transrhs = VectorUpdate (out, noden, i, pastnodes, component_currents, 0.001, TransMat.second);
@@ -352,5 +327,6 @@ int main()
         component_currents = comp_currents (out, nlist, pastnodes, 0);
         cout << "it " << component_currents << endl; 
     }  
+    /*/
      
 }

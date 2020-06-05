@@ -109,7 +109,7 @@ vector<Component> patchComponents(vector<Component> list);
 VectorXd matrixSolve(MatrixXd m,VectorXd v);
 //takes in the vector of currents and conductance matrix, and spits out the node voltage vector. 
 
-pair<MatrixXd, VectorXd> conductance_current(vector<Component> comps, int noden, float time, float interval, VectorXd comp_currents);
+pair<MatrixXd, VectorXd> conductance_current (vector<Component> comps, int noden);
 //return complete conductance matrix and current vector
 
 void writeFile(Node n);

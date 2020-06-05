@@ -9,14 +9,13 @@ VectorXd VectorUpdate (vector<Component> comps, int noden, float time, VectorXd 
     //for floating voltage sources
     int row;
 
-    float val;
-
     //rhs vector
     VectorXd currents = VectorXd::Zero (noden);
 
+    //component value
+    float val;
     for(int i = 0; i<comps.size(); i++)
     {
-        //allow for transients with DC sources
         if(comps[i].type == 'V' && comps[i].isSignal == 1)
         {
             val = comps[i].DCOff + (comps[i].amplitude)*sin( (comps[i].frequency)*2*M_PI*time );
@@ -24,7 +23,7 @@ VectorXd VectorUpdate (vector<Component> comps, int noden, float time, VectorXd 
             val = comps[i].value;
         }
 
-        //dealing with voltage sources                  add case for nA = nB = 0?
+        //dealing with voltage sources              
         if(comps[i].type == 'V')
         {
             //negative terminal to ground
@@ -107,11 +106,11 @@ VectorXd VectorUpdate (vector<Component> comps, int noden, float time, VectorXd 
                 currents(row) = (comp_currents(i)) * interval/val; 
             }    
         }
-    }
-    
+    }    
     return currents;
 }
 
+//used in vs_current to determine other components connected to C at A
 vector<Component> common_node (vector<Component> comps, Component C, Node A)
 {
     vector<Component> shared_node;
@@ -122,10 +121,10 @@ vector<Component> common_node (vector<Component> comps, Component C, Node A)
             shared_node.push_back(comps[i]);
         }
     }
-
     return shared_node;
 }
 
+//returns the index of a component in  the component vector
 int component_index (vector<Component> comps, Component C)
 {
     for(int i = 0; i<comps.size(); i++)
@@ -145,8 +144,6 @@ float vs_current (vector<Component> comps, Component C, vector<bool> & computed,
     //vector<Component> shared_node_B;
     float total_current = 0;
 
-    //bool cv_check = 1;
-
     Node checked_node;
 
     //to avoid infinite recursion, consistently check currents into "the other node"
@@ -158,9 +155,7 @@ float vs_current (vector<Component> comps, Component C, vector<bool> & computed,
         checked_node = C.A;
     }
     shared_node = common_node(comps, C, checked_node);
-    //cout << checked_node.label << " ";
     
-    //cout << shared_node.size() << " " << shared_node[0].name << "| ";
     //sum up the currents entering node A of the component
     for(int j = 0; j<shared_node.size(); j++)
     {
@@ -169,8 +164,6 @@ float vs_current (vector<Component> comps, Component C, vector<bool> & computed,
         {
             total_current += currents( component_index( comps, shared_node[j] ) );
         } else {
-            //fix infinite loop bug
-            cout << "mhm ";
             total_current += vs_current (comps, shared_node[j], computed, currents, checked_node);
         }
     }
@@ -231,19 +224,16 @@ VectorXd comp_currents (vector<Component> comps, vector<Node> nlist, VectorXd no
         {
             currents(i) = ( VA - VB )/comps[i].value;
             computed[i] = 1;
-            //cout << comps[i].name << " " << currents(i) << " ";
         }
         if(comps[i].type == 'I')
         {
             currents(i) = comps[i].value;
             computed[i] = 1;
-            //cout << currents(i) << " ";
         }
         if(comps[i].type == 'L')
         {
             currents(i) = ( VA - VB )*interval/comps[i].value;
             computed[i] = 1;
-            //cout << currents(i) << " ";
         }
     }
 
@@ -252,14 +242,10 @@ VectorXd comp_currents (vector<Component> comps, vector<Node> nlist, VectorXd no
         //recursively obtaining currents through components functioning as voltage sources (i.e. other currents into one of their nodes)
         if(comps[i].type == 'C' || comps[i].type == 'V')
         {
-            //cout << "hmmm ";
             //pass in node A by default, perhaps possible to optimise
             currents(i) = (-1) * vs_current(comps, comps[i], computed, currents, comps[i].A);
-            //cout << comps[i].name << " " << currents(i) << " ";
         }
     }
-
-    cout << endl;
     return currents;
 }
 

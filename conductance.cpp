@@ -8,7 +8,6 @@
 using namespace Eigen;
 using namespace std;
 
-
 //calculate number of non-ground nodes from node vector
 int compute_noden(vector<int> nodes);
 
@@ -24,31 +23,16 @@ int nB(Component c);
 int SnA(Component c);
 int SnB(Component c);
 
+pair<MatrixXd, vector<int>> MatrixUpdate (vector<Component> comps, int noden);
+
 //function declarations
 
 void test(int noden, MatrixXd conducts, VectorXd currents)
 {
     //print each line of the matrix
-    /*/
-    for(int i = 0; i<noden; i++)
-    {
-        for(int j = 0; j<noden; j++)
-        {
-            cout << conducts(i, j) << " ";
-        }
-        cout << endl;
-    }
-    /*/
     cout << conducts << endl;
 
     //print current vector
-    /*/
-    for(int i = 0; i<noden; i++)
-    {
-        cout << currents(i) << endl;
-    }
-    /*/
-
     cout << currents << endl;
 }
 
@@ -72,9 +56,9 @@ int SnB(Component c)
     return (c.B.super);
 }
 
+//compute number of non-ground nodes
 int compute_noden(vector<Node> nodes)
 {
-    //number of non-ground nodes
     int noden = nodes.size();
     //loop redundant if vector is ordered
     for(int i = 0; i<nodes.size(); i++)
@@ -88,7 +72,7 @@ int compute_noden(vector<Node> nodes)
     return noden;
 }
 
-pair<MatrixXd, VectorXd> conductance_current(vector<Component> comps, int noden, float time, float interval, VectorXd comp_currents)
+pair<MatrixXd, VectorXd> conductance_current(vector<Component> comps, int noden)
 {
     //value to take from sources
     float val;
@@ -97,11 +81,6 @@ pair<MatrixXd, VectorXd> conductance_current(vector<Component> comps, int noden,
     MatrixXd conducts = MatrixXd::Zero (noden, noden);
     //rhs vector
     VectorXd currents = VectorXd::Zero (noden);
-
-    //used to tell where the first empty spot in the node vector is
-    int nodes_added = 0;
-    //used to tell if an empty spot must be written to
-    bool found = 0;
 
     float conductance;
 
@@ -160,7 +139,7 @@ pair<MatrixXd, VectorXd> conductance_current(vector<Component> comps, int noden,
             }
         }
 
-        //dealing with voltage sources                  add case for nA = nB = 0?
+        //dealing with voltage sources
         if(comps[i].type == 'V')
         {
             //negative terminal to ground
@@ -241,12 +220,11 @@ pair<MatrixXd, VectorXd> conductance_current(vector<Component> comps, int noden,
             }
 
             //short circuit
-            if(nA(comps[i]) == 0 && nB(comps[i]) == 0)
+            if(nA(comps[i]) ==  nB(comps[i]))
             {
                 cout << "bruh";
                 assert(0);
-            }
-            
+            }         
         }
 
         //current sources
@@ -295,16 +273,13 @@ pair<MatrixXd, VectorXd> conductance_current(vector<Component> comps, int noden,
                 }
             }
         }
-
         test(noden, conducts, currents);
     }
-
-
     return {conducts, currents};
-
 }
 
 //update matrix to reflect the change in behaviour of reactive components
+//the second pair member is used to store the row values representing source and capacitor voltages
 pair<MatrixXd, vector<int>> MatrixUpdate (vector<Component> comps, int noden)
 {
     //code copied wholesale from above, trim redundancies later
@@ -314,18 +289,11 @@ pair<MatrixXd, vector<int>> MatrixUpdate (vector<Component> comps, int noden)
 
     //conductance matrix
     MatrixXd conducts = MatrixXd::Zero (noden, noden);
-    //rhs vector
-    VectorXd currents = VectorXd::Zero (noden);
-
-    //used to tell where the first empty spot in the node vector is
-    int nodes_added = 0;
-    //used to tell if an empty spot must be written to
-    bool found = 0;
 
     float conductance;
 
     //mechanism to ensure that the 1/0/-1 and voltage values are written to the same row
-    //probably need smth similar for current sources
+    //probably need smth similar for current sources (no?)
     vector<int> c_vs_row (comps.size());
 
     //"locked" matrix lines so that if they're written to by a v source they aren't written to again 
@@ -333,15 +301,9 @@ pair<MatrixXd, vector<int>> MatrixUpdate (vector<Component> comps, int noden)
 
     for(int i = 0; i<comps.size(); i++)
     {
-        //value is either component value member or signal at t = 0
-        //if( (comps[i].isSignal == 1) && (comps[i].type != 'R') )
-        //{
-        //    val = comps[i].DCOff;
-        //} else {
-            val = comps[i].value;
-        //}
+        val = comps[i].value;
 
-        //dealing with voltage sources                  add case for nA = nB = 0?
+        //dealing with voltage sources            
         if(comps[i].type == 'V')
         {
             //negative terminal to ground
@@ -356,8 +318,6 @@ pair<MatrixXd, vector<int>> MatrixUpdate (vector<Component> comps, int noden)
                     if(j == (nA(comps[i]) -1))
                     {
                         conducts (j, j) = 1;
-                        //also write the source voltage to this index in the rhs vector
-                        //currents(j) = val; 
                     } else {
                         //other columns are set to 0
                         conducts (nA(comps[i]) -1, j) = 0;
@@ -377,8 +337,6 @@ pair<MatrixXd, vector<int>> MatrixUpdate (vector<Component> comps, int noden)
                     if(j == (nB(comps[i]) -1))
                     {
                         conducts (j, j) = 1;
-                        //also write -1* the source voltage to this index in the rhs vector
-                        //currents(j) = (-1)*val; 
                     } else {
                         //other columns are set to 0
                         conducts (nB(comps[i]) -1, j) = 0;
@@ -400,10 +358,8 @@ pair<MatrixXd, vector<int>> MatrixUpdate (vector<Component> comps, int noden)
                     locked[nA(comps[i])-1] = 1;
                     row = nA(comps[i]) -1;
                 }
-
-                //in that row of the rhs vector, write the current source value
-                //currents(row) = val; 
-                c_vs_row[i] = row;
+                
+                c_vs_row[i] = row;//store the row used to represent the voltage source
 
                 //write the 1, -1 and 0s in the appropriate columns
                 for(int j = 0; j<noden; j++)
@@ -423,7 +379,7 @@ pair<MatrixXd, vector<int>> MatrixUpdate (vector<Component> comps, int noden)
             }
 
             //short circuit
-            if(nA(comps[i]) == 0 && nB(comps[i]) == 0)
+            if(nA(comps[i]) == nB(comps[i]) ) 
             {
                 cout << "bruh";
                 assert(0);
@@ -473,7 +429,6 @@ pair<MatrixXd, vector<int>> MatrixUpdate (vector<Component> comps, int noden)
 
         if(comps[i].type == 'C')
         {
-            cout << "CCC";
             //assign the row corresponding to the lowest numbered node as that representing the voltage source
             int row;
 
@@ -485,11 +440,8 @@ pair<MatrixXd, vector<int>> MatrixUpdate (vector<Component> comps, int noden)
                 locked[nA(comps[i])-1] = 1;
                 row = nA(comps[i]) -1;
             }
+            //store the row used to represent the capacitor voltage
             c_vs_row[i] = row;
-
-            //currents(row) = comp_currents(i)*interval/comps[i].value;
-
-            //cout << "val";
 
             //write the 1, -1 and 0s in the appropriate columns
             for(int j = 0; j<noden; j++)
@@ -510,31 +462,3 @@ pair<MatrixXd, vector<int>> MatrixUpdate (vector<Component> comps, int noden)
     }
     return {conducts, c_vs_row};
 }
-
-/*/
-/*
-int main()
-{
-    Node a {1, "a", 1};
-    Node b {2, "b", 2};
-    Node c {3, "c", 3};
-    Node d {0, "d", 0};
-    //Node e {0, "e", 0};
-
-    Component R1 {'R', "R1", a, c, 1};
-    Component V1 {'V', "V1", a, d, 5};
-    Component R2 {'R', "R2", c, b, 3};
-    Component R3 {'R', "R3", b, d, 2};
-    //Component I1 {'I', "I1", c, d, 6};
-
-    vector<Component> comps {R1, V1, R2, R3};
-
-    vector<Node> nodes {d, a, b, c};
-
-    int noden = compute_noden(nodes);
-
-    pair<MatrixXd, vector<float>> knowns = conductance_current (comps, noden);
-
-    test(noden, knowns.first, knowns.second);
-}
- * */
