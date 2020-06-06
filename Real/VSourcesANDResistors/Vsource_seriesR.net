@@ -1,0 +1,7 @@
+* C:\Users\Jason\Downloads\Real\Real\VSourcesANDResistors\Vsource_seriesR.asc
+V1 N001 0 1V
+R1 N001 P001 0.5
+R2 P001 0 0.5
+.op
+.backanno
+.end

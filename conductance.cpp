@@ -313,7 +313,7 @@ pair<MatrixXd, VectorXd> conductance_current(vector<Component> comps, int noden)
             }        
         }
 
-        test(noden, conducts, currents);
+        //test(noden, conducts, currents);
     }
     return {conducts, currents};
 }
@@ -698,10 +698,8 @@ pair<MatrixXd, vector<int>> CorrectAssumptions (vector<Component> comps, int nod
                 } else {
                     locked[nA(comps[i])-1] = 1;
                     row = nA(comps[i]) -1;
-                }
-
-                //in that row of the rhs vector, write the current source value
-                currents(row) = 0.7; 
+                } 
+                c_vs_row[i] = row;//store the row used to represent the voltage source
 
                 //write the 1, -1 and 0s in the appropriate columns
                 for(int j = 0; j<noden; j++)

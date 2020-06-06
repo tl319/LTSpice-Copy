@@ -1,0 +1,1 @@
+for %v in (*.asc) do convert.bat %v

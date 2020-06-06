@@ -1,0 +1,7 @@
+* C:\Users\Jason\Downloads\Real\Real\Transients\OP_V-DC_L+C.asc
+V1 N001 0 1
+C1 N002 0 1
+L1 N001 N002 1
+.op
+.backanno
+.end

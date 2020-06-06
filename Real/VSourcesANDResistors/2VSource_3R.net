@@ -1,0 +1,9 @@
+* C:\Users\Jason\Downloads\Real\Real\VSourcesANDResistors\2VSource_3R.asc
+V2 N002 0 2
+R1 N002 0 1
+V1 N001 0 1
+R2 N002 N001 1
+R3 N001 0 1
+.op
+.backanno
+.end

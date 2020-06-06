@@ -1,2 +1,2 @@
 #!/bin/bash
-g++ -I Eigen/ input.cpp conductance.cpp -o output
+g++ -I Eigen/ input.cpp conductance.cpp solving.cpp -o output

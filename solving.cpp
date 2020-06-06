@@ -9,7 +9,7 @@ using namespace Eigen;
 //"pre-compute" values that are computed more than once per scope
 //!!
 
-VectorXd VectorUpdate (vector<Component> comps, int noden, float time, VectorXd pastnodes, VectorXd comp_currents, float interval, vector<int> c_vs_row)
+VectorXd VectorUpdate (vector<Component> comps, int noden, float time, VectorXd pastnodes, VectorXd comp_currents, float interval, vector<int> c_vs_row, vector<bool> incorrect_assumptions)
 {
     //assign the row corresponding to the lowest numbered node as that representing the voltage source
     //for floating voltage sources
@@ -112,6 +112,15 @@ VectorXd VectorUpdate (vector<Component> comps, int noden, float time, VectorXd 
                 currents(row) = (comp_currents(i)) * interval/val; 
             }    
         }
+
+        if(comps[i].type == 'D' && incorrect_assumptions[i] == 0)
+        {
+                row = c_vs_row[i];
+
+                //in that row of the rhs vector, write 0.7
+                currents(row) = 0.7; 
+        }
+
     }    
     return currents;
 }
@@ -246,7 +255,7 @@ VectorXd comp_currents (vector<Component> comps, vector<Node> nlist, VectorXd no
     for(int i = 0; i<comps.size(); i++)
     {
         //recursively obtaining currents through components functioning as voltage sources (i.e. other currents into one of their nodes)
-        if(comps[i].type == 'C' || comps[i].type == 'V')
+        if(comps[i].type != 'R' && comps[i].type != 'I')
         {
             //pass in node A by default, perhaps possible to optimise
             currents(i) = (-1) * vs_current(comps, comps[i], computed, currents, comps[i].A);
@@ -256,17 +265,33 @@ VectorXd comp_currents (vector<Component> comps, vector<Node> nlist, VectorXd no
 }
 
 //after calculating voltages and currents assuming all NL components are active, determine which actually are
-vector<bool> incorrect_assumptions(VectorXd comp_currents, vector<components> comps)
+vector<bool> incorrect_assumptions(VectorXd comp_currents, vector<Component> comps)
 {
-    vector<bool> incorrect_assumptions (comps.size(), 0);
+    vector<bool> incorrect_assumptions (comps.size()+1, 0);
 
     for(int i = 0; i< comps.size(); i++)
     {
+        //cout << comps[i].name << " " << comp_currents[i] << endl;
         if(comps[i].type == 'D' && comp_currents[i] < 0)
         {
-            incorrect_assumptions[i] = 1l
+            //cout << "oof" << endl;
+            incorrect_assumptions[comps.size()] = 1;
+            incorrect_assumptions[i] = 1;
         }
     }
 
     return incorrect_assumptions;
+}
+
+//return matrix and current vector for correct nonlinear modes
+void adjust_modes(MatrixXd & lhs, VectorXd & rhs, const vector<Component> & comps) 
+{
+    vector<bool> oof;
+
+    oof = incorrect_assumptions(rhs, comps);
+
+    if(oof[comps.size()] == 1)
+    {
+        
+    }
 }

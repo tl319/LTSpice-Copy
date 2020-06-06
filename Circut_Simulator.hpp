@@ -118,7 +118,7 @@ void writeFile(float time, float voltage);
 //input of node just writes the header *** NEEDED ***
 //use the function after to write time and voltage.
 
-VectorXd VectorUpdate (vector<Component> comps, int noden, float time, VectorXd pastnodes, VectorXd comp_currents, float interval, vector<int> c_vs_row);
+VectorXd VectorUpdate (vector<Component> comps, int noden, float time, VectorXd pastnodes, VectorXd comp_currents, float interval, vector<int> c_vs_row, vector<bool> incorrect_assumptions);
 //updates the rhs ("current") vector during transient simulations
 
 VectorXd comp_currents (vector<Component> comps, vector<Node> nlist, VectorXd nodev, float interval);
@@ -179,7 +179,7 @@ int component_index (vector<Component> comps, Component C);
 float vs_current (vector<Component> comps, Component C, vector<bool> & computed, VectorXd currents, Node N);
 //used to compute current through voltage sources or capacitors
 
-vector<bool> incorrect_assumptions(VectorXd comp_currents, vector<components> comps);
+vector<bool> incorrect_assumptions(VectorXd comp_currents, vector<Component> comps);
 //check currents accross nonlinear components to determine their mode
 
 #endif
