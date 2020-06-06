@@ -1,0 +1,7 @@
+* C:\Users\Jason\Downloads\Real\Real\Transients\TRAN_V-Sine_V-DC_L.asc
+V1 N002 0 SINE(0 1 10)
+V2 N003 N002 1
+L1 N003 0 1
+.tran 1
+.backanno
+.end

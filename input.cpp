@@ -1,4 +1,3 @@
-
 #include "Circut_Simulator.hpp"
 #include <iostream>
 #include <string>
@@ -78,7 +77,7 @@ vector<Component> patchSupernodes(vector<Component> list)
 {
     vector<Component> out = list;
     for(int i=0;i<out.size();i++){
-            if(out[i].type == 'V' || out[i].type == 'v' || out[i].type == 'C' || out[i].type == 'c' || out[i].type == 'I' || out[i].type == 'i'){
+            if(out[i].type == 'V' || out[i].type == 'v' || out[i].type == 'C' || out[i].type == 'c' || out[i].type == 'I' || out[i].type == 'i'|| out[i].type == 'D' || out[i].type == 'd'){
                 int topnode = 99;
                 int botnode = 99;
                 //cout << out[i].A.number << " b is: " << out[i].B.number << endl;
@@ -87,26 +86,26 @@ vector<Component> patchSupernodes(vector<Component> list)
                 botnode =out[i].B.super;}
                 else {topnode = out[i].B.super;
                 botnode =out[i].A.super;}
-                 cout << "topnode is :" << topnode << " botnode is: " << botnode << endl;
+                 //cout << "topnode is :" << topnode << " botnode is: " << botnode << endl;
                  
                 for(int x=0;x<out.size();x++){
                     //cout << "loop: " << x << endl;
                     if(out[x].A.super == botnode){
                     out[x].A.super = topnode;
-                    cout << "set " << out[x].name << out[x].A.number << "to " <<  out[x].A.super << endl;
+                    //cout << "set " << out[x].name << out[x].A.number << "to " <<  out[x].A.super << endl;
                     }
                     else
                     {//out[x].A.super = out[x].A.super;
-                    cout <<  out[x].name << "has " << out[x].A.number << " not equal " << botnode << endl;       
+                    //cout <<  out[x].name << "has " << out[x].A.number << " not equal " << botnode << endl;       
                     }
                     
                     if(out[x].B.super == botnode){
                     out[x].B.super = topnode;
-                    cout << "set " << out[x].name << out[x].B.number << " to " <<  out[x].B.super << endl;
+                    //cout << "set " << out[x].name << out[x].B.number << " to " <<  out[x].B.super << endl;
                     }
                     else
                     {//out[x].B.super = out[x].A.number;
-                    cout << out[x].B.number << " not equal " << botnode << endl;
+                    //cout << out[x].B.number << " not equal " << botnode << endl;
                     }
 
                 }
@@ -189,7 +188,7 @@ float procData(string x)
         else if(sci[0] == tolower('G'))
             return num * pow(10,-3);
         else{
-            return num;
+            return -1;
         }
                
     }
@@ -293,7 +292,7 @@ int main()
 
     pair<MatrixXd, VectorXd> knowns = conductance_current (out, noden);
 
-    test(noden, knowns.first, knowns.second);
+    //test(noden, knowns.first, knowns.second);
 
     cout << endl;
 
@@ -312,9 +311,9 @@ int main()
     cout << "f " << endl;
 
 
-    pair<MatrixXd, vector<int>> TransMat = MatrixUpdate (out, noden);
+    //pair<MatrixXd, vector<int>> TransMat = MatrixUpdate (out, noden);
 
-    cout << "updated_matrix " << TransMat.first << endl;
+    //cout << "updated_matrix " << TransMat.first << endl;
     
     /*/
     VectorXd transrhs;

@@ -1,0 +1,7 @@
+* C:\Users\Jason\Downloads\Real\Real\CSourcesANDVSourcesANDResistors\SeriesC1FlipSource_R.asc
+R1 N001 0 1
+I2 N001 N002 2
+I1 0 N002 2
+.op
+.backanno
+.end

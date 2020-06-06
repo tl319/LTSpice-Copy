@@ -1,0 +1,7 @@
+* C:\Users\Jason\Downloads\Real\Real\VSourcesANDResistors\SeriesVsourcebothflip_R.asc
+V1 0 N002 1
+V2 N002 N001 1
+R1 N001 0 1
+.op
+.backanno
+.end

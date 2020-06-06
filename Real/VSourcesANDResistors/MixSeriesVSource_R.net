@@ -1,0 +1,8 @@
+* C:\Users\Jason\Downloads\Real\Real\VSourcesANDResistors\MixSeriesVSource_R.asc
+V1 N003 0 1
+V2 N001 N002 1
+R1 N002 N003 1
+R2 N001 0 1
+.op
+.backanno
+.end
