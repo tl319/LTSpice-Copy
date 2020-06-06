@@ -311,10 +311,15 @@ int main()
     
     cout << "f " << endl;
 
+    vector<bool> wrong = incorrect_assumptions (knowns.first, component_currents);
 
-    pair<MatrixXd, vector<int>> TransMat = MatrixUpdate (out, noden);
+    pair<MatrixXd, vector<int>> CorrectMat = CorrectAsumptions (out, noden, wrong);
 
-    cout << "updated_matrix " << TransMat.first << endl;
+    cout << "updated_matrix " << CorrectMat.first << endl;
+
+    pastnodes = matrixSolve(CorrectMat.first, CorrectMat.second);
+
+    cout << "vc " << pastnodes << endl;
     
     /*/
     VectorXd transrhs;

@@ -139,7 +139,7 @@ float procData(string x);
 void test(int noden, MatrixXd conducts, VectorXd currents);
 //print out conductance matrix and current vector
 
-
+pair<MatrixXd, vector<int>> CorrectAssumptions (vector<Component> comps, int noden, vector<bool> incorrect_assumptions);
 
 
 
@@ -178,5 +178,8 @@ int component_index (vector<Component> comps, Component C);
 
 float vs_current (vector<Component> comps, Component C, vector<bool> & computed, VectorXd currents, Node N);
 //used to compute current through voltage sources or capacitors
+
+vector<bool> incorrect_assumptions(VectorXd comp_currents, vector<components> comps);
+//check currents accross nonlinear components to determine their mode
 
 #endif

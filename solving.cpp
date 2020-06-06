@@ -3,6 +3,12 @@
 using namespace std;
 using namespace Eigen;
 
+//!!
+//remember to change all arguments to const refs when possible
+//!!
+//"pre-compute" values that are computed more than once per scope
+//!!
+
 VectorXd VectorUpdate (vector<Component> comps, int noden, float time, VectorXd pastnodes, VectorXd comp_currents, float interval, vector<int> c_vs_row)
 {
     //assign the row corresponding to the lowest numbered node as that representing the voltage source
@@ -249,3 +255,18 @@ VectorXd comp_currents (vector<Component> comps, vector<Node> nlist, VectorXd no
     return currents;
 }
 
+//after calculating voltages and currents assuming all NL components are active, determine which actually are
+vector<bool> incorrect_assumptions(VectorXd comp_currents, vector<components> comps)
+{
+    vector<bool> incorrect_assumptions (comps.size(), 0);
+
+    for(int i = 0; i< comps.size(); i++)
+    {
+        if(comps[i].type == 'D' && comp_currents[i] < 0)
+        {
+            incorrect_assumptions[i] = 1l
+        }
+    }
+
+    return incorrect_assumptions;
+}
