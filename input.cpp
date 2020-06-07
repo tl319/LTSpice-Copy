@@ -29,18 +29,19 @@ VectorXd matrixSolve(MatrixXd m,VectorXd v)
 	return inverse *v;}
 
 
+ostream& operator<<(ostream& os, const Node& c)
+{
+
+    os << "Number: " << c.number  << " label: "<< c.label << " supernode: "<< c.super << endl;
+    return os;
+}
+
 ostream& operator<<(ostream& os, const Component& c)
 {
     if(c.isSignal)
     {os << c.type << ':' << c.name << ':' << c.A.label << ':' << c.B.label << ':' << c.DCOff << ':' << c.amplitude << ':' << c.frequency << endl;}
     else
     {os << c.type << ':' << c.name << ':' << c.A.label << ':' << c.B.label << ':' << c.value << endl;}
-    return os;
-}
-ostream& operator<<(ostream& os, const Node& c)
-{
-
-    os << "Number: " << c.number  << " label: "<< c.label << " supernode: "<< c.super << endl;
     return os;
 }
 ostream& operator<<(ostream& os, const Simulation& c)
@@ -86,7 +87,7 @@ vector<Component> patchSupernodes(vector<Component> list)
                 botnode =out[i].B.super;}
                 else {topnode = out[i].B.super;
                 botnode =out[i].A.super;}
-                 //cout << "topnode is :" << topnode << " botnode is: " << botnode << endl;
+                 cout << "topnode is :" << topnode << " botnode is: " << botnode << endl;
                  
                 for(int x=0;x<out.size();x++){
                     //cout << "loop: " << x << endl;
@@ -217,6 +218,26 @@ void writeOP(const vector<Node>& nlist, const vector<Component>& out,const Vecto
     }
     cout << endl;
 }
+void writeOPReadable(const vector<Node>& nlist, const vector<Component>& out,const VectorXd& pastnodes, const VectorXd& component_currents)
+{
+    cout << nlist[1].label;
+    for(int i = 2;i<nlist.size();i++) {
+        cout << " " << nlist[i].label;
+    }
+        cout << endl << pastnodes(0);
+    for(int i = 1;i<pastnodes.size();i++) {
+        cout << '\t' << pastnodes(i);
+    } 
+
+    for(int i = 0;i<out.size();i++) {
+        cout << '\t' << out[i].name;
+    }
+
+     for(int i = 0;i<component_currents.size();i++) {
+        cout << '\t' << component_currents(i); 
+    }
+    cout << endl;
+}
 
 void writeTranHeaders(const vector<Node>& nlist, const vector<Component>& out)
 {
@@ -306,6 +327,18 @@ int main()
     pair<vector<Component>, Simulation> testm = readInput();
     vector<Component> out = patchComponents(testm.first);
     vector<Node> nlist = findNodes(out);
+    for(auto x : nlist)
+    {
+        cout << x << endl;
+    }
+    cout << endl;
+    for(auto x : out)
+    {
+        cout << x;
+        cout << "A is "<< x.A;
+        cout << "B is "<< x.B << endl;
+    }
+
     VectorXd component_currents = VectorXd::Zero (out.size());
     int noden = compute_noden(nlist);
 
@@ -314,8 +347,10 @@ int main()
     cout << "conductance_current " << endl;
 
     pair<MatrixXd, VectorXd> knowns = conductance_current (out, noden);
-
-    test(noden, knowns.first, knowns.second);
+    cout << "conducntace matrix " << endl;
+    cout << knowns.first;
+    cout << knowns.second;
+    //test(noden, knowns.first, knowns.second);
 
     cout << endl;
 
