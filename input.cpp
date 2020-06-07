@@ -307,9 +307,11 @@ int main()
     pair<MatrixXd, VectorXd> knowns = conductance_current (out, noden);
     VectorXd pastnodes = matrixSolve(knowns.first, knowns.second);
     component_currents = comp_currents (out, nlist, pastnodes, 0);
-    
-    pair<MatrixXd, vector<int>> TransMat = MatrixUpdate (out, noden);
-
+    cout << "---------------------- Our Generated Values --------------------------" << endl;
+    writeOP(nlist,out,pastnodes,component_currents);
+    cout << "-------------------------LTspice Values-------------------------------" << endl;
+    //pair<MatrixXd, vector<int>> TransMat = MatrixUpdate (out, noden);
+    /*
     VectorXd transrhs;
     writeTranHeaders(nlist,out);
     for(float i = 0.001; i <= 1; i = i + 0.0001 )
@@ -323,6 +325,6 @@ int main()
         writeTran(pastnodes,component_currents, i);
 
     }  
-    
+    */
     
 }
