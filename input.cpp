@@ -77,7 +77,7 @@ vector<Component> patchSupernodes(vector<Component> list)
 {
     vector<Component> out = list;
     for(int i=0;i<out.size();i++){
-            if(out[i].type == 'V' || out[i].type == 'v' || out[i].type == 'C' || out[i].type == 'c' || out[i].type == 'I' || out[i].type == 'i'|| out[i].type == 'D' || out[i].type == 'd'){
+            if(out[i].type == 'V' || out[i].type == 'v' || out[i].type == 'C' || out[i].type == 'c'|| out[i].type == 'D' || out[i].type == 'd'){
                 int topnode = 99;
                 int botnode = 99;
                 //cout << out[i].A.number << " b is: " << out[i].B.number << endl;
@@ -174,25 +174,29 @@ float procData(string x)
     {
         string sci = removeChar(x,'S');
         if(tolower(sci[0]) == tolower('k'))
-            return num * 1000;
+            num = num * 1000;
         else if(tolower(sci[0]) == tolower('p'))
-            return num * pow(10,-12);
+            num = num * pow(10,-12);
         else if(tolower(sci[0]) == tolower('n'))
-            return num * pow(10,-9);
+            num = num * pow(10,-9);
         else if(tolower(sci[0]) == tolower('u'))
-            return num * pow(10,-6);
+            num = num * pow(10,-6);
         else if(sci[0] == 'm')
-            return num * pow(10,-3);
+            num = num * pow(10,-3);
         else if(sci[0] == 'M')
-            return num * pow(10,6);
+            num = num * pow(10,6);
         else if(sci[0] == tolower('G'))
-            return num * pow(10,-3);
+            num =num * pow(10,-3);
         else{
             return -1;
         }
                
     }
-    return num;
+    size_t found = x.find('-'); 
+    if (found != string::npos)  
+        {return num * -1;}
+    else
+        return num;
 }
 
 void writeOP(const vector<Node>& nlist, const vector<Component>& out,const VectorXd& pastnodes, const VectorXd& component_currents)
