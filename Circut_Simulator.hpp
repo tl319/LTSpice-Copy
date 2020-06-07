@@ -39,7 +39,7 @@ struct Simulation
 {
 	string type;
 	float stop = -1;
-        float step = -1;
+    float step = -1;
         
 	Simulation(){;}
 	Simulation(string t, float stp, float sep)

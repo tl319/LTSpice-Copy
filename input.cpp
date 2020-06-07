@@ -195,14 +195,49 @@ float procData(string x)
     return num;
 }
 
-void writeFile(Node n)
+void writeOP(const vector<Node>& nlist, const vector<Component>& out,const VectorXd& pastnodes, const VectorXd& component_currents)
 {
-    cout << "time" << '\t' << n.label << endl;
+    cout << nlist[1].label;
+    for(int i = 2;i<nlist.size();i++) {
+        cout << '\t' << nlist[i].label;
+    }
+    for(int i = 0;i<out.size();i++) {
+        cout << '\t' << out[i].name;
+    }
+    cout << endl << pastnodes(0);
+    for(int i = 1;i<pastnodes.size();i++) {
+        cout << '\t' << pastnodes(i);
+    } 
+     for(int i = 0;i<component_currents.size();i++) {
+        cout << '\t' << component_currents(i); 
+    }
+    cout << endl;
 }
 
-void writeFile(float time, float voltage)
+void writeTranHeaders(const vector<Node>& nlist, const vector<Component>& out)
 {
-    cout << time << '\t' << voltage << endl;
+    cout << "time";
+    for(int i = 1;i<nlist.size();i++) {
+        cout << '\t' << nlist[i].label;
+    }
+    for(int i = 0;i<out.size();i++) {
+        cout << '\t' << out[i].name;
+    }
+    cout << endl;
+
+}
+
+void writeTran(const VectorXd& pastnodes,const VectorXd& component_currents, float time)
+{
+    //cout << "it " << component_currents << endl; 
+    cout << time;
+    for(int i = 0;i<pastnodes.size();i++) {
+        cout << '\t' << pastnodes(i);
+    } 
+    for(int i = 0;i<component_currents.size();i++) {
+        cout << '\t' << component_currents(i); 
+    }
+    cout << endl;
 }
 
 
@@ -267,65 +302,27 @@ int main()
     pair<vector<Component>, Simulation> testm = readInput();
     vector<Component> out = patchComponents(testm.first);
     vector<Node> nlist = findNodes(out);
-
     VectorXd component_currents = VectorXd::Zero (out.size());
-
-    /*/
-    cout << testm.second;
-    for(auto x : out)
-    {
-        cout << x;
-    }
-    
-    for (auto x : nlist)
-    { cout << "Name is :" << x.label <<  " number is :" << x.number << endl; 
-    }
-    for(auto x : out)
-    {
-            cout << x.name << endl << "A :"<< x.A << "B :" << x.B << endl;
-    }
-    /*/
-   
     int noden = compute_noden(nlist);
-
-    cout << "conductance_current " << endl;
-
     pair<MatrixXd, VectorXd> knowns = conductance_current (out, noden);
-
-    //test(noden, knowns.first, knowns.second);
-
-    cout << endl;
-
-    VectorXd pastnodes;
-
-    pastnodes = matrixSolve(knowns.first, knowns.second);
-
-    cout << "v " << pastnodes << endl;
-
-    cout << endl;
-
+    VectorXd pastnodes = matrixSolve(knowns.first, knowns.second);
     component_currents = comp_currents (out, nlist, pastnodes, 0);
-
-    cout << "i " << component_currents << endl;    
     
-    cout << "f " << endl;
+    pair<MatrixXd, vector<int>> TransMat = MatrixUpdate (out, noden);
 
-
-    //pair<MatrixXd, vector<int>> TransMat = MatrixUpdate (out, noden);
-
-    //cout << "updated_matrix " << TransMat.first << endl;
-    
-    /*/
     VectorXd transrhs;
-    for(float i = 0.001; i <= 0.01; i = i + 0.0000000001 )
+    writeTranHeaders(nlist,out);
+    for(float i = 0.001; i <= 1; i = i + 0.0001 )
     {
-        cout << i << endl;
-        transrhs = VectorUpdate (out, noden, i, pastnodes, component_currents, 0.001, TransMat.second);
+        //cout << i << endl;
+        transrhs = VectorUpdate (out, noden, i, pastnodes, component_currents, 0.0001, TransMat.second);
         pastnodes << matrixSolve(TransMat.first, transrhs);
-        cout << "vt " << pastnodes << endl;
-        component_currents = comp_currents (out, nlist, pastnodes, 0);
-        cout << "it " << component_currents << endl; 
+        
+        //cout << "vt " << pastnodes << endl;
+        component_currents = comp_currents (out, nlist, pastnodes, 0.0001);
+        writeTran(pastnodes,component_currents, i);
+
     }  
-    /*/
-     
+    
+    
 }
