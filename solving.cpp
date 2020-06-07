@@ -371,5 +371,8 @@ pair<VectorXd, vector<bool>> sufficient_currents (vector<Component> comps, vecto
 //compute currents accross "insufficient" (V, C, D) components in series with sufficient components (ie traversed by a known current)
 VectorXd series_currents (vector<Component> comps, vector<Node> nlist, VectorXd nodev, float interval, vector<bool> computed)
 {
-    
+    for(int i = 0; i<comps.size(); i++)
+    {
+        
+    }
 }

@@ -113,10 +113,14 @@ pair<MatrixXd, VectorXd> conductance_current(vector<Component> comps, int noden)
                 {
                     if( nA(comps[i]) != 0)
                     {
+                        cout << "1t" << endl;
+                        cout << SnA(comps[i]) -1 << endl;
+                        cout <<  nA(comps[i]) -1 << endl;
                         conducts ( SnA(comps[i]) -1, nA(comps[i]) -1) += conductance;
                     }
                     if( nA(comps[i]) != 0 && nB(comps[i]) != 0)
                     {
+                        cout << "2t" << endl;
                         conducts ( SnA(comps[i]) -1, nB(comps[i]) -1) -= conductance;
                     }
                 }
@@ -129,10 +133,12 @@ pair<MatrixXd, VectorXd> conductance_current(vector<Component> comps, int noden)
                 {
                     if( nB(comps[i]) != 0)
                     {
+                        cout << "3t" << endl;
                         conducts ( SnB(comps[i]) -1, nB(comps[i]) -1) += conductance;
                     }
                     if( nA(comps[i]) != 0 && nB(comps[i]) != 0)
                     {
+                        cout << "4t" << endl;
                         conducts ( SnB(comps[i]) -1, nA(comps[i]) -1) -= conductance;
                     }
                 }
@@ -312,8 +318,7 @@ pair<MatrixXd, VectorXd> conductance_current(vector<Component> comps, int noden)
                 }
             }        
         }
-
-        //test(noden, conducts, currents);
+        test(noden, conducts, currents);
     }
     return {conducts, currents};
 }
