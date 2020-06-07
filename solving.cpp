@@ -336,7 +336,7 @@ void series_currents (vector<Component> comps, vector<Node> nlist, VectorXd node
                     if(same_node[j].type == 'R')
                     {
                         //why does this work? come back later
-                        total_current -= (comp_currents( component_index(comps, same_node[j]) );
+                        total_current -= (comp_currents( component_index(comps, same_node[j]) ));
                     }
                     cout << comps[i].name << " " << same_node[j].name << " " << total_current << endl;
                 }

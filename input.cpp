@@ -220,21 +220,13 @@ void writeOP(const vector<Node>& nlist, const vector<Component>& out,const Vecto
 }
 void writeOPReadable(const vector<Node>& nlist, const vector<Component>& out,const VectorXd& pastnodes, const VectorXd& component_currents)
 {
-    cout << nlist[1].label;
-    for(int i = 2;i<nlist.size();i++) {
-        cout << " " << nlist[i].label;
+    for(int i = 0;i<pastnodes.size();i++) {
+        cout << "V(" << nlist[i+1].label << ") : ";
+        cout << pastnodes(i) << endl;
     }
-        cout << endl << pastnodes(0);
-    for(int i = 1;i<pastnodes.size();i++) {
-        cout << '\t' << pastnodes(i);
-    } 
-
     for(int i = 0;i<out.size();i++) {
-        cout << '\t' << out[i].name;
-    }
-
-     for(int i = 0;i<component_currents.size();i++) {
-        cout << '\t' << component_currents(i); 
+        cout << "I(" << out[i].name << ") : ";
+        cout << component_currents(i) << endl; 
     }
     cout << endl;
 }
@@ -356,7 +348,7 @@ int main()
 
     pair<VectorXd, VectorXd> values = adjust_modes(knowns.first, knowns.second, out, nlist);
 
-    writeOP (nlist, out, values.first, values.second);
+    writeOPReadable(nlist, out, values.first, values.second);
     
     /*/
     VectorXd transrhs;
