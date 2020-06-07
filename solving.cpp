@@ -57,15 +57,15 @@ VectorXd VectorUpdate (vector<Component> comps, int noden, float time, VectorXd 
             }    
         }
 
-        //dealing with current sources
+        //current sources
         if(comps[i].type == 'I')
         {
-            if(nA(comps[i]) != 0)
+            if(nA(comps[i]) != 0 && locked[nA(comps[i])-1] == 0)
             {
                 currents(nA(comps[i]) -1) += val;
             }
 
-            if(nB(comps[i]) != 0)
+            if(nB(comps[i]) != 0 && locked[nB(comps[i])-1] == 0)
             {
                 currents(nB(comps[i]) -1) -= val;
             }
@@ -259,7 +259,7 @@ VectorXd comp_currents (vector<Component> comps, vector<Node> nlist, VectorXd no
     for(int i = 0; i<comps.size(); i++)
     {
         //recursively obtaining currents through components functioning as voltage sources (i.e. other currents into one of their nodes)
-        if(comps[i].type != 'R' && comps[i].type != 'I')
+        if(comps[i].type != 'R' && comps[i].type != 'I' && comps[i].type != 'L')
         {
             //pass in node A by default, perhaps possible to optimise
             currents(i) = vs_current(comps, comps[i], computed, currents, comps[i].A);

@@ -317,12 +317,7 @@ int main()
 
     pair<VectorXd, VectorXd> values = adjust_modes(knowns.first, knowns.second, out, nlist);
 
-    cout << "node voltages " << endl;
-    cout << values.first << endl;
-    cout << endl;
-    cout << "component currents " << endl;
-    cout << values.second << endl;
-
+    writeOP (nlist, out, values.first, values.second);
     
     /*/
     VectorXd transrhs;

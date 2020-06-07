@@ -230,12 +230,12 @@ pair<MatrixXd, VectorXd> conductance_current(vector<Component> comps, int noden)
         //current sources
         if(comps[i].type == 'I')
         {
-            if(nA(comps[i]) != 0)
+            if(nA(comps[i]) != 0 && locked[nA(comps[i])-1] == 0)
             {
                 currents(nA(comps[i]) -1) += val;
             }
 
-            if(nB(comps[i]) != 0)
+            if(nB(comps[i]) != 0 && locked[nB(comps[i])-1] == 0)
             {
                 currents(nB(comps[i]) -1) -= val;
             }

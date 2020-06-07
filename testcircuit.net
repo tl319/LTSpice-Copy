@@ -1,9 +1,9 @@
 * C:\Users\david\Desktop\École\Université\Undergrad\Work\Labs\ADC4\Draft9.asc
-V1 a 0 3
-R2 c 0 9
-R3 c b 7
-R1 b a 5
-R4 0 a 6
+R1 N001 0 4
+V1 N002 0 5
+D1 N002 N001 1N914
+.model D D
+.lib C:\Users\david\Documents\LTspiceXVII\lib\cmp\standard.dio
 .op
 .backanno
 .end
