@@ -6,18 +6,18 @@ using namespace Eigen;
 //used in vs_current to determine other components connected to C at A
 vector<Component> common_node (vector<Component> comps, Component C, Node A)
 {
-vector<Component> shared_node;
+    vector<Component> shared_node;
 
-for(int i = 0; i<comps.size(); i++)
-{
-    cout << "for ";
-    if( ( nA(comps[i]) == A.number || nB(comps[i]) == A.number ) && comps[i].name != C.name )
+    for(int i = 0; i<comps.size(); i++)
     {
-        shared_node.push_back(comps[i]);
+        cout << "for ";
+        if( ( nA(comps[i]) == A.number || nB(comps[i]) == A.number ) && comps[i].name != C.name )
+        {
+            shared_node.push_back(comps[i]);
+        }
     }
-}
-cout << endl;
-return shared_node;
+    cout << endl;
+    return shared_node;
 }
 
 //returns the index of a component in  the component vector

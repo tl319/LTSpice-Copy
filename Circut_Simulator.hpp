@@ -143,6 +143,12 @@ void test(int noden, MatrixXd conducts, VectorXd currents);
 
 pair<MatrixXd, vector<int>> CorrectAssumptions (vector<Component> comps, int noden, vector<bool> incorrect_assumptions);
 
+//compute currents accross each "sufficient" (R, L, I) component, ie currents that can be directly computed without othe currents
+pair<VectorXd, vector<bool>> sufficient_currents (vector<Component> comps, vector<Node> nlist, VectorXd nodev, float interval);
+
+//compute currents accross "insufficient" (V, C, D) components in series with sufficient components (ie traversed by a known current)
+void series_currents (vector<Component> comps, vector<Node> nlist, VectorXd nodev, float interval, vector<bool> & computed, VectorXd & comp_currents);
+
 
 
 

@@ -311,10 +311,6 @@ int main()
 
     cout << noden << endl;
 
-    cout << nlist[0].number << " " << nlist[0].label << endl;
-    cout << nlist[1].number << " " << nlist[1].label << endl;
-    cout << nlist[2].number << " " << nlist[2].label << endl;
-
     cout << "conductance_current " << endl;
 
     pair<MatrixXd, VectorXd> knowns = conductance_current (out, noden);

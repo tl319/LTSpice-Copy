@@ -1,7 +1,13 @@
-C:\Users\Jason\Downloads\Real\Real\CSourcesANDVSourcesANDResistors\SeriesVSourceCSource_R.asc
-R1 N001 0 1
-V1 N002 0 1
-I2 N001 N002 2
+* C:\Users\david\Desktop\École\Université\Undergrad\Work\Labs\ADC4\Draft9.asc
+R1 a 0 4
+V1 a 0 5
+I1 0 a 7
+R2 a 0 3
+R3 a 0 9
+I2 c a 8
+I3 0 b 6
+V2 b a 4
+R4 c b 5
 .op
 .backanno
 .end
