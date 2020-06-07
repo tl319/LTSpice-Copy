@@ -262,7 +262,7 @@ VectorXd comp_currents (vector<Component> comps, vector<Node> nlist, VectorXd no
         if(comps[i].type != 'R' && comps[i].type != 'I')
         {
             //pass in node A by default, perhaps possible to optimise
-            currents(i) = (-1) * vs_current(comps, comps[i], computed, currents, comps[i].A);
+            currents(i) = vs_current(comps, comps[i], computed, currents, comps[i].A);
         }
     }
     return currents;

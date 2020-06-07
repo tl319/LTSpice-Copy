@@ -1,9 +1,9 @@
 * C:\Users\david\Desktop\École\Université\Undergrad\Work\Labs\ADC4\Draft9.asc
 V1 a 0 3
-R2 0 c 9
+R2 c 0 9
 R3 c b 7
-V2 b a 3
-V3 b a 3
+R1 b a 5
+R4 0 a 6
 .op
 .backanno
 .end

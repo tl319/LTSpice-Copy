@@ -338,6 +338,6 @@ int main()
         writeTran(pastnodes,component_currents, i);
 
     }  
-    
+    /*/
     
 }
