@@ -9,7 +9,7 @@ using namespace Eigen;
 //"pre-compute" values that are computed more than once per scope
 //!!
 
-VectorXd VectorUpdate (vector<Component> comps, int noden, float time, VectorXd pastnodes, VectorXd comp_currents, float interval, vector<int> c_vs_row, vector<bool> incorrect_assumptions)
+VectorXd VectorUpdate (vector<Component> comps, int noden, float time, VectorXd pastnodes, VectorXd component_currents, float interval, vector<int> c_vs_row, vector<bool> incorrect_assumptions)
 {
     //assign the row corresponding to the lowest numbered node as that representing the voltage source
     //for floating voltage sources
@@ -91,7 +91,7 @@ VectorXd VectorUpdate (vector<Component> comps, int noden, float time, VectorXd 
             if( nB(comps[i]) == 0 && nA(comps[i]) != 0)
             {
                 //write the source voltage to this index in the rhs vector
-                currents(nA(comps[i]) -1) = (comp_currents(i)) * interval/val; 
+                currents(nA(comps[i]) -1) = (component_currents(i)) * interval/val; 
             }
 
             //positive terminal to ground
@@ -99,7 +99,7 @@ VectorXd VectorUpdate (vector<Component> comps, int noden, float time, VectorXd 
             if(nA(comps[i]) == 0 && nB(comps[i]) != 0)
             {
                 //also write -1* the source voltage to this index in the rhs vector
-                currents(nB(comps[i]) -1) = (-1)*(comp_currents(i)) * interval/val;
+                currents(nB(comps[i]) -1) = (-1)*(component_currents(i)) * interval/val;
             }
 
             //floating voltage source
@@ -109,7 +109,7 @@ VectorXd VectorUpdate (vector<Component> comps, int noden, float time, VectorXd 
                 row = c_vs_row[i];
 
                 //in that row of the rhs vector, write the current source value
-                currents(row) = (comp_currents(i)) * interval/val; 
+                currents(row) = (component_currents(i)) * interval/val; 
             }    
         }
 
@@ -129,6 +129,7 @@ VectorXd VectorUpdate (vector<Component> comps, int noden, float time, VectorXd 
 vector<Component> common_node (vector<Component> comps, Component C, Node A)
 {
     vector<Component> shared_node;
+
     for(int i = 0; i<comps.size(); i++)
     {
         if( ( nA(comps[i]) == A.number || nB(comps[i]) == A.number ) && comps[i].name != C.name )
@@ -207,6 +208,7 @@ float vs_current (vector<Component> comps, Component C, vector<bool> & computed,
 }
 
 //compute currents accross each component, set interval to 0 if at start of transient or operating point
+//does this work for operating point reactive components?
 VectorXd comp_currents (vector<Component> comps, vector<Node> nlist, VectorXd nodev, float interval)
 {
     //register components take care of, to differetiate non calculated values from 0 currents
@@ -265,14 +267,14 @@ VectorXd comp_currents (vector<Component> comps, vector<Node> nlist, VectorXd no
 }
 
 //after calculating voltages and currents assuming all NL components are active, determine which actually are
-vector<bool> incorrect_assumptions(VectorXd comp_currents, vector<Component> comps)
+vector<bool> incorrect_assumptions(VectorXd component_currents, vector<Component> comps)
 {
     vector<bool> incorrect_assumptions (comps.size()+1, 0);
 
     for(int i = 0; i< comps.size(); i++)
     {
         //cout << comps[i].name << " " << comp_currents[i] << endl;
-        if(comps[i].type == 'D' && comp_currents[i] < 0)
+        if(comps[i].type == 'D' && component_currents[i] < 0)
         {
             //cout << "oof" << endl;
             incorrect_assumptions[comps.size()] = 1;
@@ -283,15 +285,34 @@ vector<bool> incorrect_assumptions(VectorXd comp_currents, vector<Component> com
     return incorrect_assumptions;
 }
 
-//return matrix and current vector for correct nonlinear modes
-void adjust_modes(MatrixXd & lhs, VectorXd & rhs, const vector<Component> & comps) 
+//return voltage and current vector for correct nonlinear modes
+pair<VectorXd, VectorXd> adjust_modes(MatrixXd lhs, VectorXd rhs, const vector<Component> & comps, const vector<Node> & nodes) 
 {
     vector<bool> oof;
+    VectorXd nodev;
+    VectorXd component_currents;
+    VectorXd new_rhs;
 
-    oof = incorrect_assumptions(rhs, comps);
+    //probably should take as argument
+    int noden = compute_noden(nodes);
 
-    if(oof[comps.size()] == 1)
+    pair<MatrixXd, vector<int>> new_mat;
+
+    nodev = matrixSolve(lhs, rhs);
+
+    //what happens with the increment in operating point?
+    component_currents = comp_currents(comps, nodes, nodev, 1);
+
+    oof = incorrect_assumptions(component_currents, comps);
+
+    while(oof[comps.size()] == 1)
     {
-        
+        new_mat = CorrectAssumptions (comps, noden, oof);
+        new_rhs = VectorUpdate (comps, noden, 1, nodev, component_currents, 1, new_mat.second, oof);
+        nodev = matrixSolve(new_mat.first, new_rhs);
+        component_currents = comp_currents(comps, nodes, nodev, 1);
+        oof = incorrect_assumptions(component_currents, comps);
     }
+
+    return{nodev, component_currents};
 }

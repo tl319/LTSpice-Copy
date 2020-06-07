@@ -127,6 +127,8 @@ VectorXd comp_currents (vector<Component> comps, vector<Node> nlist, VectorXd no
 pair<MatrixXd, vector<int>> MatrixUpdate (vector<Component> comps, int noden);
 //update matrix to reflect the change in behaviour of reactive components
 
+//return voltage and current vector for correct nonlinear modes
+pair<VectorXd, VectorXd> adjust_modes(MatrixXd lhs, VectorXd rhs, const vector<Component> & comps, const vector<Node> & nodes);
 
 // *** Quality of Life functions ***
 ostream& operator<<(ostream& os, const Component& c);

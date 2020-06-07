@@ -288,6 +288,8 @@ int main()
    
     int noden = compute_noden(nlist);
 
+    cout << noden << endl;
+
     cout << "conductance_current " << endl;
 
     pair<MatrixXd, VectorXd> knowns = conductance_current (out, noden);
@@ -296,33 +298,14 @@ int main()
 
     cout << endl;
 
-    VectorXd pastnodes;
+    pair<VectorXd, VectorXd> values = adjust_modes(knowns.first, knowns.second, out, nlist);
 
-    pastnodes = matrixSolve(knowns.first, knowns.second);
-
-    cout << "v " << pastnodes << endl;
-
+    cout << "node voltages " << endl;
+    cout << values.first << endl;
     cout << endl;
+    cout << "component currents " << endl;
+    cout << values.second << endl;
 
-    component_currents = comp_currents (out, nlist, pastnodes, 0);
-
-    cout << "i " << component_currents << endl;    
-    
-    cout << "f " << endl;
-
-    vector<bool> wrong = incorrect_assumptions (component_currents, out);
-
-    pair<MatrixXd, vector<int>> CorrectMat = CorrectAssumptions (out, noden, wrong);
-
-    cout << "updated_matrix " << CorrectMat.first << endl;
-
-    VectorXd transrhs = VectorUpdate (out, noden, 1, pastnodes, component_currents, 0.001, CorrectMat.second, wrong);
-
-    cout << "updated_vector " << transrhs << endl;
-
-    pastnodes = matrixSolve(CorrectMat.first, transrhs);
-
-    cout << "vc " << pastnodes << endl;
     
     /*/
     VectorXd transrhs;
