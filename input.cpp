@@ -347,8 +347,8 @@ int main()
     cout << "conductance_current " << endl;
 
     pair<MatrixXd, VectorXd> knowns = conductance_current (out, noden);
-    cout << "conducntace matrix " << endl;
-    cout << knowns.first;
+    cout << "conductance matrix " << endl;
+    cout << knowns.first << endl;
     cout << knowns.second;
     //test(noden, knowns.first, knowns.second);
 

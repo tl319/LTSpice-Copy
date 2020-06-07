@@ -214,8 +214,15 @@ pair<VectorXd, vector<bool>> sufficient_currents (vector<Component> comps, vecto
         //straightforward inclusion of known or calculated currents
         if(comps[i].type == 'R')
         {
-            currents(i) = ( VA - VB )/comps[i].value;
-            computed[i] = 1;
+            if(VA > 0)
+            {
+                currents(i) = ( VA - VB )/comps[i].value;
+                computed[i] = 1;
+            } else {
+                currents(i) = ( VB - VA )/comps[i].value;
+                computed[i] = 1;
+            }
+
         }
         if(comps[i].type == 'I')
         {
@@ -265,6 +272,7 @@ void series_currents (vector<Component> comps, vector<Node> nlist, VectorXd node
 {
     vector<Component> same_node;
     bool acceptable = 1;
+    float total_current = 0;
     float current = 0;
     Node used_node;
 
@@ -278,6 +286,7 @@ void series_currents (vector<Component> comps, vector<Node> nlist, VectorXd node
             {
                 if(same_node[j].type == 'V' || same_node[j].type == 'C' || same_node[j].type == 'D')
                 {
+                    cout << comps[i].name << "1" << endl;
                     acceptable = 0;
                     break;
                 }
@@ -285,12 +294,14 @@ void series_currents (vector<Component> comps, vector<Node> nlist, VectorXd node
 
             if(acceptable == 0)
             {
+                acceptable = 1;
                 same_node = common_node(comps, comps[i], comps[i].B);
                 used_node = comps[i].B;
                 for(int j = 0; j<same_node.size(); j++)
                 {
                     if(same_node[j].type == 'V' || same_node[j].type == 'C' || same_node[j].type == 'D')
                     {
+                        cout << comps[i].name << "2" << endl;
                         acceptable = 0;
                         break;
                     }
@@ -303,11 +314,20 @@ void series_currents (vector<Component> comps, vector<Node> nlist, VectorXd node
                 {
                     if(same_node[j].type == 'I')
                     {
-                        if(used_node.label == same_node[i].A.label)
+                        if(used_node.label == same_node[j].A.label)
                         {
-                            current -= same_node[i].value;
+                            current = (-1)*same_node[j].value;
+                            cout << "t" << endl;
                         } else {
-                            current += same_node[i].value;
+                            current = same_node[j].value;
+                            cout << "T " << same_node[j].value << endl;
+                        }
+
+                        if(used_node.label == comps[i].A)
+                        {
+                            total_current += current;
+                        } else {
+                            total_current -= current;
                         }
                     }
 
@@ -315,15 +335,17 @@ void series_currents (vector<Component> comps, vector<Node> nlist, VectorXd node
 
                     if(same_node[j].type == 'R')
                     {
-                        current -= abs( comp_currents( component_index(comps, same_node[j]) ) );
+                        //why does this work? come back later
+                        total_current -= (comp_currents( component_index(comps, same_node[j]) );
                     }
-                    cout << comps[i].name << " " << same_node[j].name << " " << current << endl;
+                    cout << comps[i].name << " " << same_node[j].name << " " << total_current << endl;
                 }
 
-                comp_currents( i ) = current;
-                current = 0;
+                comp_currents( i ) = total_current;
+                total_current = 0;
             }
             acceptable = 1;
+            cout << "Test" << endl;
         }
     } 
 }
