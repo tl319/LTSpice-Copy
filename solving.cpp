@@ -132,11 +132,13 @@ vector<Component> common_node (vector<Component> comps, Component C, Node A)
 
     for(int i = 0; i<comps.size(); i++)
     {
+        cout << "for ";
         if( ( nA(comps[i]) == A.number || nB(comps[i]) == A.number ) && comps[i].name != C.name )
         {
             shared_node.push_back(comps[i]);
         }
     }
+    cout << endl;
     return shared_node;
 }
 
@@ -307,6 +309,7 @@ pair<VectorXd, VectorXd> adjust_modes(MatrixXd lhs, VectorXd rhs, const vector<C
 
     while(oof[comps.size()] == 1)
     {
+        cout << "while ";
         new_mat = CorrectAssumptions (comps, noden, oof);
         new_rhs = VectorUpdate (comps, noden, 1, nodev, component_currents, 1, new_mat.second, oof);
         nodev = matrixSolve(new_mat.first, new_rhs);

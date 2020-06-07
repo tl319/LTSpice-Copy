@@ -2,10 +2,8 @@
 V1 a 0 3
 R2 0 c 9
 R3 c b 7
-D1 b a 1N914
-D2 a b 1N914
-.model D D
-.lib C:\Users\david\Documents\LTspiceXVII\lib\cmp\standard.dio
+V2 b a 3
+V3 b a 3
 .op
 .backanno
 .end
