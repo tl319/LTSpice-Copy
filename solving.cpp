@@ -165,7 +165,7 @@ const float & interval, const VectorXd & pastnodes, const VectorXd & pastcurrent
 
     pair<MatrixXd, vector<int>> Mat = MatrixUpdate (comps, noden);
     cout << Mat.first << endl;
-
+    writeTranHeaders(nodes, comps);
     //begin one interval after 0
     //i is time in seconds
     for(float i = interval; i<duration; i += interval)
@@ -174,8 +174,6 @@ const float & interval, const VectorXd & pastnodes, const VectorXd & pastcurrent
         nodev = matrixSolve(Mat.first, rhs);
         component_currents = recursive_currents (comps, nodes, nodev, interval);
         values.push_back( {nodev, component_currents} );
-
-        writeTranHeaders(nodes, comps);
         writeTran(nodev, component_currents, i);
     }
 
