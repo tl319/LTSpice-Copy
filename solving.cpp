@@ -149,7 +149,7 @@ pair<VectorXd, VectorXd> adjust_modes(MatrixXd lhs, VectorXd rhs, const vector<C
 {
     vector<bool> oof;
     VectorXd nodev;
-    pair<VectorXd, vector<bool>> component_currents;
+    VectorXd component_currents;
     VectorXd new_rhs;
 
     //probably should take as argument
@@ -162,86 +162,23 @@ pair<VectorXd, VectorXd> adjust_modes(MatrixXd lhs, VectorXd rhs, const vector<C
     //what happens with the increment in operating point?
     //component_currents = comp_currents(comps, nodes, nodev, 1);
 
-    component_currents = sufficient_currents (comps, nodes, nodev, 1);
+    component_currents = recursive_currents (comps, nodes, nodev, 1);
 
-    series_currents (comps, nodes, nodev, 1, component_currents.second, component_currents.first);
+    cout << "D I " << component_currents(2) << endl;
 
-    recursive_currents (comps, nodes, nodev, 1, component_currents.second, component_currents.first);
-
-    cout << "D I " << component_currents.first(2) << endl;
-
-    oof = incorrect_assumptions(component_currents.first, comps);
+    oof = incorrect_assumptions(component_currents, comps);
 
     while(oof[comps.size()] == 1)
     {
         new_mat = CorrectAssumptions (comps, noden, oof);
-        new_rhs = VectorUpdate (comps, noden, 1, nodev, component_currents.first, 1, new_mat.second, oof);
+        new_rhs = VectorUpdate (comps, noden, 1, nodev, component_currents, 1, new_mat.second, oof);
         nodev = matrixSolve(new_mat.first, new_rhs);
         //component_currents = comp_currents(comps, nodes, nodev, 1);
-        component_currents = sufficient_currents (comps, nodes, nodev, 1);
-        series_currents (comps, nodes, nodev, 1, component_currents.second, component_currents.first);
-        recursive_currents (comps, nodes, nodev, 1, component_currents.second, component_currents.first);
-        oof = incorrect_assumptions(component_currents.first, comps);
+        component_currents = recursive_currents (comps, nodes, nodev, 1);
+        oof = incorrect_assumptions(component_currents, comps);
     }
 
-    return{nodev, component_currents.first};
-}
-
-//collapse all 3 main current functions into 1
-
-//compute currents accross each "sufficient" (R, L, I) component, ie currents that can be directly computed without othe currents
-pair<VectorXd, vector<bool>> sufficient_currents (vector<Component> comps, vector<Node> nlist, VectorXd nodev, float interval)
-{
-    //register components take care of, to differetiate non calculated values from 0 currents
-    vector<bool> computed (comps.size(), 0);
-
-    VectorXd currents = VectorXd::Zero (comps.size());
-
-    //voltages at each node
-    float VA;
-    float VB;
-
-    for(int i = 0; i<comps.size(); i++)
-    {
-        if(nA(comps[i]) != 0)
-        {
-            VA = nodev(nA(comps[i]) - 1);
-        } else {
-            VA = 0;
-        }
-
-        if(nB(comps[i]) != 0)
-        {
-            VB = nodev(nB(comps[i]) - 1);
-        } else {
-            VB = 0;
-        }
-
-        //straightforward inclusion of known or calculated currents
-        if(comps[i].type == 'R')
-        {
-            if(VA > 0)
-            {
-                currents(i) = ( VA - VB )/comps[i].value;
-                computed[i] = 1;
-            } else {
-                currents(i) = ( VB - VA )/comps[i].value;
-                computed[i] = 1;
-            }
-
-        }
-        if(comps[i].type == 'I')
-        {
-            currents(i) = comps[i].value;
-            computed[i] = 1;
-        }
-        if(comps[i].type == 'L')
-        {
-            currents(i) = ( VA - VB )*interval/comps[i].value;
-            computed[i] = 1;
-        }
-    }
-    return {currents, computed};
+    return{nodev, component_currents};
 }
 
 //used in vs_current to determine other components connected to C at A
@@ -271,113 +208,103 @@ int component_index (vector<Component> comps, Component C)
     }
 }
 
-
-//probably some stuff to trim
-void pseudo_basecase(Component comp, vector<Component> comps, vector<Node> nlist, VectorXd nodev, float interval, vector<bool> & computed, VectorXd & comp_currents)
+//compute currents accross "insufficient" (V, C, D) components in series with other such components
+VectorXd recursive_currents (vector<Component> comps, vector<Node> nlist, VectorXd nodev, float interval)
 {
-    if(comp.type == 'V' || comp.type == 'C' || comp.type == 'D')
-    {
-        vector<Component> same_node;
-        bool acceptable = 1;
-        float total_current = 0;
-        float current = 0;
-        Node used_node;
+    //register components take care of, to differetiate non calculated values from 0 currents
+    vector<bool> computed (comps.size(), 0);
 
-        same_node = common_node(comps, comp, comp.A);
-        used_node = comp.A;
-        for(int j = 0; j<same_node.size(); j++)
-        {
-            if(same_node[j].type == 'V' || same_node[j].type == 'C' || same_node[j].type == 'D')
-            {
-                acceptable = 0;
-                break;
-            }
-        }
+    VectorXd comp_currents = VectorXd::Zero (comps.size());
 
-        if(acceptable == 0)
-        {
-            acceptable = 1;
-            same_node = common_node(comps, comp, comp.B);
-            used_node = comp.B;
-            for(int j = 0; j<same_node.size(); j++)
-            {
-                if(same_node[j].type == 'V' || same_node[j].type == 'C' || same_node[j].type == 'D')
-                {
-                    acceptable = 0;
-                    break;
-                }
-            }
-        }
-
-        if(acceptable == 1)
-        {
-            for(int j = 0; j<same_node.size(); j++)
-            {
-                if(same_node[j].type == 'I')
-                {
-                    if(used_node.label == same_node[j].A.label)
-                    {
-                        current = (-1)*same_node[j].value;
-                    } else {
-                        current = same_node[j].value;
-                    }
-
-                    if(used_node.label == comp.A)
-                    {
-                        total_current += current;
-                    } else {
-                        total_current -= current;
-                    }
-                }
-
-                //do inductors
-
-                if(same_node[j].type == 'R')
-                {
-                    //why does this work? come back later
-                    //also fix for some cases
-                    total_current -= comp_currents( component_index(comps, same_node[j]) );
-                }
-            }
-
-            if(comp.type == 'D')
-            {
-                total_current = total_current*(-1);
-            }
-
-            comp_currents( component_index(comps, comp) ) = total_current;
-            computed[component_index(comps, comp)] = 1;
-            total_current = 0;
-        }
-        acceptable = 1;
-    }
-}
-
-//compute currents accross "insufficient" (V, C, D) components in series with sufficient components (ie traversed by a known current)
-void series_currents (vector<Component> comps, vector<Node> nlist, VectorXd nodev, float interval, vector<bool> & computed, VectorXd & comp_currents)
-{
     for(int i = 0; i<comps.size(); i++)
     {
-        pseudo_basecase(comps[i], comps, nlist,nodev, interval, computed, comp_currents);
-    } 
+        if( computed[i] == 0 )
+        {
+            comp_currents( i ) = recursive_basecase (i, comps[i], comps, nlist, nodev, interval, computed, comp_currents);
+            computed[component_index(comps, comps[i])] = 1;
+        }
+    }
+    return comp_currents;
 }
 
-float recursive_basecase (Component C, vector<Component> comps, vector<Node> nlist, VectorXd nodev, float interval, vector<bool> & computed, VectorXd & comp_currents)
+float recursive_basecase (int i, const Component & C, const vector<Component> & comps, const vector<Node> & nlist, VectorXd nodev, const float & interval, vector<bool> & computed, VectorXd & comp_currents)
 {
+    vector<Component> A_node;
+    vector<Component> B_node;
     vector<Component> same_node;
     bool acceptable = 1;
     float total_current;
     float current = 0;
     Node used_node;
 
+    //voltages at each node
+    float VA;
+    float VB;
+    
+    if(nA(C) != 0)
+    {
+        VA = nodev(nA(C) - 1);
+    } else {
+        VA = 0;
+    }
+
+    if(nB(C) != 0)
+    {
+        VB = nodev(nB(C) - 1);
+    } else {
+        VB = 0;
+    }
+
+    if(C.type == 'I')
+    {
+        total_current = C.value;
+        computed[i] = 1;
+    }
+
+    if(C.type == 'R' || C.type == 'L')
+    {
+
+        //straightforward inclusion of known or calculated currents
+        if(C.type == 'R')
+        {
+            if(VA > 0)
+            {
+                total_current = ( VA - VB )/C.value;
+                computed[i] = 1;
+            } else {
+                total_current = ( VB - VA )/C.value;
+                computed[i] = 1;
+            }
+
+        }
+
+        if(C.type == 'L')
+        {
+            total_current = ( VA - VB )*interval/C.value;
+            computed[i] = 1;
+        }
+    }
+
+    //probably can replace some common_node calls with i
     if(C.type == 'V' || C.type == 'C' || C.type == 'D')
     {
-        same_node = common_node(comps, C, C.A);
-        used_node = C.A;
+        total_current = 0;
+        //does this actually save time?
+        A_node = common_node(comps, C, C.A);
+        B_node = common_node(comps, C, C.B);
+        if(A_node.size() < B_node.size())
+        {
+            used_node = C.A;
+            same_node = A_node;
+        } else {
+            used_node = C.B;
+            same_node = B_node;
+        }
+
+        cout << C.name << " same_node size " << same_node.size() << endl;
 
         for(int j = 0; j<same_node.size(); j++)
         {
-            total_current = 0;
             if( computed[component_index(comps, same_node[j])] == 1 )
             {
                 if(same_node[j].type == 'R')
@@ -423,9 +350,9 @@ float recursive_basecase (Component C, vector<Component> comps, vector<Node> nli
             } else {
                 if(used_node.label == same_node[j].A.label)
                 {
-                    current = (-1)*recursive_basecase (same_node[j], comps, nlist, nodev, interval, computed, comp_currents);
+                    current = (-1)*recursive_basecase (i, same_node[j], comps, nlist, nodev, interval, computed, comp_currents);
                 } else {
-                    current = recursive_basecase (same_node[j], comps, nlist, nodev, interval, computed, comp_currents);
+                    current = recursive_basecase (i, same_node[j], comps, nlist, nodev, interval, computed, comp_currents);
                 }
 
                 if(used_node.label == C.A)
@@ -441,18 +368,6 @@ float recursive_basecase (Component C, vector<Component> comps, vector<Node> nli
     {
         total_current = total_current*(-1);
     }
-    return total_current;
-}
 
-//compute currents accross "insufficient" (V, C, D) components in series with other such components
-void recursive_currents (vector<Component> comps, vector<Node> nlist, VectorXd nodev, float interval, vector<bool> & computed, VectorXd & comp_currents)
-{
-    for(int i = 0; i<comps.size(); i++)
-    {
-        if( computed[i] == 0 )
-        {
-            comp_currents( i ) = recursive_basecase (comps[i], comps, nlist, nodev, interval, computed, comp_currents);
-            computed[component_index(comps, comps[i])] = 1;
-        }
-    }
+    return total_current;
 }

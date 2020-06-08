@@ -150,7 +150,8 @@ pair<VectorXd, vector<bool>> sufficient_currents (vector<Component> comps, vecto
 void series_currents (vector<Component> comps, vector<Node> nlist, VectorXd nodev, float interval, vector<bool> & computed, VectorXd & comp_currents);
 
 //compute currents accross "insufficient" (V, C, D) components in series with other such components
-void recursive_currents (vector<Component> comps, vector<Node> nlist, VectorXd nodev, float interval, vector<bool> & computed, VectorXd & comp_currents);
+VectorXd recursive_currents (vector<Component> comps, vector<Node> nlist, VectorXd nodev, float interval);
+
 
 
 
@@ -190,7 +191,7 @@ float vs_current (vector<Component> comps, Component C, vector<bool> & computed,
 
 void pseudo_basecase(Component comp, vector<Component> comps, vector<Node> nlist, VectorXd nodev, float interval, vector<bool> & computed, VectorXd & comp_currents);
 
-float recursive_basecase (Component C, vector<Component> comps, vector<Node> nlist, VectorXd nodev, float interval, vector<bool> & computed, VectorXd & comp_currents);
+float recursive_basecase (int i, const Component & C, const vector<Component> & comps, const vector<Node> & nlist, VectorXd nodev, const float & interval, vector<bool> & computed, VectorXd & comp_currents);
 
 vector<bool> incorrect_assumptions(VectorXd comp_currents, vector<Component> comps);
 //check currents accross nonlinear components to determine their mode

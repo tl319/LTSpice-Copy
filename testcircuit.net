@@ -1,11 +1,13 @@
-* C:\Users\david\Desktop\École\Université\Undergrad\Work\Labs\ADC4\Draft10.asc
-V1 a 0 4
-R1 0 b 2
-D1 a b 1N914
-D2 c b 1N914
-R2 c 0 5
-.model D D
-.lib C:\Users\david\Documents\LTspiceXVII\lib\cmp\standard.dio
+* C:\Users\david\Desktop\École\Université\Undergrad\Work\finalproject\ooftest.asc
+R1 a 0 4
+V1 a 0 5
+I1 0 a 7
+R2 a 0 3
+R3 a 0 9
+I2 c a 8
+I3 0 b 6
+V2 b a 4
+R4 b c 5
 .op
 .backanno
 .end
