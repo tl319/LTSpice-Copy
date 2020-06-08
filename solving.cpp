@@ -135,7 +135,7 @@ vector<bool> incorrect_assumptions(VectorXd component_currents, vector<Component
         //cout << comps[i].name << " " << comp_currents[i] << endl;
         if(comps[i].type == 'D' && component_currents[i] < 0)
         {
-            //cout << "oof" << endl;
+            cout << "oof" << endl;
             incorrect_assumptions[comps.size()] = 1;
             incorrect_assumptions[i] = 1;
         }
@@ -168,11 +168,12 @@ pair<VectorXd, VectorXd> adjust_modes(MatrixXd lhs, VectorXd rhs, const vector<C
 
     recursive_currents (comps, nodes, nodev, 1, component_currents.second, component_currents.first);
 
+    cout << "D I " << component_currents.first(2) << endl;
+
     oof = incorrect_assumptions(component_currents.first, comps);
 
     while(oof[comps.size()] == 1)
     {
-        cout << "while ";
         new_mat = CorrectAssumptions (comps, noden, oof);
         new_rhs = VectorUpdate (comps, noden, 1, nodev, component_currents.first, 1, new_mat.second, oof);
         nodev = matrixSolve(new_mat.first, new_rhs);
@@ -250,13 +251,11 @@ vector<Component> common_node (vector<Component> comps, Component C, Node A)
 
     for(int i = 0; i<comps.size(); i++)
     {
-        cout << "for ";
         if( ( nA(comps[i]) == A.number || nB(comps[i]) == A.number ) && comps[i].name != C.name )
         {
             shared_node.push_back(comps[i]);
         }
     }
-    cout << endl;
     return shared_node;
 }
 
@@ -290,7 +289,6 @@ void pseudo_basecase(Component comp, vector<Component> comps, vector<Node> nlist
         {
             if(same_node[j].type == 'V' || same_node[j].type == 'C' || same_node[j].type == 'D')
             {
-                cout << comp << " 1" << endl;
                 acceptable = 0;
                 break;
             }
@@ -305,7 +303,6 @@ void pseudo_basecase(Component comp, vector<Component> comps, vector<Node> nlist
             {
                 if(same_node[j].type == 'V' || same_node[j].type == 'C' || same_node[j].type == 'D')
                 {
-                    cout << comp.name << " 2" << endl;
                     acceptable = 0;
                     break;
                 }
@@ -321,10 +318,8 @@ void pseudo_basecase(Component comp, vector<Component> comps, vector<Node> nlist
                     if(used_node.label == same_node[j].A.label)
                     {
                         current = (-1)*same_node[j].value;
-                        cout << "t" << endl;
                     } else {
                         current = same_node[j].value;
-                        cout << "T " << same_node[j].value << endl;
                     }
 
                     if(used_node.label == comp.A)
@@ -343,7 +338,11 @@ void pseudo_basecase(Component comp, vector<Component> comps, vector<Node> nlist
                     //also fix for some cases
                     total_current -= comp_currents( component_index(comps, same_node[j]) );
                 }
-                cout << comp.name << " " << same_node[j].name << " " << total_current << endl;
+            }
+
+            if(comp.type == 'D')
+            {
+                total_current = total_current*(-1);
             }
 
             comp_currents( component_index(comps, comp) ) = total_current;
@@ -351,7 +350,6 @@ void pseudo_basecase(Component comp, vector<Component> comps, vector<Node> nlist
             total_current = 0;
         }
         acceptable = 1;
-        cout << "Test" << endl;
     }
 }
 
@@ -394,10 +392,8 @@ float recursive_basecase (Component C, vector<Component> comps, vector<Node> nli
                     if(used_node.label == same_node[j].A.label)
                     {
                         current = (-1)*same_node[j].value;
-                        cout << "t" << endl;
                     } else {
                         current = same_node[j].value;
-                        cout << "T " << same_node[j].value << endl;
                     }
 
                     if(used_node.label == C.A)
@@ -413,10 +409,8 @@ float recursive_basecase (Component C, vector<Component> comps, vector<Node> nli
                     if(used_node.label == same_node[j].A.label)
                     {
                         current = (-1)*comp_currents( component_index(comps, same_node[j]) );
-                        cout << "t" << endl;
                     } else {
                         current = comp_currents( component_index(comps, same_node[j]) );
-                        cout << "T " << same_node[j].value << endl;
                     }
 
                     if(used_node.label == C.A)
@@ -427,14 +421,11 @@ float recursive_basecase (Component C, vector<Component> comps, vector<Node> nli
                     }
                 }
             } else {
-                cout << "else " << C.name << endl;
                 if(used_node.label == same_node[j].A.label)
                 {
                     current = (-1)*recursive_basecase (same_node[j], comps, nlist, nodev, interval, computed, comp_currents);
-                    cout << "rt " << endl;
                 } else {
                     current = recursive_basecase (same_node[j], comps, nlist, nodev, interval, computed, comp_currents);
-                    cout << "RT " << same_node[j].value << endl;
                 }
 
                 if(used_node.label == C.A)
@@ -445,6 +436,10 @@ float recursive_basecase (Component C, vector<Component> comps, vector<Node> nli
                 }
             }
         }
+    }
+    if(C.type == 'D')
+    {
+        total_current = total_current*(-1);
     }
     return total_current;
 }
