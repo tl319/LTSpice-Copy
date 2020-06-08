@@ -228,7 +228,8 @@ VectorXd recursive_currents (const vector<Component> & comps, const vector<Node>
     return comp_currents;
 }
 
-float recursive_basecase (const int & i, const Component & C, const vector<Component> & comps, const vector<Node> & nlist, VectorXd nodev, const float & interval, vector<bool> & computed, VectorXd & comp_currents)
+float recursive_basecase (const int & i, const Component & C, const vector<Component> & comps, const vector<Node> & nlist, VectorXd nodev, 
+const float & interval, vector<bool> & computed, VectorXd & comp_currents)
 {
     vector<Component> A_node;
     vector<Component> B_node;
@@ -267,6 +268,9 @@ float recursive_basecase (const int & i, const Component & C, const vector<Compo
         //straightforward inclusion of known or calculated currents
         if(C.type == 'R')
         {
+            total_current = ( VA - VB )/C.value;
+            computed[i] = 1;
+            /*/
             if(VA > 0)
             {
                 total_current = ( VA - VB )/C.value;
@@ -275,6 +279,7 @@ float recursive_basecase (const int & i, const Component & C, const vector<Compo
                 total_current = ( VB - VA )/C.value;
                 computed[i] = 1;
             }
+            /*/
 
         }
 
