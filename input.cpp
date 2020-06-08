@@ -332,13 +332,12 @@ int main()
     }
 
     int noden = compute_noden(nlist);
-    cout << noden << endl;
 
     pair<VectorXd, VectorXd> values = no_prior_change (out, nlist, noden);
     writeOPReadable(nlist, out, values.first, values.second);
 
     float duration = 0.01;
-    float interval = 0.00001;
+    float interval = 0.0001;
 
     vector<pair<VectorXd, VectorXd>> transient_values = transient (out, nlist, noden, duration, interval, values.first, values.second);
     

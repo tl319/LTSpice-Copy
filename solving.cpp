@@ -175,6 +175,7 @@ const float & interval, const VectorXd & pastnodes, const VectorXd & pastcurrent
         component_currents = recursive_currents (comps, nodes, nodev, interval);
         values.push_back( {nodev, component_currents} );
 
+        writeTranHeaders(nodes, comps);
         writeTran(nodev, component_currents, i);
     }
 

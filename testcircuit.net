@@ -2,6 +2,6 @@
 R1 0 b 2
 R2 a b 5
 V1 a 0 SINE(0 1 1K)
-.tran 0 10m 0
+.op
 .backanno
 .end
