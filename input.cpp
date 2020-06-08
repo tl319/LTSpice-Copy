@@ -331,39 +331,10 @@ int main()
         cout << "B is "<< x.B << endl;
     }
 
-    VectorXd component_currents = VectorXd::Zero (out.size());
     int noden = compute_noden(nlist);
-
     cout << noden << endl;
 
-    cout << "conductance_current " << endl;
-
-    pair<MatrixXd, VectorXd> knowns = conductance_current (out, noden);
-    cout << "conductance matrix " << endl;
-    cout << knowns.first << endl;
-    cout << knowns.second;
-    //test(noden, knowns.first, knowns.second);
-
-    cout << endl;
-
-    pair<VectorXd, VectorXd> values = adjust_modes(knowns.first, knowns.second, out, nlist);
-
+    pair<VectorXd, VectorXd> values = no_prior_change (out, nlist, noden);
     writeOPReadable(nlist, out, values.first, values.second);
-    
-    /*/
-    VectorXd transrhs;
-    writeTranHeaders(nlist,out);
-    for(float i = 0.001; i <= 1; i = i + 0.0001 )
-    {
-        //cout << i << endl;
-        transrhs = VectorUpdate (out, noden, i, pastnodes, component_currents, 0.0001, TransMat.second);
-        pastnodes << matrixSolve(TransMat.first, transrhs);
-        
-        //cout << "vt " << pastnodes << endl;
-        component_currents = comp_currents (out, nlist, pastnodes, 0.0001);
-        writeTran(pastnodes,component_currents, i);
-
-    }  
-    /*/
     
 }

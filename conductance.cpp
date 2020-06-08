@@ -29,6 +29,8 @@ pair<MatrixXd, vector<int>> MatrixUpdate (vector<Component> comps, int noden);
 
 void test(int noden, MatrixXd conducts, VectorXd currents)
 {
+    cout << "conductance_current " << endl;
+    
     //print each line of the matrix
     cout << conducts << endl;
 

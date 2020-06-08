@@ -144,39 +144,18 @@ vector<bool> incorrect_assumptions(VectorXd component_currents, vector<Component
     return incorrect_assumptions;
 }
 
-//return voltage and current vector for correct nonlinear modes
-pair<VectorXd, VectorXd> adjust_modes(MatrixXd lhs, VectorXd rhs, const vector<Component> & comps, const vector<Node> & nodes) 
+//return voltage and current vectors for operating point or first point of transient analysis
+pair<VectorXd, VectorXd> no_prior_change (const vector<Component> & comps, const vector<Node> & nodes, const int & noden) 
 {
-    vector<bool> oof;
     VectorXd nodev;
     VectorXd component_currents;
-    VectorXd new_rhs;
 
-    //probably should take as argument
-    int noden = compute_noden(nodes);
+    pair<MatrixXd, VectorXd> knowns = conductance_current (comps, noden);
+    test(noden, knowns.first, knowns.second);
 
-    pair<MatrixXd, vector<int>> new_mat;
+    nodev = matrixSolve(knowns.first, knowns.second);
 
-    nodev = matrixSolve(lhs, rhs);
-
-    //what happens with the increment in operating point?
-    //component_currents = comp_currents(comps, nodes, nodev, 1);
-
-    component_currents = recursive_currents (comps, nodes, nodev, 1);
-
-    cout << "D I " << component_currents(2) << endl;
-
-    oof = incorrect_assumptions(component_currents, comps);
-
-    while(oof[comps.size()] == 1)
-    {
-        new_mat = CorrectAssumptions (comps, noden, oof);
-        new_rhs = VectorUpdate (comps, noden, 1, nodev, component_currents, 1, new_mat.second, oof);
-        nodev = matrixSolve(new_mat.first, new_rhs);
-        //component_currents = comp_currents(comps, nodes, nodev, 1);
-        component_currents = recursive_currents (comps, nodes, nodev, 1);
-        oof = incorrect_assumptions(component_currents, comps);
-    }
+    component_currents = recursive_currents (comps, nodes, nodev, 0);
 
     return{nodev, component_currents};
 }
@@ -208,7 +187,7 @@ int component_index (vector<Component> comps, Component C)
     }
 }
 
-//compute currents accross "insufficient" (V, C, D) components in series with other such components
+//compute currents accross each component
 VectorXd recursive_currents (vector<Component> comps, vector<Node> nlist, VectorXd nodev, float interval)
 {
     //register components take care of, to differetiate non calculated values from 0 currents
@@ -240,20 +219,6 @@ float recursive_basecase (int i, const Component & C, const vector<Component> & 
     //voltages at each node
     float VA;
     float VB;
-    
-    if(nA(C) != 0)
-    {
-        VA = nodev(nA(C) - 1);
-    } else {
-        VA = 0;
-    }
-
-    if(nB(C) != 0)
-    {
-        VB = nodev(nB(C) - 1);
-    } else {
-        VB = 0;
-    }
 
     if(C.type == 'I')
     {
@@ -263,6 +228,19 @@ float recursive_basecase (int i, const Component & C, const vector<Component> & 
 
     if(C.type == 'R' || C.type == 'L')
     {
+        if(nA(C) != 0)
+        {
+            VA = nodev(nA(C) - 1);
+        } else {
+            VA = 0;
+        }
+
+        if(nB(C) != 0)
+        {
+            VB = nodev(nB(C) - 1);
+        } else {
+            VB = 0;
+        }
 
         //straightforward inclusion of known or calculated currents
         if(C.type == 'R')
@@ -286,7 +264,7 @@ float recursive_basecase (int i, const Component & C, const vector<Component> & 
     }
 
     //probably can replace some common_node calls with i
-    if(C.type == 'V' || C.type == 'C' || C.type == 'D')
+    if(C.type == 'V' || C.type == 'C')
     {
         total_current = 0;
         //does this actually save time?
@@ -331,7 +309,7 @@ float recursive_basecase (int i, const Component & C, const vector<Component> & 
                     }
                 }
 
-                if(same_node[j].type == 'V' || same_node[j].type == 'C' || same_node[j].type == 'D')
+                if(same_node[j].type == 'V' || same_node[j].type == 'C')
                 {
                     if(used_node.label == same_node[j].A.label)
                     {
@@ -363,10 +341,6 @@ float recursive_basecase (int i, const Component & C, const vector<Component> & 
                 }
             }
         }
-    }
-    if(C.type == 'D')
-    {
-        total_current = total_current*(-1);
     }
 
     return total_current;

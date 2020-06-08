@@ -127,8 +127,11 @@ VectorXd comp_currents (vector<Component> comps, vector<Node> nlist, VectorXd no
 pair<MatrixXd, vector<int>> MatrixUpdate (vector<Component> comps, int noden);
 //update matrix to reflect the change in behaviour of reactive components
 
-//return voltage and current vector for correct nonlinear modes
-pair<VectorXd, VectorXd> adjust_modes(MatrixXd lhs, VectorXd rhs, const vector<Component> & comps, const vector<Node> & nodes);
+pair<VectorXd, VectorXd> no_prior_change (const vector<Component> & comps, const vector<Node> & nodes, const int & noden);
+//return voltage and current vectors for operating point or first point of transient analysis
+
+
+
 
 // *** Quality of Life functions ***
 ostream& operator<<(ostream& os, const Component& c);
@@ -140,17 +143,6 @@ float procData(string x);
 
 void test(int noden, MatrixXd conducts, VectorXd currents);
 //print out conductance matrix and current vector
-
-pair<MatrixXd, vector<int>> CorrectAssumptions (vector<Component> comps, int noden, vector<bool> incorrect_assumptions);
-
-//compute currents accross each "sufficient" (R, L, I) component, ie currents that can be directly computed without othe currents
-pair<VectorXd, vector<bool>> sufficient_currents (vector<Component> comps, vector<Node> nlist, VectorXd nodev, float interval);
-
-//compute currents accross "insufficient" (V, C, D) components in series with sufficient components (ie traversed by a known current)
-void series_currents (vector<Component> comps, vector<Node> nlist, VectorXd nodev, float interval, vector<bool> & computed, VectorXd & comp_currents);
-
-//compute currents accross "insufficient" (V, C, D) components in series with other such components
-VectorXd recursive_currents (vector<Component> comps, vector<Node> nlist, VectorXd nodev, float interval);
 
 
 
@@ -189,11 +181,17 @@ int component_index (vector<Component> comps, Component C);
 float vs_current (vector<Component> comps, Component C, vector<bool> & computed, VectorXd currents, Node N);
 //used to compute current through voltage sources or capacitors
 
-void pseudo_basecase(Component comp, vector<Component> comps, vector<Node> nlist, VectorXd nodev, float interval, vector<bool> & computed, VectorXd & comp_currents);
+VectorXd recursive_currents (vector<Component> comps, vector<Node> nlist, VectorXd nodev, float interval);
+//compute currents accross "insufficient" (V, C, D) components in series with other such components
 
 float recursive_basecase (int i, const Component & C, const vector<Component> & comps, const vector<Node> & nlist, VectorXd nodev, const float & interval, vector<bool> & computed, VectorXd & comp_currents);
+//used in above
 
 vector<bool> incorrect_assumptions(VectorXd comp_currents, vector<Component> comps);
 //check currents accross nonlinear components to determine their mode
+
+pair<MatrixXd, vector<int>> CorrectAssumptions (vector<Component> comps, int noden, vector<bool> incorrect_assumptions);
+//rewrite matrix with new assumptions
+//obsolete, change matrix to vector
 
 #endif
