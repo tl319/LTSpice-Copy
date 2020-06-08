@@ -300,8 +300,6 @@ float recursive_basecase (const int & i, const Component & C, const vector<Compo
             same_node = B_node;
         }
 
-        cout << C.name << " same_node size " << same_node.size() << endl;
-
         for(int j = 0; j<same_node.size(); j++)
         {
             if( computed[component_index(comps, same_node[j])] == 1 )
