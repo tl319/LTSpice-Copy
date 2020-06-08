@@ -118,17 +118,19 @@ void writeFile(float time, float voltage);
 //input of node just writes the header *** NEEDED ***
 //use the function after to write time and voltage.
 
-VectorXd VectorUpdate (vector<Component> comps, int noden, float time, VectorXd pastnodes, VectorXd comp_currents, float interval, vector<int> c_vs_row, vector<bool> incorrect_assumptions);
+VectorXd VectorUpdate (const vector<Component> & comps, const int & noden, const float & time, const VectorXd & pastnodes, const VectorXd & component_currents, 
+const float & interval, const vector<int> & c_vs_row);
 //updates the rhs ("current") vector during transient simulations
 
-VectorXd comp_currents (vector<Component> comps, vector<Node> nlist, VectorXd nodev, float interval);
-//compute current accross each component
-
-pair<MatrixXd, vector<int>> MatrixUpdate (vector<Component> comps, int noden);
+pair<MatrixXd, vector<int>> MatrixUpdate (const vector<Component> & comps, const int & noden);
 //update matrix to reflect the change in behaviour of reactive components
 
+//is the node vector actually used by the functions within? (and cannot be rpelaced by the label int)
 pair<VectorXd, VectorXd> no_prior_change (const vector<Component> & comps, const vector<Node> & nodes, const int & noden);
 //return voltage and current vectors for operating point or first point of transient analysis
+
+vector<pair<VectorXd, VectorXd>> transient (const vector<Component> & comps, const vector<Node> & nodes, const int & noden, const float & duration, 
+const float & interval, const VectorXd & pastnodes, const VectorXd & pastcurrents);
 
 
 
@@ -144,6 +146,13 @@ float procData(string x);
 void test(int noden, MatrixXd conducts, VectorXd currents);
 //print out conductance matrix and current vector
 
+void writeTran(const VectorXd& pastnodes,const VectorXd& component_currents, float time);
+
+void writeTranHeaders(const vector<Node>& nlist, const vector<Component>& out);
+
+void writeOP(const vector<Node>& nlist, const vector<Component>& out,const VectorXd& pastnodes, const VectorXd& component_currents);
+
+void writeOPReadable(const vector<Node>& nlist, const vector<Component>& out,const VectorXd& pastnodes, const VectorXd& component_currents);
 
 
 
@@ -172,19 +181,19 @@ int SnA(Component c);
 int SnB(Component c);
 //read node/supernode A/B of a given component
 
-vector<Component> common_node (vector<Component> comps, Component C, Node A);
+vector<Component> common_node (const vector<Component> & comps, const Component & C, const Node & A);
 //find all other components attached to a component C at a given node A
 
-int component_index (vector<Component> comps, Component C);
+int component_index (const vector<Component> & comps, const Component & C);
 //returns the index of a component in the component vector, useful since this and component current vector are ordered identically
 
 float vs_current (vector<Component> comps, Component C, vector<bool> & computed, VectorXd currents, Node N);
 //used to compute current through voltage sources or capacitors
 
-VectorXd recursive_currents (vector<Component> comps, vector<Node> nlist, VectorXd nodev, float interval);
+VectorXd recursive_currents (const vector<Component> & comps, const vector<Node> & nlist, const VectorXd & nodev, const float & interval);
 //compute currents accross "insufficient" (V, C, D) components in series with other such components
 
-float recursive_basecase (int i, const Component & C, const vector<Component> & comps, const vector<Node> & nlist, VectorXd nodev, const float & interval, vector<bool> & computed, VectorXd & comp_currents);
+float recursive_basecase (const int & i, const Component & C, const vector<Component> & comps, const vector<Node> & nlist, VectorXd nodev, const float & interval, vector<bool> & computed, VectorXd & comp_currents);
 //used in above
 
 vector<bool> incorrect_assumptions(VectorXd comp_currents, vector<Component> comps);

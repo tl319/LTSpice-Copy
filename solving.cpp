@@ -9,7 +9,9 @@ using namespace Eigen;
 //"pre-compute" values that are computed more than once per scope
 //!!
 
-VectorXd VectorUpdate (vector<Component> comps, int noden, float time, VectorXd pastnodes, VectorXd component_currents, float interval, vector<int> c_vs_row, vector<bool> incorrect_assumptions)
+//update the current vector to reflect reactive component behaviour and changes in source values
+VectorXd VectorUpdate (const vector<Component> & comps, const int & noden, const float & time, const VectorXd & pastnodes, const VectorXd & component_currents, 
+const float & interval, const vector<int> & c_vs_row)
 {
     //assign the row corresponding to the lowest numbered node as that representing the voltage source
     //for floating voltage sources
@@ -112,15 +114,6 @@ VectorXd VectorUpdate (vector<Component> comps, int noden, float time, VectorXd 
                 currents(row) = (component_currents(i)) * interval/val; 
             }    
         }
-
-        if(comps[i].type == 'D' && incorrect_assumptions[i] == 0)
-        {
-                row = c_vs_row[i];
-
-                //in that row of the rhs vector, write 0.7
-                currents(row) = 0.7; 
-        }
-
     }    
     return currents;
 }
@@ -160,8 +153,36 @@ pair<VectorXd, VectorXd> no_prior_change (const vector<Component> & comps, const
     return{nodev, component_currents};
 }
 
+//might be preferable to cout values directly (using Jason's function) after they're calculated to avoid cycling through the duration twice
+//and have a void function if possible
+vector<pair<VectorXd, VectorXd>> transient (const vector<Component> & comps, const vector<Node> & nodes, const int & noden, const float & duration, 
+const float & interval, const VectorXd & pastnodes, const VectorXd & pastcurrents)
+{
+    VectorXd nodev = pastnodes;
+    VectorXd component_currents = pastcurrents;
+    vector<pair<VectorXd, VectorXd>> values;
+    VectorXd rhs;
+
+    pair<MatrixXd, vector<int>> Mat = MatrixUpdate (comps, noden);
+    cout << Mat.first << endl;
+
+    //begin one interval after 0
+    //i is time in seconds
+    for(float i = interval; i<duration; i += interval)
+    {
+        rhs = VectorUpdate (comps, noden, i, nodev, component_currents, interval, Mat.second);
+        nodev = matrixSolve(Mat.first, rhs);
+        component_currents = recursive_currents (comps, nodes, nodev, interval);
+        values.push_back( {nodev, component_currents} );
+
+        writeTran(nodev, component_currents, i);
+    }
+
+    return values;
+}
+
 //used in vs_current to determine other components connected to C at A
-vector<Component> common_node (vector<Component> comps, Component C, Node A)
+vector<Component> common_node (const vector<Component> & comps, const Component & C, const Node & A)
 {
     vector<Component> shared_node;
 
@@ -176,7 +197,7 @@ vector<Component> common_node (vector<Component> comps, Component C, Node A)
 }
 
 //returns the index of a component in  the component vector
-int component_index (vector<Component> comps, Component C)
+int component_index (const vector<Component> & comps, const Component & C)
 {
     for(int i = 0; i<comps.size(); i++)
     {
@@ -188,7 +209,7 @@ int component_index (vector<Component> comps, Component C)
 }
 
 //compute currents accross each component
-VectorXd recursive_currents (vector<Component> comps, vector<Node> nlist, VectorXd nodev, float interval)
+VectorXd recursive_currents (const vector<Component> & comps, const vector<Node> & nlist, const VectorXd & nodev, const float & interval)
 {
     //register components take care of, to differetiate non calculated values from 0 currents
     vector<bool> computed (comps.size(), 0);
@@ -206,7 +227,7 @@ VectorXd recursive_currents (vector<Component> comps, vector<Node> nlist, Vector
     return comp_currents;
 }
 
-float recursive_basecase (int i, const Component & C, const vector<Component> & comps, const vector<Node> & nlist, VectorXd nodev, const float & interval, vector<bool> & computed, VectorXd & comp_currents)
+float recursive_basecase (const int & i, const Component & C, const vector<Component> & comps, const vector<Node> & nlist, VectorXd nodev, const float & interval, vector<bool> & computed, VectorXd & comp_currents)
 {
     vector<Component> A_node;
     vector<Component> B_node;
