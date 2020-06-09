@@ -147,10 +147,13 @@ pair<VectorXd, VectorXd> no_prior_change (const vector<Component> & comps, const
     pair<MatrixXd, VectorXd> knowns = conductance_current (comps, noden);
     test(noden, knowns.first, knowns.second);
 
+    cout << "nodev" << endl;
     nodev = matrixSolve(knowns.first, knowns.second);
 
+    cout << "comp I" << endl;
     component_currents = recursive_currents (comps, nodes, nodev, 0, component_currents);
 
+    cout << "return" << endl;
     return{nodev, component_currents};
 }
 
@@ -165,7 +168,7 @@ const float & interval, const VectorXd & pastnodes, const VectorXd & pastcurrent
     VectorXd rhs = VectorXd::Zero (comps.size());
 
     pair<MatrixXd, vector<int>> Mat = MatrixUpdate (comps, noden);
-    //cout << Mat.first << endl;
+    cout << Mat.first << endl;
     writeTranHeaders(nodes, comps);
     //begin one interval after 0
     //i is time in seconds
@@ -242,7 +245,9 @@ const VectorXd & past_currents)
             {
                 comp_currents( i ) = past_currents(i) + recursive_basecase (i, comps[i], comps, nlist, nodev, interval, computed, comp_currents);
             } else {
+                //cout << "b4 base" << endl;
                 comp_currents( i ) = recursive_basecase (i, comps[i], comps, nlist, nodev, interval, computed, comp_currents);
+                //cout << "after base" << endl;
             }
             
             computed[component_index(comps, comps[i])] = 1;
@@ -292,6 +297,7 @@ const float & interval, vector<bool> & computed, VectorXd & comp_currents)
         //straightforward inclusion of known or calculated currents
         if(C.type == 'R')
         {
+            //cout << "b4 R" << endl;
             //this must also be fixed
             total_current = ( VA - VB )/C.value;
             computed[i] = 1;
@@ -305,7 +311,7 @@ const float & interval, vector<bool> & computed, VectorXd & comp_currents)
                 computed[i] = 1;
             }
             /*/
-
+            //cout << "after R" << endl;
         }
 
         if(C.type == 'L')
@@ -318,11 +324,12 @@ const float & interval, vector<bool> & computed, VectorXd & comp_currents)
     //probably can replace some common_node calls with i
     if(C.type == 'V' || C.type == 'C')
     {
+        //cout << "ree" << endl;
         total_current = 0;
         //does this actually save time?
         A_node = common_node(comps, C, C.A);
         B_node = common_node(comps, C, C.B);
-        if(A_node.size() < B_node.size())
+        if(A_node.size() <= B_node.size())
         {
             used_node = C.A;
             same_node = A_node;
@@ -333,13 +340,26 @@ const float & interval, vector<bool> & computed, VectorXd & comp_currents)
 
         for(int j = 0; j<same_node.size(); j++)
         {
+            //cout << "for" << endl;
+            cout << C.name << " " << used_node.label << endl;
             if( computed[component_index(comps, same_node[j])] == 1 )
             {
                 if(same_node[j].type == 'R')
                 {
+                    //cout << "rec R" << endl;
                     //why does this work? come back later
                     //also fix for some cases
+                    /*/
+                    if(used_node.label == same_node[j].A.label)
+                    {
+                        total_current -= (nA(same_node[j]) - nB(same_node[j]))/same_node[j].value;
+                    } else {
+                        total_current += (nA(same_node[j]) - nB(same_node[j]))/same_node[j].value;
+                    }
+                    /*/
+                     
                     total_current -= comp_currents( component_index(comps, same_node[j]) );
+                    //cout << "rec R end" << endl;
                 }
 
                 if(same_node[j].type == 'I' || same_node[j].type == 'L' )
@@ -361,6 +381,7 @@ const float & interval, vector<bool> & computed, VectorXd & comp_currents)
 
                 if(same_node[j].type == 'V' || same_node[j].type == 'C')
                 {
+                    //cout << "rec V"<< endl;
                     //still some redundant recalculations
                     if(used_node.label == same_node[j].A.label)
                     {
@@ -375,8 +396,10 @@ const float & interval, vector<bool> & computed, VectorXd & comp_currents)
                     } else {
                         total_current -= current;
                     }
+                    //cout << "rec V end"<< endl;
                 }
             } else {
+                //cout << "rec else" << endl;
                 if(used_node.label == same_node[j].A.label)
                 {
                     current = (-1)*recursive_basecase (i, same_node[j], comps, nlist, nodev, interval, computed, comp_currents);
@@ -390,8 +413,10 @@ const float & interval, vector<bool> & computed, VectorXd & comp_currents)
                 } else {
                     total_current -= current;
                 }
+                //cout << "rec else end" << endl;
             }
         }
+        //cout << "eer" << endl;
     }
 
     return total_current;

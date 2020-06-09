@@ -336,14 +336,14 @@ int main()
     int noden = compute_noden(nlist);
 
     pair<VectorXd, VectorXd> values = no_prior_change (out, nlist, noden);
-    cout<<"bruh"<<endl;
+    //cout<<"bruh"<<endl;
     writeOP(nlist, out, values.first, values.second);
-    cout<<"hmmm"<<endl;
+    //cout<<"hmmm"<<endl;
 
 
     float duration = 0.01;
     float interval = 0.000001;
 
-    //vector<pair<VectorXd, VectorXd>> transient_values = transient (out, nlist, noden, duration, interval, values.first, values.second);
+    vector<pair<VectorXd, VectorXd>> transient_values = transient (out, nlist, noden, duration, interval, values.first, values.second);
     
 }

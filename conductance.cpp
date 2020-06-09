@@ -148,19 +148,19 @@ pair<MatrixXd, VectorXd> conductance_current(vector<Component> comps, int noden)
             if( nB(comps[i]) == 0 && nA(comps[i]) != 0)
             {
                 //prevent ulterior editing of the matrix row assigned to represent the voltage source
-                locked[SnA(comps[i])-1] = 1;
+                locked[nA(comps[i])-1] = 1;
                 //cycle through all columns to  edit the row corresponding to the positive terminal node
                 for(int j = 0; j<noden; j++)
                 {
                     //at the column corresponding to the positive terminal, write 1
-                    if(j == (SnA(comps[i]) -1))
+                    if(j == (nA(comps[i]) -1))
                     {
                         conducts (j, j) = 1;
                         //also write the source voltage to this index in the rhs vector
                         currents(j) = val; 
                     } else {
                         //other columns are set to 0
-                        conducts (SnA(comps[i]) -1, j) = 0;
+                        conducts (nA(comps[i]) -1, j) = 0;
                     }
                 }
             }
@@ -169,19 +169,19 @@ pair<MatrixXd, VectorXd> conductance_current(vector<Component> comps, int noden)
             if(nA(comps[i]) == 0 && nB(comps[i]) != 0)
             {
                 //prevent ulterior editing of the matrix row assigned to represent the voltage source
-                locked[SnB(comps[i])-1] = 1;
+                locked[nB(comps[i])-1] = 1;
                 //cycle through all columns to  edit the row corresponding to the negative terminal node
                 for(int j = 0; j<noden; j++)
                 {
                     //at the column corresponding to the negative terminal, write 1
-                    if(j == (SnB(comps[i]) -1))
+                    if(j == (nB(comps[i]) -1))
                     {
                         conducts (j, j) = 1;
                         //also write -1* the source voltage to this index in the rhs vector
                         currents(j) = (-1)*val; 
                     } else {
                         //other columns are set to 0
-                        conducts (SnB(comps[i]) -1, j) = 0;
+                        conducts (nB(comps[i]) -1, j) = 0;
                     }
                 }
             }
@@ -314,8 +314,10 @@ pair<MatrixXd, VectorXd> conductance_current(vector<Component> comps, int noden)
                 }
             }        
         }
-        //test(noden, conducts, currents);
+        cout << comps[i].name << endl;
+        test(noden, conducts, currents);
     }
+    cout << "help" << endl;
     return {conducts, currents};
 }
 

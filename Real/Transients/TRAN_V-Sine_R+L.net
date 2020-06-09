@@ -1,4 +1,4 @@
-* C:\Users\Jason\Downloads\Real\Real\Transients\TRAN_V-Sine_R+L.asc
+* C:\Users\david\Desktop\École\Université\Undergrad\Work\finalproject\Real\Transients\TRAN_V-Sine_R+L.asc
 V1 N001 0 SINE(0 1 10)
 R1 N001 N002 1
 L1 N002 0 1
