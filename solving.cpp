@@ -236,13 +236,20 @@ VectorXd recursive_currents (const vector<Component> & comps, const vector<Node>
     {
         if( computed[i] == 0 )
         {
-            comp_currents( i ) = recursive_basecase (i, comps[i], comps, nlist, nodev, interval, computed, comp_currents);
+            if(comps[i].type == 'L')
+            {
+                comp_currents( i ) += recursive_basecase (i, comps[i], comps, nlist, nodev, interval, computed, comp_currents);
+            } else {
+                comp_currents( i ) = recursive_basecase (i, comps[i], comps, nlist, nodev, interval, computed, comp_currents);
+            }
+            
             computed[component_index(comps, comps[i])] = 1;
         }
     }
     return comp_currents;
 }
 
+//edits to computed below should be redundant
 float recursive_basecase (const int & i, const Component & C, const vector<Component> & comps, const vector<Node> & nlist, VectorXd nodev, 
 const float & interval, vector<bool> & computed, VectorXd & comp_currents)
 {
@@ -301,7 +308,7 @@ const float & interval, vector<bool> & computed, VectorXd & comp_currents)
 
         if(C.type == 'L')
         {
-            total_current += ( VA - VB )*interval/C.value;
+            total_current = ( VA - VB )*interval/C.value;
             computed[i] = 1;
         }
     }
