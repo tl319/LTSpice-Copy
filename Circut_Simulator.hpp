@@ -93,11 +93,15 @@ struct Component
 
 struct Diode: Component{
 
+	float is;
 		Diode(char t,string n, string nA,string nB,string s){
 		type = t;
 		name = n;
 		A.label = nA;
 		B.label = nB;
+		if(s=="1N4148"){
+			is = procData("2.52n");
+		}
 	}
 
 
