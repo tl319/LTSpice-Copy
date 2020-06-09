@@ -109,7 +109,7 @@ pair<MatrixXd, VectorXd> conductance_current(vector<Component> comps, int noden)
             //Row corresponds to supernode (node if no supernode) and column to actual node
             if(nA(comps[i]) != 0)
             {
-                if(locked[ nA(comps[i])-1] == 0)
+                if(locked[ SnA(comps[i])-1] == 0)
                 {
                     if( nA(comps[i]) != 0)
                     {
@@ -126,7 +126,7 @@ pair<MatrixXd, VectorXd> conductance_current(vector<Component> comps, int noden)
                 }
             }
 
-            if(nB(comps[i]) != 0)
+            if(SnB(comps[i]) != 0)
             {
                 //Ditto for nB
                 if(locked[ nB(comps[i])-1] == 0)

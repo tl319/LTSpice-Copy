@@ -354,8 +354,8 @@ vector<Component> reorderVoltages(const vector<Component> &in)
 int main()
 {
     pair<vector<Component>, Simulation> testm = readInput();
-    vector<Component> out = patchComponents(testm.first);
-    //vector<Component> out = reorderVoltages(gator);
+    vector<Component> gator = patchComponents(testm.first);
+    vector<Component> out = reorderVoltages(gator);
     vector<Node> nlist = findNodes(out);
     for(auto x : nlist)
     {
