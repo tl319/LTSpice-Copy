@@ -87,7 +87,7 @@ vector<Component> patchSupernodes(vector<Component> list)
                 botnode =out[i].B.super;}
                 else {topnode = out[i].B.super;
                 botnode =out[i].A.super;}
-                 cout << "topnode is :" << topnode << " botnode is: " << botnode << endl;
+                cerr << "topnode is :" << topnode << " botnode is: " << botnode << endl;
                  
                 for(int x=0;x<out.size();x++){
                     //cout << "loop: " << x << endl;
@@ -294,56 +294,75 @@ pair<vector<Component>, Simulation> readInput()
                 if(isCmd(line))
                 {
                     vector<string> properties;
-			stringstream ss(line);
-			int count=0;
-			 while (ss >> x){
+                    stringstream ss(line);
+                    int count=0;
+                    while (ss >> x){
                              properties.push_back(x);
-					}
+					}   
                         string type =(properties[0]).substr (1,(properties[0].length())-1);
                         if(type == "op")
                         {sim.type=type;}
                         if(type == "tran"){
-                        sim.type=(properties[0]).substr (1,(properties[0].length())-1);
-                        sim.stop=(procData(properties[2]));
-                        sim.step=(procData(properties[4]));
+                            if(properties.size()>3){
+                                sim.type=type;
+                                sim.stop=(procData(properties[2]));
+                                sim.step=(procData(properties[4]));
+                            }
+                            else{
+                                sim.type=type;
+                                sim.stop=(procData(properties[1]));
+                                sim.step = 99999999;
+                            }
+                        
                         }
-                }
-	}
+	                               
         
 
-
+                }
+    }
 	return make_pair(components, sim);
 
 }
+
 int main()
 {
     
     pair<vector<Component>, Simulation> testm = readInput();
+    Simulation sim =testm.second;
     vector<Component> out = patchComponents(testm.first);
     vector<Node> nlist = findNodes(out);
     for(auto x : nlist)
     {
-        cout << x << endl;
+        cerr << x << endl;
     }
-    cout << endl;
+    cerr << endl;
     for(auto x : out)
     {
-        cout << x;
-        cout << "A is "<< x.A;
-        cout << "B is "<< x.B << endl;
+        cerr << x;
+        cerr << "A is "<< x.A;
+        cerr << "B is "<< x.B << endl;
     }
 
     int noden = compute_noden(nlist);
-
     pair<VectorXd, VectorXd> values = no_prior_change (out, nlist, noden);
-    //cout<<"bruh"<<endl;
-    writeOP(nlist, out, values.first, values.second);
-    //cout<<"hmmm"<<endl;
 
 
-    float duration = 0.01;
-    float interval = 0.000001;
 
-    vector<pair<VectorXd, VectorXd>> transient_values = transient (out, nlist, noden, duration, interval, values.first, values.second);
-    
+
+
+    //main running part
+    if(sim.type=="op")
+    {
+        writeOPReadable(nlist, out, values.first, values.second);
+        
+    }
+    else if (sim.type=="tran"){
+        float duration = sim.stop;
+        float interval = 0.000001;
+        vector<pair<VectorXd, VectorXd>> transient_values = transient (out, nlist, noden, duration, interval, values.first, values.second);
+    }
+    else
+    {
+        cout << "Invalid simulation command";
+    }
 }

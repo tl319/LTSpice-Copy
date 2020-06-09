@@ -314,10 +314,10 @@ pair<MatrixXd, VectorXd> conductance_current(vector<Component> comps, int noden)
                 }
             }        
         }
-        cout << comps[i].name << endl;
-        test(noden, conducts, currents);
+        cerr << comps[i].name << endl;
+        //test(noden, conducts, currents);
     }
-    cout << "help" << endl;
+    cerr << "help" << endl;
     return {conducts, currents};
 }
 
