@@ -145,7 +145,7 @@ pair<VectorXd, VectorXd> no_prior_change (const vector<Component> & comps, const
     VectorXd component_currents = VectorXd::Zero (comps.size());
 
     pair<MatrixXd, VectorXd> knowns = conductance_current (comps, noden);
-    //test(noden, knowns.first, knowns.second);
+    test(noden, knowns.first, knowns.second);
 
     nodev = matrixSolve(knowns.first, knowns.second);
 
