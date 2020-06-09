@@ -78,12 +78,12 @@ const float & interval, const vector<int> & c_vs_row)
         {
             if(nA(comps[i]) != 0)
             {
-                currents(nA(comps[i]) -1) += (pastnodes(nA(comps[i]) -1) - pastnodes(nB(comps[i]) -1)) * interval/val;
+                currents(nA(comps[i]) -1) += ( pastnodes(nA(comps[i]) -1) - pastnodes(nB(comps[i]) -1) ) * interval/val;
             }
 
             if(nB(comps[i]) != 0)
             {
-                currents(nB(comps[i]) -1) -= (pastnodes(nA(comps[i]) -1) - pastnodes(nB(comps[i]) -1)) * interval/val;
+                currents(nB(comps[i]) -1) -= ( pastnodes(nA(comps[i]) -1) - pastnodes(nB(comps[i]) -1) ) * interval/val;
             }
         }
 
@@ -93,7 +93,7 @@ const float & interval, const vector<int> & c_vs_row)
             if( nB(comps[i]) == 0 && nA(comps[i]) != 0)
             {
                 //write the source voltage to this index in the rhs vector
-                currents(nA(comps[i]) -1) = (component_currents(i)) * interval/val; 
+                currents(nA(comps[i]) -1) += (component_currents(i)) * interval/val; 
             }
 
             //positive terminal to ground
@@ -101,7 +101,7 @@ const float & interval, const vector<int> & c_vs_row)
             if(nA(comps[i]) == 0 && nB(comps[i]) != 0)
             {
                 //also write -1* the source voltage to this index in the rhs vector
-                currents(nB(comps[i]) -1) = (-1)*(component_currents(i)) * interval/val;
+                currents(nB(comps[i]) -1) += (-1)*(component_currents(i)) * interval/val;
             }
 
             //floating voltage source
@@ -111,7 +111,7 @@ const float & interval, const vector<int> & c_vs_row)
                 row = c_vs_row[i];
 
                 //in that row of the rhs vector, write the current source value
-                currents(row) = (component_currents(i)) * interval/val; 
+                currents(row) += (component_currents(i))*interval/val ; 
             }    
         }
     }    
@@ -155,7 +155,7 @@ pair<VectorXd, VectorXd> no_prior_change (const vector<Component> & comps, const
 
 //might be preferable to cout values directly (using Jason's function) after they're calculated to avoid cycling through the duration twice
 //and have a void function if possible
-vector<pair<VectorXd, VectorXd>> transient (const vector<Component> & comps, const vector<Node> & nodes, const int & noden, const float & duration, 
+vector<pair<VectorXd, VectorXd>> transient (vector<Component> & comps, const vector<Node> & nodes, const int & noden, const float & duration, 
 const float & interval, const VectorXd & pastnodes, const VectorXd & pastcurrents)
 {
     VectorXd nodev = pastnodes;
@@ -168,11 +168,28 @@ const float & interval, const VectorXd & pastnodes, const VectorXd & pastcurrent
     writeTranHeaders(nodes, comps);
     //begin one interval after 0
     //i is time in seconds
+
     for(float i = interval; i<duration; i += interval)
     {
         rhs = VectorUpdate (comps, noden, i, nodev, component_currents, interval, Mat.second);
+
+        /*/
+        cout << "rhs:" << endl;
+        for(int i = 0; i<rhs.size(); i++)
+        {
+            cout << rhs[i] << endl;
+        }
+        cout << "f" << endl;
+        /*/
+
         nodev = matrixSolve(Mat.first, rhs);
         component_currents = recursive_currents (comps, nodes, nodev, interval);
+
+        /*/
+        cout << "comp_i" << endl;
+        cout << component_currents << "e" << endl;
+        /*/
+
         values.push_back( {nodev, component_currents} );
         writeTran(nodev, component_currents, i);
     }
@@ -266,6 +283,7 @@ const float & interval, vector<bool> & computed, VectorXd & comp_currents)
         //straightforward inclusion of known or calculated currents
         if(C.type == 'R')
         {
+            //this must also be fixed
             total_current = ( VA - VB )/C.value;
             computed[i] = 1;
             /*/
@@ -315,13 +333,13 @@ const float & interval, vector<bool> & computed, VectorXd & comp_currents)
                     total_current -= comp_currents( component_index(comps, same_node[j]) );
                 }
 
-                if(same_node[j].type == 'I')
+                if(same_node[j].type == 'I' || same_node[j].type == 'L' )
                 {
                     if(used_node.label == same_node[j].A.label)
                     {
-                        current = (-1)*same_node[j].value;
+                        current = (-1)*comp_currents( component_index(comps, same_node[j]) );
                     } else {
-                        current = same_node[j].value;
+                        current = comp_currents( component_index(comps, same_node[j]) );
                     }
 
                     if(used_node.label == C.A)
@@ -334,6 +352,7 @@ const float & interval, vector<bool> & computed, VectorXd & comp_currents)
 
                 if(same_node[j].type == 'V' || same_node[j].type == 'C')
                 {
+                    //still some redundant recalculations
                     if(used_node.label == same_node[j].A.label)
                     {
                         current = (-1)*comp_currents( component_index(comps, same_node[j]) );
