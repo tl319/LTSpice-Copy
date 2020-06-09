@@ -232,6 +232,17 @@ void writeOPReadable(const vector<Node>& nlist, const vector<Component>& out,con
     }
     cout << endl;
 }
+void writeOPZero(const VectorXd& pastnodes, const VectorXd& component_currents)
+{
+    cout << 0;
+    for(int i = 0;i<pastnodes.size();i++) {
+        cout << '\t' << pastnodes(i);
+    } 
+     for(int i = 0;i<component_currents.size();i++) {
+        cout << '\t' << component_currents(i); 
+    }
+    cout << endl;
+}
 
 void writeTranHeaders(const vector<Node>& nlist, const vector<Component>& out)
 {

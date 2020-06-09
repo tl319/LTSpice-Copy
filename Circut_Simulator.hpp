@@ -150,6 +150,7 @@ void test(int noden, MatrixXd conducts, VectorXd currents);
 void writeTran(const VectorXd& pastnodes,const VectorXd& component_currents, float time);
 
 void writeTranHeaders(const vector<Node>& nlist, const vector<Component>& out);
+void writeOPZero(const VectorXd& pastnodes, const VectorXd& component_currents);
 
 void writeOP(const vector<Node>& nlist, const vector<Component>& out,const VectorXd& pastnodes, const VectorXd& component_currents);
 

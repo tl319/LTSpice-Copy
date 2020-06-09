@@ -170,6 +170,7 @@ const float & interval, const VectorXd & pastnodes, const VectorXd & pastcurrent
     pair<MatrixXd, vector<int>> Mat = MatrixUpdate (comps, noden);
     cerr << Mat.first << endl;
     writeTranHeaders(nodes, comps);
+    writeOPZero(pastnodes, pastcurrents);
     //begin one interval after 0
     //i is time in seconds
 
