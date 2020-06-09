@@ -73,17 +73,17 @@ const float & interval, const vector<int> & c_vs_row)
             }
         }
 
-        //optimise by taking values from current vector
+        //taking values from current vector causes a phase shift
         if(comps[i].type == 'L')
         {
             if(nA(comps[i]) != 0)
             {
-                currents(nA(comps[i]) -1) += ( pastnodes(nA(comps[i]) -1) - pastnodes(nB(comps[i]) -1) ) * interval/val;
+                currents(nA(comps[i]) -1) += component_currents(i);
             }
 
             if(nB(comps[i]) != 0)
             {
-                currents(nB(comps[i]) -1) -= ( pastnodes(nA(comps[i]) -1) - pastnodes(nB(comps[i]) -1) ) * interval/val;
+                currents(nB(comps[i]) -1) -= component_currents(i);
             }
         }
 
@@ -162,7 +162,7 @@ const float & interval, const VectorXd & pastnodes, const VectorXd & pastcurrent
     VectorXd nodev = pastnodes;
     VectorXd component_currents = pastcurrents;
     vector<pair<VectorXd, VectorXd>> values;
-    VectorXd rhs;
+    VectorXd rhs = VectorXd::Zero (comps.size());
 
     pair<MatrixXd, vector<int>> Mat = MatrixUpdate (comps, noden);
     cout << Mat.first << endl;

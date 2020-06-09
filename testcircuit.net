@@ -1,7 +1,7 @@
 * C:\Users\david\Desktop\École\Université\Undergrad\Work\Labs\ADC4\Draft10.asc
-R1 0 b 2
+R1 b 0 2
 V1 a 0 SINE(0 1 1K)
-L1 b a 4
+L1 a b 4
 .op
 .backanno
 .end
