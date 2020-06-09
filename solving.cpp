@@ -145,7 +145,7 @@ pair<VectorXd, VectorXd> no_prior_change (const vector<Component> & comps, const
     VectorXd component_currents = VectorXd::Zero (comps.size());
 
     pair<MatrixXd, VectorXd> knowns = conductance_current (comps, noden);
-    test(noden, knowns.first, knowns.second);
+    //test(noden, knowns.first, knowns.second);
 
     nodev = matrixSolve(knowns.first, knowns.second);
 
@@ -165,7 +165,7 @@ const float & interval, const VectorXd & pastnodes, const VectorXd & pastcurrent
     VectorXd rhs = VectorXd::Zero (comps.size());
 
     pair<MatrixXd, vector<int>> Mat = MatrixUpdate (comps, noden);
-    cout << Mat.first << endl;
+    //cout << Mat.first << endl;
     writeTranHeaders(nodes, comps);
     //begin one interval after 0
     //i is time in seconds

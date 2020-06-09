@@ -314,7 +314,7 @@ pair<MatrixXd, VectorXd> conductance_current(vector<Component> comps, int noden)
                 }
             }        
         }
-        test(noden, conducts, currents);
+        //test(noden, conducts, currents);
     }
     return {conducts, currents};
 }
