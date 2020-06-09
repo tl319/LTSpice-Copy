@@ -32,7 +32,7 @@ VectorXd matrixSolve(MatrixXd m,VectorXd v)
 ostream& operator<<(ostream& os, const Node& c)
 {
 
-    os << "Number: " << c.number  << " label: "<< c.label << " supernode: "<< c.super << endl;
+    os << "Number: " << c.number  << " label: "<< c.label << " supernode: "<< c.super;
     return os;
 }
 
@@ -50,6 +50,17 @@ ostream& operator<<(ostream& os, const Simulation& c)
     os << "Type: " << c.type  << " stop: "<< c.stop << " timestep: "<< c.step << endl;
     return os;
 }
+string nodeName(int i,vector<Component> out)
+{
+    for(auto x : out){
+        if(x.A.number == i)
+            return x.A.label;
+        else if(x.B.number == i)
+            return x.B.label;
+    } 
+    return "not found node number";
+}
+
 
 bool operator == (Node const &n1, Node const &n2)
 {
@@ -282,7 +293,7 @@ pair<vector<Component>, Simulation> readInput()
 			else{name =(properties[0]).substr (3,(properties[0].length())-1);}
                         if((properties[0])[0]=='D'||(properties[0])[0]=='d'){
                             Diode d1((properties[0])[0],name,properties[1],properties[2],properties[3]);
-                            components.push_back(c1);
+                            components.push_back(d1);
                         }
                         else if(properties.size()<5){
 			                Component c1((properties[0])[0],name,properties[1],properties[2],procData(properties[3]));
@@ -320,11 +331,31 @@ pair<vector<Component>, Simulation> readInput()
 	return make_pair(components, sim);
 
 }
+
+vector<Component> reorderVoltages(const vector<Component> &in)
+{
+    vector<Component> res;
+    vector<Component> vol;
+    vector<Component> duo;
+    for(auto x : in)
+    {
+        if(x.type=='V' || x.type=='v')
+            vol.push_back(x);
+        else
+            res.push_back(x);
+    }
+    reverse(vol.begin(),vol.end());
+    duo.reserve(res.size() + vol.size() ); // preallocate memory
+    duo.insert( duo.end(), res.begin(), res.end() );
+    duo.insert( duo.end(), vol.begin(), vol.end() );
+    return duo;
+}
+
 int main()
 {
-    
     pair<vector<Component>, Simulation> testm = readInput();
     vector<Component> out = patchComponents(testm.first);
+    //vector<Component> out = reorderVoltages(gator);
     vector<Node> nlist = findNodes(out);
     for(auto x : nlist)
     {
@@ -334,8 +365,8 @@ int main()
     for(auto x : out)
     {
         cout << x;
-        cout << "A is "<< x.A;
-        cout << "B is "<< x.B << endl;
+        cout << "A is "<< x.A << " superlabel: " << nodeName(x.A.super,out) << endl;
+        cout << "B is "<< x.B << " superlabel: " << nodeName(x.B.super,out) << endl;
     }
 
     VectorXd component_currents = VectorXd::Zero (out.size());
@@ -351,6 +382,8 @@ int main()
     cout << knowns.second;
     //test(noden, knowns.first, knowns.second);
 
+        cout << "voltages " << endl;
+    //cout << matrixSolve(knowns.first, knowns.second);
     cout << endl;
 
     pair<VectorXd, VectorXd> values = adjust_modes(knowns.first, knowns.second, out, nlist);

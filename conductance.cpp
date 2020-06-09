@@ -196,13 +196,15 @@ pair<MatrixXd, VectorXd> conductance_current(vector<Component> comps, int noden)
                 //assign the row corresponding to the lowest numbered node as that representing the voltage source
                 int row;
 
-                if( nA(comps[i]) > nB(comps[i]) && locked[ nB(comps[i])-1] == 0 || locked[ nA(comps[i])-1] == 1 ) 
+                if( nA(comps[i]) > nB(comps[i]) && (locked[ nB(comps[i])-1] == 0)|| locked[ nA(comps[i])-1] == 1 ) 
                 {
                     locked[nB(comps[i])-1] = 1;
+                    cout << "locked " << nB(comps[i])-1 <<endl;
                     row = nB(comps[i]) -1;
                 } else {
                     locked[nA(comps[i])-1] = 1;
                     row = nA(comps[i]) -1;
+                    cout << "locked " << nA(comps[i])-1 <<endl;
                 }
 
                 //in that row of the rhs vector, write the current source value
@@ -442,7 +444,7 @@ pair<MatrixXd, vector<int>> MatrixUpdate (vector<Component> comps, int noden)
             //Row corresponds to supernode (node if no supernode) and column to actual node
             if(nA(comps[i]) != 0)
             {
-                if(locked[ nA(comps[i])-1] == 0)
+                if(locked[ SnA(comps[i])-1] == 0)
                 {
                     if( nA(comps[i]) != 0)
                     {
@@ -458,7 +460,7 @@ pair<MatrixXd, vector<int>> MatrixUpdate (vector<Component> comps, int noden)
             if(nB(comps[i]) != 0)
             {
                 //Ditto for nB
-                if(locked[ nB(comps[i])-1] == 0)
+                if(locked[ SnB(comps[i])-1] == 0)
                 {
                     if( nB(comps[i]) != 0)
                     {
