@@ -141,14 +141,15 @@ vector<bool> incorrect_assumptions(VectorXd component_currents, vector<Component
 pair<VectorXd, VectorXd> no_prior_change (const vector<Component> & comps, const vector<Node> & nodes, const int & noden) 
 {
     VectorXd nodev;
-    VectorXd component_currents;
+    //perhaps avoid creating by separating recursive_currents used for op and trans
+    VectorXd component_currents = VectorXd::Zero (comps.size());
 
     pair<MatrixXd, VectorXd> knowns = conductance_current (comps, noden);
     test(noden, knowns.first, knowns.second);
 
     nodev = matrixSolve(knowns.first, knowns.second);
 
-    component_currents = recursive_currents (comps, nodes, nodev, 0);
+    component_currents = recursive_currents (comps, nodes, nodev, 0, component_currents);
 
     return{nodev, component_currents};
 }
@@ -183,7 +184,7 @@ const float & interval, const VectorXd & pastnodes, const VectorXd & pastcurrent
         /*/
 
         nodev = matrixSolve(Mat.first, rhs);
-        component_currents = recursive_currents (comps, nodes, nodev, interval);
+        component_currents = recursive_currents (comps, nodes, nodev, interval, component_currents);
 
         /*/
         cout << "comp_i" << endl;
@@ -225,7 +226,8 @@ int component_index (const vector<Component> & comps, const Component & C)
 }
 
 //compute currents accross each component
-VectorXd recursive_currents (const vector<Component> & comps, const vector<Node> & nlist, const VectorXd & nodev, const float & interval)
+VectorXd recursive_currents (const vector<Component> & comps, const vector<Node> & nlist, const VectorXd & nodev, const float & interval, 
+const VectorXd & past_currents)
 {
     //register components take care of, to differetiate non calculated values from 0 currents
     vector<bool> computed (comps.size(), 0);
@@ -238,7 +240,7 @@ VectorXd recursive_currents (const vector<Component> & comps, const vector<Node>
         {
             if(comps[i].type == 'L')
             {
-                comp_currents( i ) += recursive_basecase (i, comps[i], comps, nlist, nodev, interval, computed, comp_currents);
+                comp_currents( i ) = past_currents(i) + recursive_basecase (i, comps[i], comps, nlist, nodev, interval, computed, comp_currents);
             } else {
                 comp_currents( i ) = recursive_basecase (i, comps[i], comps, nlist, nodev, interval, computed, comp_currents);
             }
