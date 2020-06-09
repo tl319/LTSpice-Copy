@@ -27,11 +27,12 @@ struct Node
 	int number;
 	string label;
 	int super;
+	bool reactiveSuper = false;
 	Node(){number = -1; label = "N/A"; super = -99;}
 	Node(string l){number = -1; super = -1; label=l;}
-        Node(int n, string l, int s)
-        {number = n; super = s; label=l;
-        }
+	Node(int n, string l, int s)
+	{number = n; super = s; label=l;
+	}
         
 
 };

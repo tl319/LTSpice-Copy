@@ -32,7 +32,7 @@ VectorXd matrixSolve(MatrixXd m,VectorXd v)
 ostream& operator<<(ostream& os, const Node& c)
 {
 
-    os << "Number: " << c.number  << " label: "<< c.label << " supernode: "<< c.super << endl;
+    os << "Number: " << c.number  << " label: "<< c.label << " supernode: "<< c.super << " reactiveSuper: " << c.reactiveSuper;
     return os;
 }
 
@@ -93,6 +93,7 @@ vector<Component> patchSupernodes(vector<Component> list)
                     //cout << "loop: " << x << endl;
                     if(out[x].A.super == botnode){
                     out[x].A.super = topnode;
+                    out[x].A.reactiveSuper=(out[i].type == 'C' || out[i].type == 'c');
                     //cout << "set " << out[x].name << out[x].A.number << "to " <<  out[x].A.super << endl;
                     }
                     else
@@ -102,6 +103,7 @@ vector<Component> patchSupernodes(vector<Component> list)
                     
                     if(out[x].B.super == botnode){
                     out[x].B.super = topnode;
+                    out[x].B.reactiveSuper=(out[i].type == 'C' || out[i].type == 'c');
                     //cout << "set " << out[x].name << out[x].B.number << " to " <<  out[x].B.super << endl;
                     }
                     else
