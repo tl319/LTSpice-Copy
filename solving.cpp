@@ -301,7 +301,7 @@ const float & interval, vector<bool> & computed, VectorXd & comp_currents)
 
         if(C.type == 'L')
         {
-            total_current = ( VA - VB )*interval/C.value;
+            total_current += ( VA - VB )*interval/C.value;
             computed[i] = 1;
         }
     }
