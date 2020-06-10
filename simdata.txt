@@ -1,5 +1,62 @@
+topnode is :3 botnode is: 0
+Number: 0 label: 0 supernode: 3 reactiveSuper: 0
+Number: 1 label: b supernode: 1 reactiveSuper: 0
+Number: 2 label: c supernode: 2 reactiveSuper: 0
+Number: 3 label: a supernode: 3 reactiveSuper: 0
+
+R:R1:b:c:4
+A is Number: 1 label: b supernode: 1 reactiveSuper: 0B is Number: 2 label: c supernode: 2 reactiveSuper: 0
+R:R2:0:c:6
+A is Number: 0 label: 0 supernode: 3 reactiveSuper: 0B is Number: 2 label: c supernode: 2 reactiveSuper: 0
+V:V1:a:0:0:1:1000
+A is Number: 3 label: a supernode: 3 reactiveSuper: 0B is Number: 0 label: 0 supernode: 3 reactiveSuper: 0
+L:L1:b:a:2
+A is Number: 1 label: b supernode: 1 reactiveSuper: 0B is Number: 3 label: a supernode: 3 reactiveSuper: 0
+R1
+conductance_current 
+ 0.25 -0.25     0
+-0.25  0.25     0
+    0     0     0
+0
+0
+0
+R2
+conductance_current 
+    0.25    -0.25        0
+   -0.25 0.416667        0
+       0        0        0
+0
+0
+0
+V1
+conductance_current 
+    0.25    -0.25        0
+   -0.25 0.416667        0
+       0        0        1
+0
+0
+0
+L1
+conductance_current 
+       1        0       -1
+   -0.25 0.416667        0
+       0        0        1
+0
+0
+0
+conductance_current 
+       1        0       -1
+   -0.25 0.416667        0
+       0        0        1
+0
+0
+0
+b	c	a	R1	R2	V1	L1
+0	0	0	0	0	0	0
+    0.25    -0.25  -5e-007
+   -0.25 0.416667        0
+       0        0        1
 time	b	c	a	R1	R2	V1	L1
-0	0	0	0	0	0	0	0
 1e-006	3.14156e-008	1.88493e-008	0.00628314	3.14156e-009	-3.14156e-009	-3.14156e-009	-3.14156e-009
 2e-006	3.14145e-008	1.88487e-008	0.012566	3.14145e-009	-3.14145e-009	-6.28301e-009	-6.28301e-009
 3e-006	3.1412e-008	1.88472e-008	0.0188484	3.1412e-009	-3.1412e-009	-9.42421e-009	-9.42421e-009
