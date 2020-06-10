@@ -101,7 +101,7 @@ struct Diode: Component{
 		A.label = nA;
 		B.label = nB;
 		if(s=="1N4148"){
-			is = procData("2.52n");
+			is = 2.52*pow(2.52,-9);
 		}
 	}
 

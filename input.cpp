@@ -394,9 +394,6 @@ int main()
     pair<VectorXd, VectorXd> values = no_prior_change (out, nlist, noden);
 
 
-
-
-
     //main running part
     if(sim.type=="op")
     {
