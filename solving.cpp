@@ -111,7 +111,14 @@ const float & interval, const vector<int> & c_vs_row)
                 row = c_vs_row[i];
 
                 //in that row of the rhs vector, write the current source value
-                currents(row) = nA(comps[i]) - nB(comps[i]) + (component_currents(i))*interval/val; 
+                currents(row) = ( pastnodes(nA(comps[i])-1) - pastnodes(nB(comps[i])-1) + (component_currents(i))*interval/val ); 
+                /*/
+                cout << "VA= " << nA(comps[i]) << endl;
+                cout << "VB= " << nB(comps[i]) << endl;
+                cout << "comp current n-1 " << currents(row) << endl;
+                cout << "cap voltage= " << currents(row) << endl;
+                cout << "cap voltage= " << currents(row) << endl;
+                /*/
             }    
         }
     }    
@@ -176,6 +183,9 @@ const float & interval, const VectorXd & pastnodes, const VectorXd & pastcurrent
     for(float i = interval; i<duration; i += interval)
     {
         rhs = VectorUpdate (comps, noden, i, nodev, component_currents, interval, Mat.second);
+        //cout << "rhs" << endl;
+        //cout << rhs << endl;
+        //cout << "done" << endl;
 
         /*/
         cout << "rhs:" << endl;
