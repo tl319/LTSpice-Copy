@@ -315,9 +315,7 @@ pair<vector<Component>, Simulation> readInput()
                         else{
 			                Component c1((properties[0])[0],name,properties[1],properties[2],procData(properties[3]),procData(properties[4]),procData(properties[5]));
                             components.push_back(c1);
-                        }
-
-			
+                        }		
                         
 		}
                 if(isCmd(line))
