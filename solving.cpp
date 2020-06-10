@@ -157,8 +157,10 @@ pair<VectorXd, VectorXd> no_prior_change (const vector<Component> & comps, const
     //cout << "nodev" << endl;
     nodev = matrixSolve(knowns.first, knowns.second);
 
+    VectorXd prevnodev = VectorXd::Zero(nodev.size());
+
     //cout << "comp I" << endl;
-    component_currents = recursive_currents (comps, nodes, nodev, 0, component_currents);
+    component_currents = recursive_currents (comps, nodes, nodev, prevnodev, 0, component_currents);
 
     //cout << "return" << endl;
     return{nodev, component_currents};
@@ -173,6 +175,8 @@ const float & interval, const VectorXd & pastnodes, const VectorXd & pastcurrent
     VectorXd component_currents = pastcurrents;
     vector<pair<VectorXd, VectorXd>> values;
     VectorXd rhs = VectorXd::Zero (comps.size());
+
+    VectorXd prevnodev = VectorXd::Zero(nodev.size());
 
     pair<MatrixXd, vector<int>> Mat = MatrixUpdate (comps, noden, interval);
     cout << Mat.first << endl;
@@ -196,8 +200,9 @@ const float & interval, const VectorXd & pastnodes, const VectorXd & pastcurrent
         cout << "f" << endl;
         /*/
 
+        prevnodev = nodev;
         nodev = matrixSolve(Mat.first, rhs);
-        component_currents = recursive_currents (comps, nodes, nodev, interval, component_currents);
+        component_currents = recursive_currents (comps, nodes, nodev, prevnodev, interval, component_currents);
 
         /*/
         cout << "comp_i" << endl;
@@ -239,7 +244,7 @@ int component_index (const vector<Component> & comps, const Component & C)
 }
 
 //compute currents accross each component
-VectorXd recursive_currents (const vector<Component> & comps, const vector<Node> & nlist, const VectorXd & nodev, const float & interval, 
+VectorXd recursive_currents (const vector<Component> & comps, const vector<Node> & nlist, const VectorXd & nodev, VectorXd prevnodev, const float & interval, 
 const VectorXd & past_currents)
 {
     //register components take care of, to differetiate non calculated values from 0 currents
@@ -251,7 +256,7 @@ const VectorXd & past_currents)
     {
         if( computed[i] == 0 )
         {
-            comp_currents( i ) = recursive_basecase (i, comps[i], comps, nlist, nodev, interval, computed, comp_currents);            
+            comp_currents( i ) = recursive_basecase (i, comps[i], comps, nlist, nodev, prevnodev, interval, computed, comp_currents);            
             computed[component_index(comps, comps[i])] = 1;
         }
     }
@@ -259,7 +264,7 @@ const VectorXd & past_currents)
 }
 
 //edits to computed below should be redundant
-float recursive_basecase (const int & i, const Component & C, const vector<Component> & comps, const vector<Node> & nlist, VectorXd nodev, 
+float recursive_basecase (const int & i, const Component & C, const vector<Component> & comps, const vector<Node> & nlist, VectorXd nodev, VectorXd prevnodev, 
 const float & interval, vector<bool> & computed, VectorXd & comp_currents)
 {
     vector<Component> A_node;
@@ -318,7 +323,8 @@ const float & interval, vector<bool> & computed, VectorXd & comp_currents)
 
         if(C.type == 'L')
         {
-            total_current = comp_currents( component_index( comps, C ) ) + (VA - VB)*C.value/interval;
+            total_current = comp_currents( component_index( comps, C ) ) + ( prevnodev(nB(C) - 1) - prevnodev(nA(C) - 1) )*interval/(2*C.value) + 
+            (VB - VA)*interval/(2*C.value);
             computed[i] = 1;
         }
     }
@@ -404,9 +410,9 @@ const float & interval, vector<bool> & computed, VectorXd & comp_currents)
                 //cout << "rec else" << endl;
                 if(used_node.label == same_node[j].A.label)
                 {
-                    current = (-1)*recursive_basecase (i, same_node[j], comps, nlist, nodev, interval, computed, comp_currents);
+                    current = (-1)*recursive_basecase (i, same_node[j], comps, nlist, nodev, prevnodev, interval, computed, comp_currents);
                 } else {
-                    current = recursive_basecase (i, same_node[j], comps, nlist, nodev, interval, computed, comp_currents);
+                    current = recursive_basecase (i, same_node[j], comps, nlist, nodev, prevnodev, interval, computed, comp_currents);
                 }
 
                 if(used_node.label == C.A)
