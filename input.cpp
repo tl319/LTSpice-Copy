@@ -98,7 +98,7 @@ vector<Component> patchSupernodes(vector<Component> list)
                 botnode =out[i].B.super;}
                 else {topnode = out[i].B.super;
                 botnode =out[i].A.super;}
-                cerr << "topnode is :" << topnode << " botnode is: " << botnode << endl;
+                //cerr << "topnode is :" << topnode << " botnode is: " << botnode << endl;
                  
                 for(int x=0;x<out.size();x++){
                     //cout << "loop: " << x << endl;
@@ -387,9 +387,9 @@ int main()
     vector<Node> nlist = findNodes(out);
     for(auto x : nlist)
     {
-        cerr << x << endl;
+        //cerr << x << endl;
     }
-    cerr << endl;
+    //cerr << endl;
     for(auto x : out)
     {
         cout << x;
