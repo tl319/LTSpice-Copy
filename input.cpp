@@ -287,7 +287,9 @@ pair<vector<Component>, Simulation> readInput()
 	string x;
 	vector<string> strings;
 	vector<Component> components;
-        Simulation sim;
+    int fakeNode = 1;
+    int fakeRes = 1;
+    Simulation sim;
 	while(getline(cin, x))
 	{
 		strings.push_back(x);
@@ -307,6 +309,15 @@ pair<vector<Component>, Simulation> readInput()
                         if((properties[0])[0]=='D'||(properties[0])[0]=='d'){
                             Diode d1((properties[0])[0],name,properties[1],properties[2],properties[3]);
                             components.push_back(d1);
+                        }
+                        else if((properties[0])[0]=='C'||(properties[0])[0]=='c'){
+                            Component c1((properties[0])[0],name,properties[1],"fakeNode"+to_string(fakeNode),procData(properties[3]));
+                            Component c2('R',"fakeRes"+to_string(fakeRes),"fakeNode"+to_string(fakeNode),properties[2],(0.000001/procData(properties[3])));
+                            c2.poser=true;
+                            components.push_back(c1);
+                            components.push_back(c2);
+                            fakeNode++;
+                            fakeRes++;
                         }
                         else if(properties.size()<5){
 			                Component c1((properties[0])[0],name,properties[1],properties[2],procData(properties[3]));
@@ -342,8 +353,6 @@ pair<vector<Component>, Simulation> readInput()
                             }
                         
                         }
-	                               
-        
 
                 }
     }

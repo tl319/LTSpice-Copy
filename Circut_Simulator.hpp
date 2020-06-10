@@ -57,6 +57,7 @@ struct Component
 	Node A;
 	Node B;
 	float value;
+	bool poser = false;
         
         //no zero when dealing with a time dependent signal
         bool isSignal = false;
