@@ -340,7 +340,7 @@ pair<MatrixXd, VectorXd> conductance_current(vector<Component> comps, int noden)
 
 //update matrix to reflect the change in behaviour of reactive components
 //the second pair member is used to store the row values representing source and capacitor voltages
-pair<MatrixXd, vector<int>> MatrixUpdate (vector<Component> & comps, const int & noden)
+pair<MatrixXd, vector<int>> MatrixUpdate (vector<Component> & comps, const int & noden, const float & interval)
 {
     //code copied wholesale from above, trim redundancies later
 
@@ -534,6 +534,8 @@ pair<MatrixXd, vector<int>> MatrixUpdate (vector<Component> & comps, const int &
                     }
                 }
             }
+
+            
         }
     }
     return {conducts, c_vs_row};
