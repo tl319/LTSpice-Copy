@@ -50,6 +50,17 @@ ostream& operator<<(ostream& os, const Simulation& c)
     os << "Type: " << c.type  << " stop: "<< c.stop << " timestep: "<< c.step << endl;
     return os;
 }
+string nodeName(int i,vector<Component> out)
+{
+    for(auto x : out){
+        if(x.A.number == i)
+            return x.A.label;
+        else if(x.B.number == i)
+            return x.B.label;
+    } 
+    return "not found node number";
+}
+
 
 bool operator == (Node const &n1, Node const &n2)
 {
@@ -293,12 +304,19 @@ pair<vector<Component>, Simulation> readInput()
 			string name;
 			if(isalnum((properties[0])[1])){name = properties[0];}
 			else{name =(properties[0]).substr (3,(properties[0].length())-1);}
-                        if(properties.size()<5){
-			Component c1((properties[0])[0],name,properties[1],properties[2],procData(properties[3]));
-                        components.push_back(c1);}
+                        if((properties[0])[0]=='D'||(properties[0])[0]=='d'){
+                            Diode d1((properties[0])[0],name,properties[1],properties[2],properties[3]);
+                            components.push_back(d1);
+                        }
+                        else if(properties.size()<5){
+			                Component c1((properties[0])[0],name,properties[1],properties[2],procData(properties[3]));
+                            components.push_back(c1);
+                        }
                         else{
-			Component c1((properties[0])[0],name,properties[1],properties[2],procData(properties[3]),procData(properties[4]),procData(properties[5]));
-                        components.push_back(c1);}
+			                Component c1((properties[0])[0],name,properties[1],properties[2],procData(properties[3]),procData(properties[4]),procData(properties[5]));
+                            components.push_back(c1);
+                        }
+
 			
                         
 		}
@@ -335,9 +353,27 @@ pair<vector<Component>, Simulation> readInput()
 
 }
 
+vector<Component> reorderVoltages(const vector<Component> &in)
+{
+    vector<Component> res;
+    vector<Component> vol;
+    vector<Component> duo;
+    for(auto x : in)
+    {
+        if(x.type=='V' || x.type=='v')
+            vol.push_back(x);
+        else
+            res.push_back(x);
+    }
+    reverse(vol.begin(),vol.end());
+    duo.reserve(res.size() + vol.size() ); // preallocate memory
+    duo.insert( duo.end(), res.begin(), res.end() );
+    duo.insert( duo.end(), vol.begin(), vol.end() );
+    return duo;
+}
+
 int main()
 {
-    
     pair<vector<Component>, Simulation> testm = readInput();
     Simulation sim =testm.second;
     vector<Component> out = patchComponents(testm.first);
@@ -349,9 +385,9 @@ int main()
     cerr << endl;
     for(auto x : out)
     {
-        cerr << x;
-        cerr << "A is "<< x.A;
-        cerr << "B is "<< x.B << endl;
+        cout << x;
+        cout << "A is "<< x.A << " superlabel: " << nodeName(x.A.super,out) << endl;
+        cout << "B is "<< x.B << " superlabel: " << nodeName(x.B.super,out) << endl;
     }
 
     int noden = compute_noden(nlist);

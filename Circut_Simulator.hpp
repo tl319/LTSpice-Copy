@@ -63,8 +63,8 @@ struct Component
         float DCOff=0;
         float amplitude=0;
         float frequency=0;
-
-	Component(char t,string n, string nA,string nB,float v){
+		Component(){type = '0';name ="N/A";A.label="N/A";B.label="N/A";value=0;}
+		Component(char t,string n, string nA,string nB,float v){
 		type = t;
 		name = n;
 		A.label = nA;
@@ -85,11 +85,27 @@ struct Component
 		A.label = nA;
 		B.label = nB;
 		DCOff=DC;
-                amplitude=a;
-                frequency=f;
-                isSignal = true;
+		amplitude=a;
+		frequency=f;
+		isSignal = true;
 	}
        
+};
+
+struct Diode: Component{
+
+	float is;
+		Diode(char t,string n, string nA,string nB,string s){
+		type = t;
+		name = n;
+		A.label = nA;
+		B.label = nB;
+		if(s=="1N4148"){
+			is = procData("2.52n");
+		}
+	}
+
+
 };
 
 // *** Component Management Functions ***
