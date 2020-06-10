@@ -111,7 +111,7 @@ const float & interval, const vector<int> & c_vs_row)
                 row = c_vs_row[i];
 
                 //in that row of the rhs vector, write the current source value
-                currents(row) = ( pastnodes(nA(comps[i])-1) - pastnodes(nB(comps[i])-1) + (component_currents(i))*interval/val ); 
+                currents(row) = (pastnodes(nA(comps[i])-1) - pastnodes(nB(comps[i])-1) + (component_currents(i))*interval/val ); 
                 /*/
                 cout << "VA= " << nA(comps[i]) << endl;
                 cout << "VB= " << nB(comps[i]) << endl;
@@ -174,7 +174,7 @@ const float & interval, const VectorXd & pastnodes, const VectorXd & pastcurrent
     vector<pair<VectorXd, VectorXd>> values;
     VectorXd rhs = VectorXd::Zero (comps.size());
 
-    pair<MatrixXd, vector<int>> Mat = MatrixUpdate (comps, noden);
+    pair<MatrixXd, vector<int>> Mat = MatrixUpdate (comps, noden, interval);
     cout << Mat.first << endl;
     writeTranHeaders(nodes, comps);
     //begin one interval after 0
@@ -251,15 +251,7 @@ const VectorXd & past_currents)
     {
         if( computed[i] == 0 )
         {
-            if(comps[i].type == 'L')
-            {
-                comp_currents( i ) = past_currents(i) + recursive_basecase (i, comps[i], comps, nlist, nodev, interval, computed, comp_currents);
-            } else {
-                //cout << "b4 base" << endl;
-                comp_currents( i ) = recursive_basecase (i, comps[i], comps, nlist, nodev, interval, computed, comp_currents);
-                //cout << "after base" << endl;
-            }
-            
+            comp_currents( i ) = recursive_basecase (i, comps[i], comps, nlist, nodev, interval, computed, comp_currents);            
             computed[component_index(comps, comps[i])] = 1;
         }
     }
@@ -326,7 +318,7 @@ const float & interval, vector<bool> & computed, VectorXd & comp_currents)
 
         if(C.type == 'L')
         {
-            total_current = ( VA - VB )*interval/C.value;
+            total_current = comp_currents( component_index( comps, C ) ) +  (VA - VB)*interval/C.value;
             computed[i] = 1;
         }
     }

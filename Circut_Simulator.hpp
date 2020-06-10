@@ -123,7 +123,7 @@ VectorXd VectorUpdate (const vector<Component> & comps, const int & noden, const
 const float & interval, const vector<int> & c_vs_row);
 //updates the rhs ("current") vector during transient simulations
 
-pair<MatrixXd, vector<int>> MatrixUpdate (vector<Component> & comps, const int & noden);
+pair<MatrixXd, vector<int>> MatrixUpdate (vector<Component> & comps, const int & noden, const float & interval);
 //update matrix to reflect the change in behaviour of reactive components
 
 //is the node vector actually used by the functions within? (and cannot be rpelaced by the label int)

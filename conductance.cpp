@@ -501,6 +501,41 @@ pair<MatrixXd, vector<int>> MatrixUpdate (vector<Component> & comps, const int &
                 comps[i].A.super = nA(comps[i]);
             }
 
+            conductance = interval/comps[i].value;
+
+            //if row nA has not already been edited to represent a voltage source and nA is not ground, 
+            //then add and subtract conductance in columns nA and nB 
+            //Row corresponds to supernode (node if no supernode) and column to actual node
+            if(SnA(comps[i]) != 0)
+            {
+                if(locked[ SnA(comps[i])-1] == 0)
+                {
+                    if( nA(comps[i]) != 0)
+                    {
+                        conducts ( SnA(comps[i]) -1, nA(comps[i]) -1) += conductance;
+                    }
+                    if( nA(comps[i]) != 0 && nB(comps[i]) != 0)
+                    {
+                        conducts ( SnA(comps[i]) -1, nB(comps[i]) -1) -= conductance;
+                    }
+                }
+            }
+
+            if(SnB(comps[i]) != 0)
+            {
+                //Ditto for nB
+                if(locked[ SnB(comps[i])-1] == 0)
+                {
+                    if( nB(comps[i]) != 0)
+                    {
+                        conducts ( SnB(comps[i]) -1, nB(comps[i]) -1) += conductance;
+                    }
+                    if( nA(comps[i]) != 0 && nB(comps[i]) != 0)
+                    {
+                        conducts ( SnB(comps[i]) -1, nA(comps[i]) -1) -= conductance;
+                    }
+                }
+            }
         }
 
         if(comps[i].type == 'C')
@@ -534,8 +569,6 @@ pair<MatrixXd, vector<int>> MatrixUpdate (vector<Component> & comps, const int &
                     }
                 }
             }
-
-            
         }
     }
     return {conducts, c_vs_row};
