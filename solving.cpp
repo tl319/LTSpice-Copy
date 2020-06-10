@@ -147,13 +147,13 @@ pair<VectorXd, VectorXd> no_prior_change (const vector<Component> & comps, const
     pair<MatrixXd, VectorXd> knowns = conductance_current (comps, noden);
     test(noden, knowns.first, knowns.second);
 
-    cout << "nodev" << endl;
+    //cout << "nodev" << endl;
     nodev = matrixSolve(knowns.first, knowns.second);
 
-    cout << "comp I" << endl;
+    //cout << "comp I" << endl;
     component_currents = recursive_currents (comps, nodes, nodev, 0, component_currents);
 
-    cout << "return" << endl;
+    //cout << "return" << endl;
     return{nodev, component_currents};
 }
 
@@ -341,7 +341,7 @@ const float & interval, vector<bool> & computed, VectorXd & comp_currents)
         for(int j = 0; j<same_node.size(); j++)
         {
             //cout << "for" << endl;
-            cout << C.name << " " << used_node.label << endl;
+            //cout << C.name << " " << used_node.label << endl;
             if( computed[component_index(comps, same_node[j])] == 1 )
             {
                 if(same_node[j].type == 'R')

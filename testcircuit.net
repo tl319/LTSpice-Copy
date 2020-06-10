@@ -1,7 +1,8 @@
-* C:\Users\david\Desktop\École\Université\Undergrad\Work\finalproject\Real\Transients\TRAN_V-Sine_R+L.asc
-R1 N001 N002 1
-L1 N002 0 1
-V1 N001 0 SINE(0 1 1K)
+* C:\Users\david\Desktop\École\Université\Undergrad\Work\Labs\ADC4\Draft10.asc
+R1 N001 N003 4
+R2 0 N003 6
+V1 N002 0 SINE(0 1 1K)
+C1 N002 N001 2
 .op
 .backanno
 .end

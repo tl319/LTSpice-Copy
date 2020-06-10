@@ -106,36 +106,53 @@ pair<MatrixXd, VectorXd> conductance_current(vector<Component> comps, int noden)
         {
             conductance = 1/val;
 
+            //node numbers that only take the supernode value if the supernode exists in DC operation (isnt from a capacitor)
+            int DCsuperA;
+            int DCsuperB;
+            if(comps[i].A.reactiveSuper == true)
+            {
+                DCsuperA = nA(comps[i]);
+            } else {
+                DCsuperA = SnA(comps[i]);
+            }
+
+            if(comps[i].B.reactiveSuper == true)
+            {
+                DCsuperB = nB(comps[i]);
+            } else {
+                DCsuperB = SnB(comps[i]);
+            }
+
             //if row nA has not already been edited to represent a voltage source and nA is not ground, 
             //then add and subtract conductance in columns nA and nB 
             //Row corresponds to supernode (node if no supernode) and column to actual node
-            if(SnA(comps[i]) != 0)
+            if(DCsuperA != 0)
             {
-                if(locked[ SnA(comps[i])-1] == 0)
+                if(locked[ DCsuperA-1] == 0)
                 {
                     if( nA(comps[i]) != 0)
                     {
-                        conducts ( SnA(comps[i]) -1, nA(comps[i]) -1) += conductance;
+                        conducts ( DCsuperA -1, nA(comps[i]) -1) += conductance;
                     }
                     if( nA(comps[i]) != 0 && nB(comps[i]) != 0)
                     {
-                        conducts ( SnA(comps[i]) -1, nB(comps[i]) -1) -= conductance;
+                        conducts ( DCsuperA -1, nB(comps[i]) -1) -= conductance;
                     }
                 }
             }
 
-            if(SnB(comps[i]) != 0)
+            if( DCsuperB != 0)
             {
                 //Ditto for nB
-                if(locked[ SnB(comps[i])-1] == 0)
+                if(locked[ DCsuperB -1] == 0)
                 {
                     if( nB(comps[i]) != 0)
                     {
-                        conducts ( SnB(comps[i]) -1, nB(comps[i]) -1) += conductance;
+                        conducts ( DCsuperB  -1, nB(comps[i]) -1) += conductance;
                     }
                     if( nA(comps[i]) != 0 && nB(comps[i]) != 0)
                     {
-                        conducts ( SnB(comps[i]) -1, nA(comps[i]) -1) -= conductance;
+                        conducts ( DCsuperB -1, nA(comps[i]) -1) -= conductance;
                     }
                 }
             }
@@ -314,10 +331,10 @@ pair<MatrixXd, VectorXd> conductance_current(vector<Component> comps, int noden)
                 }
             }        
         }
-        cout << comps[i].name << endl;
-        test(noden, conducts, currents);
+        //cout << comps[i].name << endl;
+        //test(noden, conducts, currents);
     }
-    cout << "help" << endl;
+    //cout << "help" << endl;
     return {conducts, currents};
 }
 
