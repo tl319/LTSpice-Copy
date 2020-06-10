@@ -209,13 +209,15 @@ pair<MatrixXd, VectorXd> conductance_current(vector<Component> comps, int noden)
                 //assign the row corresponding to the lowest numbered node as that representing the voltage source
                 int row;
 
-                if( nA(comps[i]) > nB(comps[i]) && locked[ nB(comps[i])-1] == 0 || locked[ nA(comps[i])-1] == 1 ) 
+                if( nA(comps[i]) > nB(comps[i]) && (locked[ nB(comps[i])-1] == 0)|| locked[ nA(comps[i])-1] == 1 ) 
                 {
                     locked[nB(comps[i])-1] = 1;
+                    cout << "locked " << nB(comps[i])-1 <<endl;
                     row = nB(comps[i]) -1;
                 } else {
                     locked[nA(comps[i])-1] = 1;
                     row = nA(comps[i]) -1;
+                    cout << "locked " << nA(comps[i])-1 <<endl;
                 }
 
                 //in that row of the rhs vector, write the current source value
@@ -331,10 +333,14 @@ pair<MatrixXd, VectorXd> conductance_current(vector<Component> comps, int noden)
                 }
             }        
         }
-        cout << comps[i].name << endl;
-        test(noden, conducts, currents);
+        cerr << comps[i].name << endl;
+        //test(noden, conducts, currents);
     }
+<<<<<<< HEAD
     //cout << "help" << endl;
+=======
+    cerr << "help" << endl;
+>>>>>>> 0a69e192568df2399bbbc5eba2f0c4a8c64672bc
     return {conducts, currents};
 }
 

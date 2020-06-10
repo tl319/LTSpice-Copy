@@ -50,6 +50,17 @@ ostream& operator<<(ostream& os, const Simulation& c)
     os << "Type: " << c.type  << " stop: "<< c.stop << " timestep: "<< c.step << endl;
     return os;
 }
+string nodeName(int i,vector<Component> out)
+{
+    for(auto x : out){
+        if(x.A.number == i)
+            return x.A.label;
+        else if(x.B.number == i)
+            return x.B.label;
+    } 
+    return "not found node number";
+}
+
 
 bool operator == (Node const &n1, Node const &n2)
 {
@@ -87,7 +98,7 @@ vector<Component> patchSupernodes(vector<Component> list)
                 botnode =out[i].B.super;}
                 else {topnode = out[i].B.super;
                 botnode =out[i].A.super;}
-                 cout << "topnode is :" << topnode << " botnode is: " << botnode << endl;
+                cerr << "topnode is :" << topnode << " botnode is: " << botnode << endl;
                  
                 for(int x=0;x<out.size();x++){
                     //cout << "loop: " << x << endl;
@@ -232,6 +243,17 @@ void writeOPReadable(const vector<Node>& nlist, const vector<Component>& out,con
     }
     cout << endl;
 }
+void writeOPZero(const VectorXd& pastnodes, const VectorXd& component_currents)
+{
+    cout << 0;
+    for(int i = 0;i<pastnodes.size();i++) {
+        cout << '\t' << pastnodes(i);
+    } 
+     for(int i = 0;i<component_currents.size();i++) {
+        cout << '\t' << component_currents(i); 
+    }
+    cout << endl;
+}
 
 void writeTranHeaders(const vector<Node>& nlist, const vector<Component>& out)
 {
@@ -265,7 +287,9 @@ pair<vector<Component>, Simulation> readInput()
 	string x;
 	vector<string> strings;
 	vector<Component> components;
-        Simulation sim;
+    int fakeNode = 1;
+    int fakeRes = 1;
+    Simulation sim;
 	while(getline(cin, x))
 	{
 		strings.push_back(x);
@@ -282,68 +306,114 @@ pair<vector<Component>, Simulation> readInput()
 			string name;
 			if(isalnum((properties[0])[1])){name = properties[0];}
 			else{name =(properties[0]).substr (3,(properties[0].length())-1);}
-                        if(properties.size()<5){
-			Component c1((properties[0])[0],name,properties[1],properties[2],procData(properties[3]));
-                        components.push_back(c1);}
+                        if((properties[0])[0]=='D'||(properties[0])[0]=='d'){
+                            Diode d1((properties[0])[0],name,properties[1],properties[2],properties[3]);
+                            components.push_back(d1);
+                        }
+                        else if((properties[0])[0]=='C'||(properties[0])[0]=='c'){
+                            Component c1((properties[0])[0],name,properties[1],"fakeNode"+to_string(fakeNode),procData(properties[3]));
+                            Component c2('R',"fakeRes"+to_string(fakeRes),"fakeNode"+to_string(fakeNode),properties[2],(0.000001/procData(properties[3])));
+                            c2.poser=true;
+                            components.push_back(c1);
+                            components.push_back(c2);
+                            fakeNode++;
+                            fakeRes++;
+                        }
+                        else if(properties.size()<5){
+			                Component c1((properties[0])[0],name,properties[1],properties[2],procData(properties[3]));
+                            components.push_back(c1);
+                        }
                         else{
-			Component c1((properties[0])[0],name,properties[1],properties[2],procData(properties[3]),procData(properties[4]),procData(properties[5]));
-                        components.push_back(c1);}
-			
+			                Component c1((properties[0])[0],name,properties[1],properties[2],procData(properties[3]),procData(properties[4]),procData(properties[5]));
+                            components.push_back(c1);
+                        }		
                         
 		}
                 if(isCmd(line))
                 {
                     vector<string> properties;
-			stringstream ss(line);
-			int count=0;
-			 while (ss >> x){
+                    stringstream ss(line);
+                    int count=0;
+                    while (ss >> x){
                              properties.push_back(x);
-					}
+					}   
                         string type =(properties[0]).substr (1,(properties[0].length())-1);
                         if(type == "op")
                         {sim.type=type;}
                         if(type == "tran"){
-                        sim.type=(properties[0]).substr (1,(properties[0].length())-1);
-                        sim.stop=(procData(properties[2]));
-                        sim.step=(procData(properties[4]));
+                            if(properties.size()>3){
+                                sim.type=type;
+                                sim.stop=(procData(properties[2]));
+                                sim.step=(procData(properties[4]));
+                            }
+                            else{
+                                sim.type=type;
+                                sim.stop=(procData(properties[1]));
+                                sim.step = 99999999;
+                            }
+                        
                         }
+
                 }
-	}
-        
-
-
+    }
 	return make_pair(components, sim);
 
 }
+
+vector<Component> reorderVoltages(const vector<Component> &in)
+{
+    vector<Component> res;
+    vector<Component> vol;
+    vector<Component> duo;
+    for(auto x : in)
+    {
+        if(x.type=='V' || x.type=='v')
+            vol.push_back(x);
+        else
+            res.push_back(x);
+    }
+    reverse(vol.begin(),vol.end());
+    duo.reserve(res.size() + vol.size() ); // preallocate memory
+    duo.insert( duo.end(), res.begin(), res.end() );
+    duo.insert( duo.end(), vol.begin(), vol.end() );
+    return duo;
+}
+
 int main()
 {
-    
     pair<vector<Component>, Simulation> testm = readInput();
+    Simulation sim =testm.second;
     vector<Component> out = patchComponents(testm.first);
     vector<Node> nlist = findNodes(out);
     for(auto x : nlist)
     {
-        cout << x << endl;
+        cerr << x << endl;
     }
-    cout << endl;
+    cerr << endl;
     for(auto x : out)
     {
         cout << x;
-        cout << "A is "<< x.A;
-        cout << "B is "<< x.B << endl;
+        cout << "A is "<< x.A << " superlabel: " << nodeName(x.A.super,out) << endl;
+        cout << "B is "<< x.B << " superlabel: " << nodeName(x.B.super,out) << endl;
     }
 
     int noden = compute_noden(nlist);
-
     pair<VectorXd, VectorXd> values = no_prior_change (out, nlist, noden);
-    //cout<<"bruh"<<endl;
-    writeOP(nlist, out, values.first, values.second);
-    //cout<<"hmmm"<<endl;
 
 
-    float duration = 0.01;
-    float interval = 0.000001;
-
-    vector<pair<VectorXd, VectorXd>> transient_values = transient (out, nlist, noden, duration, interval, values.first, values.second);
-    
+    //main running part
+    if(sim.type=="op")
+    {
+        writeOPReadable(nlist, out, values.first, values.second);
+        
+    }
+    else if (sim.type=="tran"){
+        float duration = sim.stop;
+        float interval = 0.000001;
+        vector<pair<VectorXd, VectorXd>> transient_values = transient (out, nlist, noden, duration, interval, values.first, values.second);
+    }
+    else
+    {
+        cout << "Invalid simulation command";
+    }
 }

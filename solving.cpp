@@ -135,7 +135,7 @@ vector<bool> incorrect_assumptions(VectorXd component_currents, vector<Component
         //cout << comps[i].name << " " << comp_currents[i] << endl;
         if(comps[i].type == 'D' && component_currents[i] < 0)
         {
-            cout << "oof" << endl;
+            cerr << "oof" << endl;
             incorrect_assumptions[comps.size()] = 1;
             incorrect_assumptions[i] = 1;
         }
@@ -152,17 +152,17 @@ pair<VectorXd, VectorXd> no_prior_change (const vector<Component> & comps, const
     VectorXd component_currents = VectorXd::Zero (comps.size());
 
     pair<MatrixXd, VectorXd> knowns = conductance_current (comps, noden);
-    test(noden, knowns.first, knowns.second);
-
-    //cout << "nodev" << endl;
-    nodev = matrixSolve(knowns.first, knowns.second);
+    //test(noden, knowns.first, knowns.second);
 
     VectorXd prevnodev = VectorXd::Zero(nodev.size());
 
-    //cout << "comp I" << endl;
-    component_currents = recursive_currents (comps, nodes, nodev, prevnodev, 0, component_currents);
+    cerr << "nodev" << endl;
+    nodev = matrixSolve(knowns.first, knowns.second);
 
-    //cout << "return" << endl;
+    cerr << "comp I" << endl;
+    component_currents = recursive_currents (comps, nodes, nodev, 0, component_currents);
+
+    cerr << "return" << endl;
     return{nodev, component_currents};
 }
 
@@ -179,8 +179,9 @@ const float & interval, const VectorXd & pastnodes, const VectorXd & pastcurrent
     VectorXd prevnodev = VectorXd::Zero(nodev.size());
 
     pair<MatrixXd, vector<int>> Mat = MatrixUpdate (comps, noden, interval);
-    cout << Mat.first << endl;
+    cerr << Mat.first << endl;
     writeTranHeaders(nodes, comps);
+    writeOPZero(pastnodes, pastcurrents);
     //begin one interval after 0
     //i is time in seconds
 
@@ -349,7 +350,7 @@ const float & interval, vector<bool> & computed, VectorXd & comp_currents)
         for(int j = 0; j<same_node.size(); j++)
         {
             //cout << "for" << endl;
-            //cout << C.name << " " << used_node.label << endl;
+            cerr << C.name << " " << used_node.label << endl;
             if( computed[component_index(comps, same_node[j])] == 1 )
             {
                 if(same_node[j].type == 'R')
