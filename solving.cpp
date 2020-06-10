@@ -324,8 +324,7 @@ const float & interval, vector<bool> & computed, VectorXd & comp_currents)
 
         if(C.type == 'L')
         {
-            total_current = comp_currents( component_index( comps, C ) ) + ( prevnodev(nB(C) - 1) - prevnodev(nA(C) - 1) )*interval/(2*C.value) + 
-            (VB - VA)*interval/(2*C.value);
+            total_current = comp_currents( component_index( comps, C ) ) + ( prevnodev(nB(C) - 1) - prevnodev(nA(C) - 1) )*interval/(C.value);
             computed[i] = 1;
         }
     }
