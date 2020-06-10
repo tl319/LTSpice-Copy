@@ -93,7 +93,7 @@ const float & interval, const vector<int> & c_vs_row)
             if( nB(comps[i]) == 0 && nA(comps[i]) != 0)
             {
                 //write the source voltage to this index in the rhs vector
-                currents(nA(comps[i]) -1) = nA(comps[i]) - nB(comps[i]) + (component_currents(i))*interval/val; 
+                currents(nA(comps[i]) -1) = nA(comps[i]) - nB(comps[i]) - (component_currents(i))*interval/val; 
             }
 
             //positive terminal to ground
@@ -101,7 +101,7 @@ const float & interval, const vector<int> & c_vs_row)
             if(nA(comps[i]) == 0 && nB(comps[i]) != 0)
             {
                 //also write -1* the source voltage to this index in the rhs vector
-                currents(nB(comps[i]) -1) += (-1)*(nA(comps[i]) - nB(comps[i]) + (component_currents(i))*interval/val);
+                currents(nB(comps[i]) -1) += (-1)*(nA(comps[i]) - nB(comps[i]) - (component_currents(i))*interval/val);
             }
 
             //floating voltage source
@@ -111,7 +111,7 @@ const float & interval, const vector<int> & c_vs_row)
                 row = c_vs_row[i];
 
                 //in that row of the rhs vector, write the current source value
-                currents(row) = (pastnodes(nA(comps[i])-1) - pastnodes(nB(comps[i])-1) + (component_currents(i))*interval/val ); 
+                currents(row) = (pastnodes(nA(comps[i])-1) - pastnodes(nB(comps[i])-1) - (component_currents(i))*interval/val ); 
                 /*/
                 cout << "VA= " << nA(comps[i]) << endl;
                 cout << "VB= " << nB(comps[i]) << endl;

@@ -312,7 +312,7 @@ pair<vector<Component>, Simulation> readInput()
                         }
                         else if((properties[0])[0]=='C'||(properties[0])[0]=='c'){
                             Component c1((properties[0])[0],name,properties[1],"fakeNode"+to_string(fakeNode),procData(properties[3]));
-                            Component c2('R',"fakeRes"+to_string(fakeRes),"fakeNode"+to_string(fakeNode),properties[2],(0.000001/procData(properties[3])));
+                            Component c2('R',"fakeRes"+to_string(fakeRes),"fakeNode"+to_string(fakeNode),properties[2],(0.0001/procData(properties[3])));
                             c2.poser=true;
                             components.push_back(c1);
                             components.push_back(c2);
@@ -409,7 +409,7 @@ int main()
     }
     else if (sim.type=="tran"){
         float duration = sim.stop;
-        float interval = 0.000001;
+        float interval = 0.0001;
         vector<pair<VectorXd, VectorXd>> transient_values = transient (out, nlist, noden, duration, interval, values.first, values.second);
     }
     else
