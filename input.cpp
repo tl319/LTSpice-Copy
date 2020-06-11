@@ -341,8 +341,8 @@ int main()
     //cout<<"hmmm"<<endl;
 
 
-    float duration = 0.01;
-    float interval = 0.000001;
+    float duration = 0.1;
+    float interval = 0.0001;
 
     vector<pair<VectorXd, VectorXd>> transient_values = transient (out, nlist, noden, duration, interval, values.first, values.second);
     

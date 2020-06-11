@@ -501,7 +501,7 @@ pair<MatrixXd, vector<int>> MatrixUpdate (vector<Component> & comps, const int &
                 comps[i].A.super = nA(comps[i]);
             }
 
-            conductance = interval/(2*comps[i].value);
+            conductance = interval/(comps[i].value);
 
             //if row nA has not already been edited to represent a voltage source and nA is not ground, 
             //then add and subtract conductance in columns nA and nB 
