@@ -249,19 +249,20 @@ const VectorXd & past_currents)
 
     for(int i = 0; i<comps.size(); i++)
     {
-        if( computed[i] == 0 )
-        {
+        //if( computed[i] == 0 )
+        //{
             if(comps[i].type == 'L')
             {
                 comp_currents( i ) = past_currents(i) + recursive_basecase (i, comps[i], comps, nlist, nodev, interval, computed, comp_currents);
             } else {
                 //cout << "b4 base" << endl;
                 comp_currents( i ) = recursive_basecase (i, comps[i], comps, nlist, nodev, interval, computed, comp_currents);
+                cout << comp_currents << endl;
                 //cout << "after base" << endl;
             }
             
-            computed[component_index(comps, comps[i])] = 1;
-        }
+            //computed[component_index(comps, comps[i])] = 1;
+        //}
     }
     return comp_currents;
 }
@@ -285,7 +286,7 @@ const float & interval, vector<bool> & computed, VectorXd & comp_currents)
     if(C.type == 'I')
     {
         total_current = C.value;
-        computed[i] = 1;
+        computed[ component_index(comps, C) ] = 1;
     }
 
     if(C.type == 'R' || C.type == 'L')
@@ -310,7 +311,7 @@ const float & interval, vector<bool> & computed, VectorXd & comp_currents)
             //cout << "b4 R" << endl;
             //this must also be fixed
             total_current = ( VA - VB )/C.value;
-            computed[i] = 1;
+            computed[ component_index(comps, C) ] = 1;
             /*/
             if(VA > 0)
             {
@@ -327,7 +328,7 @@ const float & interval, vector<bool> & computed, VectorXd & comp_currents)
         if(C.type == 'L')
         {
             total_current = ( VA - VB )*interval/C.value;
-            computed[i] = 1;
+            computed[ component_index(comps, C) ] = 1;
         }
     }
 
@@ -409,7 +410,7 @@ const float & interval, vector<bool> & computed, VectorXd & comp_currents)
                     //cout << "rec V end"<< endl;
                 }
             } else {
-                //cout << "rec else" << endl;
+                cout << "rec else" << endl;
                 if(used_node.label == same_node[j].A.label)
                 {
                     current = (-1)*recursive_basecase (i, same_node[j], comps, nlist, nodev, interval, computed, comp_currents);
@@ -423,11 +424,13 @@ const float & interval, vector<bool> & computed, VectorXd & comp_currents)
                 } else {
                     total_current -= current;
                 }
-                //cout << "rec else end" << endl;
+                cout << "rec else end" << endl;
             }
         }
         //cout << "eer" << endl;
+       computed[ component_index(comps, C) ] = 1; 
     }
 
+    cout << C.name << " " << total_current << endl;
     return total_current;
 }

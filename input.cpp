@@ -337,13 +337,13 @@ int main()
 
     pair<VectorXd, VectorXd> values = no_prior_change (out, nlist, noden);
     //cout<<"bruh"<<endl;
-    writeOP(nlist, out, values.first, values.second);
+    writeOPReadable(nlist, out, values.first, values.second);
     //cout<<"hmmm"<<endl;
 
 
     float duration = 0.1;
     float interval = 0.00001;
 
-    vector<pair<VectorXd, VectorXd>> transient_values = transient (out, nlist, noden, duration, interval, values.first, values.second);
+    //vector<pair<VectorXd, VectorXd>> transient_values = transient (out, nlist, noden, duration, interval, values.first, values.second);
     
 }
