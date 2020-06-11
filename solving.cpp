@@ -256,8 +256,8 @@ const VectorXd & past_currents)
                 comp_currents( i ) = past_currents(i) + recursive_basecase (i, comps[i], comps, nlist, nodev, interval, computed, comp_currents, comps[i].A);
             } else {
                 //cout << "b4 base" << endl;
-                comp_currents( i ) = recursive_basecase (i, comps[i], comps, nlist, nodev, interval, computed, comp_currents, comps[i].A);
-                cout << comp_currents << endl;
+                comp_currents( i ) = recursive_basecase (i, comps[i], comps, nlist, nodev, interval, computed, comp_currents, comps[i].B);
+                //cout << comp_currents << endl;
                 //cout << "after base" << endl;
             }
             
@@ -277,6 +277,9 @@ const float & interval, vector<bool> & computed, VectorXd & comp_currents, const
     float total_current;
     float current = 0;
     Node rec_used;
+
+    //node (a/0 or b/1) at which we're adding/subtracting the currents into the component
+    bool node_add;
 
     //voltages at each node
     float VA;
@@ -345,22 +348,26 @@ const float & interval, vector<bool> & computed, VectorXd & comp_currents, const
             //cout << C.name << " " << used_node.label << endl;
             if( computed[component_index(comps, same_node[j])] == 1 )
             {
-                //cout << same_node[j].name << " computed" << endl;
+                cout << same_node[j].name << " computed" << endl;
                 if(same_node[j].type == 'R')
                 {
                     //cout << "rec R" << endl;
                     //why does this work? come back later
                     //also fix for some cases
-                    /*/
-                    if(used_node.label == same_node[j].A.label)
+                    //cout << used_node.label << " " << same_node[j].A.label << endl;
+                    if(used_node.number == nA(C))
                     {
-                        total_current -= (nA(same_node[j]) - nB(same_node[j]))/same_node[j].value;
+                        node_add = 0;
                     } else {
-                        total_current += (nA(same_node[j]) - nB(same_node[j]))/same_node[j].value;
+                        node_add = 1;
                     }
-                    /*/
-                     
-                    total_current -= comp_currents( component_index(comps, same_node[j]) );
+
+                    if(used_node.number == same_node[j].A.number && node_add == 0 || used_node.number == same_node[j].B.number && node_add == 1)
+                    {
+                        total_current -= comp_currents( component_index(comps, same_node[j]) );
+                    } else {
+                        total_current += comp_currents( component_index(comps, same_node[j]) );
+                    }
                     //cout << "rec R end" << endl;
                 }
 
@@ -401,6 +408,7 @@ const float & interval, vector<bool> & computed, VectorXd & comp_currents, const
                     //cout << "rec V end"<< endl;
                 }
             } else {
+                cout << same_node[j].name << " compute rec" << endl;
                 //cout << "rec else" << endl;
 
                 //switch the used_node to the other node of same_node[j]
@@ -410,8 +418,6 @@ const float & interval, vector<bool> & computed, VectorXd & comp_currents, const
                 } else {
                     rec_used = same_node[j].A;
                 }
-
-
 
                 if(used_node.label == same_node[j].A.label)
                 {

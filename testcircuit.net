@@ -1,7 +1,12 @@
 * C:\Users\david\Desktop\École\Université\Undergrad\Work\finalproject\Real\Transients\Draft1.asc
-V1 b 0 4
-V2 b a 2
-R3 a 0 8
+V1 a 0 4
+R3 e 0 8
+R1 a b 5
+R2 c a 6
+R4 d 0 7
+R5 0 a 3
+I1 c d 3
+V2 b e 1
 .op
 .backanno
 .end
