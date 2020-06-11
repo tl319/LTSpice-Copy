@@ -154,11 +154,11 @@ pair<VectorXd, VectorXd> no_prior_change (const vector<Component> & comps, const
     pair<MatrixXd, VectorXd> knowns = conductance_current (comps, noden);
     //test(noden, knowns.first, knowns.second);
 
-    VectorXd prevnodev = VectorXd::Zero(nodev.size());
+    
 
     //cerr << "nodev" << endl;
     nodev = matrixSolve(knowns.first, knowns.second);
-
+    VectorXd prevnodev = VectorXd::Zero(nodev.size());
     //cerr << "comp I" << endl;
     component_currents = recursive_currents (comps, nodes, nodev, prevnodev, 0, component_currents);
 
@@ -177,17 +177,16 @@ const float & interval, const VectorXd & pastnodes, const VectorXd & pastcurrent
     VectorXd rhs = VectorXd::Zero (comps.size());
 
     VectorXd prevnodev = VectorXd::Zero(nodev.size());
-
     pair<MatrixXd, vector<int>> Mat = MatrixUpdate (comps, noden, interval);
     //cerr << Mat.first << endl;
     writeTranHeaders(nodes, comps);
     writeOPZero(pastnodes, pastcurrents);
     //begin one interval after 0
     //i is time in seconds
-
     for(float i = interval; i<duration; i += interval)
     {
         rhs = VectorUpdate (comps, noden, i, nodev, component_currents, interval, Mat.second);
+        
         //cout << "rhs" << endl;
         //cout << rhs << endl;
         //cout << "done" << endl;
@@ -324,7 +323,7 @@ const float & interval, vector<bool> & computed, VectorXd & comp_currents)
 
         if(C.type == 'L')
         {
-            total_current = comp_currents( component_index( comps, C ) ) + ( prevnodev(nB(C) - 1) - prevnodev(nA(C) - 1) )*interval/(C.value);
+            total_current = comp_currents( component_index( comps, C ) )+( prevnodev(nB(C) - 1) - prevnodev(nA(C) - 1) )*interval/(C.value);
             computed[i] = 1;
         }
     }

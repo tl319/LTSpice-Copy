@@ -89,7 +89,7 @@ vector<Component> patchSupernodes(vector<Component> list)
 {
     vector<Component> out = list;
     for(int i=0;i<out.size();i++){
-            if(out[i].type == 'V' || out[i].type == 'v' || out[i].type == 'C' || out[i].type == 'c'|| out[i].type == 'D' || out[i].type == 'd'){
+            if(out[i].type == 'V' || out[i].type == 'v' || out[i].type == 'C' || out[i].type == 'c'|| out[i].type == 'D' || out[i].type == 'd' || out[i].type == 'L' || out[i].type == 'l'){
                 int topnode = 99;
                 int botnode = 99;
                 //cout << out[i].A.number << " b is: " << out[i].B.number << endl;
