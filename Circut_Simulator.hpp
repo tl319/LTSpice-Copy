@@ -196,7 +196,7 @@ const VectorXd & past_currents);
 //compute currents accross "insufficient" (V, C, D) components in series with other such components
 
 float recursive_basecase (const int & i, const Component & C, const vector<Component> & comps, const vector<Node> & nlist, VectorXd nodev, 
-const float & interval, vector<bool> & computed, VectorXd & comp_currents);
+const float & interval, vector<bool> & computed, VectorXd & comp_currents, const Node & used_node);
 //used in above
 
 vector<bool> incorrect_assumptions(VectorXd comp_currents, vector<Component> comps);

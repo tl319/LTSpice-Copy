@@ -253,11 +253,11 @@ const VectorXd & past_currents)
         //{
             if(comps[i].type == 'L')
             {
-                comp_currents( i ) = past_currents(i) + recursive_basecase (i, comps[i], comps, nlist, nodev, interval, computed, comp_currents);
+                comp_currents( i ) = past_currents(i) + recursive_basecase (i, comps[i], comps, nlist, nodev, interval, computed, comp_currents, comps[i].A);
             } else {
                 //cout << "b4 base" << endl;
-                comp_currents( i ) = recursive_basecase (i, comps[i], comps, nlist, nodev, interval, computed, comp_currents);
-                //cout << comp_currents << endl;
+                comp_currents( i ) = recursive_basecase (i, comps[i], comps, nlist, nodev, interval, computed, comp_currents, comps[i].A);
+                cout << comp_currents << endl;
                 //cout << "after base" << endl;
             }
             
@@ -269,15 +269,14 @@ const VectorXd & past_currents)
 
 //edits to computed below should be redundant
 float recursive_basecase (const int & i, const Component & C, const vector<Component> & comps, const vector<Node> & nlist, VectorXd nodev, 
-const float & interval, vector<bool> & computed, VectorXd & comp_currents)
+const float & interval, vector<bool> & computed, VectorXd & comp_currents, const Node & used_node)
 {
-    vector<Component> A_node;
-    vector<Component> B_node;
+
     vector<Component> same_node;
     bool acceptable = 1;
     float total_current;
     float current = 0;
-    Node used_node;
+    Node rec_used;
 
     //voltages at each node
     float VA;
@@ -336,18 +335,9 @@ const float & interval, vector<bool> & computed, VectorXd & comp_currents)
     if(C.type == 'V' || C.type == 'C')
     {
         //cout << "ree" << endl;
-        total_current = 0;
-        //does this actually save time?
-        //A_node = common_node(comps, C, C.A);
-        B_node = common_node(comps, C, C.B);
-        //if(A_node.size() <= B_node.size())
-        //{
-        //    used_node = C.A;
-        //    same_node = A_node;
-        //} else {
-            used_node = C.B;
-            same_node = B_node;
-        //}
+        total_current = 0; 
+
+        same_node = common_node(comps, C, used_node);
 
         for(int j = 0; j<same_node.size(); j++)
         {
@@ -412,11 +402,22 @@ const float & interval, vector<bool> & computed, VectorXd & comp_currents)
                 }
             } else {
                 //cout << "rec else" << endl;
+
+                //switch the used_node to the other node of same_node[j]
                 if(used_node.label == same_node[j].A.label)
                 {
-                    current = (-1)*recursive_basecase (i, same_node[j], comps, nlist, nodev, interval, computed, comp_currents);
+                    rec_used = same_node[j].B;
                 } else {
-                    current = recursive_basecase (i, same_node[j], comps, nlist, nodev, interval, computed, comp_currents);
+                    rec_used = same_node[j].A;
+                }
+
+
+
+                if(used_node.label == same_node[j].A.label)
+                {
+                    current = (-1)*recursive_basecase (i, same_node[j], comps, nlist, nodev, interval, computed, comp_currents, rec_used);
+                } else {
+                    current = recursive_basecase (i, same_node[j], comps, nlist, nodev, interval, computed, comp_currents, rec_used);
                 }
 
                 if(used_node.label == C.A)
