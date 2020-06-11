@@ -174,13 +174,13 @@ const float & interval, const VectorXd & pastnodes, const VectorXd & pastcurrent
     vector<pair<VectorXd, VectorXd>> values;
     VectorXd rhs = VectorXd::Zero (comps.size());
 
-    pair<MatrixXd, vector<int>> Mat = MatrixUpdate (comps, noden);
+    pair<MatrixXd, vector<int>> Mat = MatrixUpdate (comps, noden, interval);
     cout << Mat.first << endl;
     writeTranHeaders(nodes, comps);
     //begin one interval after 0
     //i is time in seconds
 
-    for(float i = interval; i<duration; i += interval)
+    for(float i = interval; i<(duration/5); i += interval)
     {
         rhs = VectorUpdate (comps, noden, i, nodev, component_currents, interval, Mat.second);
         //cout << "rhs" << endl;

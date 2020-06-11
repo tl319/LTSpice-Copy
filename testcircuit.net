@@ -4,8 +4,8 @@ V2 b a SINE(0 5 1k)
 R1 c b 1
 R2 d 0 1
 R3 d c 1
-C1 c d 10k
-L1 c d 10k
+C1 c d 1
+L1 c d 1
 .op
 .backanno
 .end
