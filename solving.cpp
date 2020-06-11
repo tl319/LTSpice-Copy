@@ -348,7 +348,7 @@ const float & interval, vector<bool> & computed, VectorXd & comp_currents, const
             //cout << C.name << " " << used_node.label << endl;
             if( computed[component_index(comps, same_node[j])] == 1 )
             {
-                cout << same_node[j].name << " computed" << endl;
+                //cout << same_node[j].name << " computed" << endl;
                 if(same_node[j].type == 'R')
                 {
                     //cout << "rec R" << endl;
@@ -408,7 +408,7 @@ const float & interval, vector<bool> & computed, VectorXd & comp_currents, const
                     //cout << "rec V end"<< endl;
                 }
             } else {
-                cout << same_node[j].name << " compute rec" << endl;
+                //cout << same_node[j].name << " compute rec" << endl;
                 //cout << "rec else" << endl;
 
                 //switch the used_node to the other node of same_node[j]
