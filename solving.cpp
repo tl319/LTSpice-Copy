@@ -257,7 +257,7 @@ const VectorXd & past_currents)
             } else {
                 //cout << "b4 base" << endl;
                 comp_currents( i ) = recursive_basecase (i, comps[i], comps, nlist, nodev, interval, computed, comp_currents);
-                cout << comp_currents << endl;
+                //cout << comp_currents << endl;
                 //cout << "after base" << endl;
             }
             
@@ -338,16 +338,16 @@ const float & interval, vector<bool> & computed, VectorXd & comp_currents)
         //cout << "ree" << endl;
         total_current = 0;
         //does this actually save time?
-        A_node = common_node(comps, C, C.A);
+        //A_node = common_node(comps, C, C.A);
         B_node = common_node(comps, C, C.B);
-        if(A_node.size() <= B_node.size())
-        {
-            used_node = C.A;
-            same_node = A_node;
-        } else {
+        //if(A_node.size() <= B_node.size())
+        //{
+        //    used_node = C.A;
+        //    same_node = A_node;
+        //} else {
             used_node = C.B;
             same_node = B_node;
-        }
+        //}
 
         for(int j = 0; j<same_node.size(); j++)
         {
@@ -355,6 +355,7 @@ const float & interval, vector<bool> & computed, VectorXd & comp_currents)
             //cout << C.name << " " << used_node.label << endl;
             if( computed[component_index(comps, same_node[j])] == 1 )
             {
+                //cout << same_node[j].name << " computed" << endl;
                 if(same_node[j].type == 'R')
                 {
                     //cout << "rec R" << endl;
@@ -410,7 +411,7 @@ const float & interval, vector<bool> & computed, VectorXd & comp_currents)
                     //cout << "rec V end"<< endl;
                 }
             } else {
-                cout << "rec else" << endl;
+                //cout << "rec else" << endl;
                 if(used_node.label == same_node[j].A.label)
                 {
                     current = (-1)*recursive_basecase (i, same_node[j], comps, nlist, nodev, interval, computed, comp_currents);
@@ -424,13 +425,14 @@ const float & interval, vector<bool> & computed, VectorXd & comp_currents)
                 } else {
                     total_current -= current;
                 }
-                cout << "rec else end" << endl;
+                //cout << "rec else end" << endl;
             }
         }
         //cout << "eer" << endl;
        computed[ component_index(comps, C) ] = 1; 
     }
 
-    cout << C.name << " " << total_current << endl;
+    //cout << C.name << " " << total_current << endl;
+    comp_currents(component_index(comps, C)) = total_current;
     return total_current;
 }
