@@ -1,0 +1,111 @@
+R:R1:N012:0:10
+A is Number: 1 label: N012 supernode: 1 reactiveSuper: 0 superlabel: N012
+B is Number: 0 label: 0 supernode: 14 reactiveSuper: 0 superlabel: N011
+R:R2:N013:0:10
+A is Number: 2 label: N013 supernode: 8 reactiveSuper: 0 superlabel: N002
+B is Number: 0 label: 0 supernode: 14 reactiveSuper: 0 superlabel: N011
+R:R3:N007:N010:10
+A is Number: 3 label: N007 supernode: 3 reactiveSuper: 0 superlabel: N007
+B is Number: 4 label: N010 supernode: 4 reactiveSuper: 0 superlabel: N010
+R:R4:N010:N001:10
+A is Number: 4 label: N010 supernode: 4 reactiveSuper: 0 superlabel: N010
+B is Number: 5 label: N001 supernode: 13 reactiveSuper: 0 superlabel: N005
+R:R5:N003:N008:10
+A is Number: 6 label: N003 supernode: 8 reactiveSuper: 0 superlabel: N002
+B is Number: 7 label: N008 supernode: 7 reactiveSuper: 0 superlabel: N008
+R:R6:N003:N002:10
+A is Number: 6 label: N003 supernode: 8 reactiveSuper: 0 superlabel: N002
+B is Number: 8 label: N002 supernode: 8 reactiveSuper: 0 superlabel: N002
+R:R7:N007:N002:10
+A is Number: 3 label: N007 supernode: 3 reactiveSuper: 0 superlabel: N007
+B is Number: 8 label: N002 supernode: 8 reactiveSuper: 0 superlabel: N002
+R:R8:N002:N001:10
+A is Number: 8 label: N002 supernode: 8 reactiveSuper: 0 superlabel: N002
+B is Number: 5 label: N001 supernode: 13 reactiveSuper: 0 superlabel: N005
+R:R9:N004:N003:10
+A is Number: 9 label: N004 supernode: 9 reactiveSuper: 0 superlabel: N004
+B is Number: 6 label: N003 supernode: 8 reactiveSuper: 0 superlabel: N002
+R:R10:N004:N003:10
+A is Number: 9 label: N004 supernode: 9 reactiveSuper: 0 superlabel: N004
+B is Number: 6 label: N003 supernode: 8 reactiveSuper: 0 superlabel: N002
+R:R11:N003:N004:10
+A is Number: 6 label: N003 supernode: 8 reactiveSuper: 0 superlabel: N002
+B is Number: 9 label: N004 supernode: 9 reactiveSuper: 0 superlabel: N004
+R:R12:N004:N003:10
+A is Number: 9 label: N004 supernode: 9 reactiveSuper: 0 superlabel: N004
+B is Number: 6 label: N003 supernode: 8 reactiveSuper: 0 superlabel: N002
+R:R13:N006:N004:10
+A is Number: 10 label: N006 supernode: 10 reactiveSuper: 0 superlabel: N006
+B is Number: 9 label: N004 supernode: 9 reactiveSuper: 0 superlabel: N004
+R:R14:N004:N006:10
+A is Number: 9 label: N004 supernode: 9 reactiveSuper: 0 superlabel: N004
+B is Number: 10 label: N006 supernode: 10 reactiveSuper: 0 superlabel: N006
+R:R15:N014:N004:10
+A is Number: 11 label: N014 supernode: 11 reactiveSuper: 0 superlabel: N014
+B is Number: 9 label: N004 supernode: 9 reactiveSuper: 0 superlabel: N004
+R:R16:0:N014:10
+A is Number: 0 label: 0 supernode: 14 reactiveSuper: 0 superlabel: N011
+B is Number: 11 label: N014 supernode: 11 reactiveSuper: 0 superlabel: N014
+I:I1:N008:N012:5
+A is Number: 7 label: N008 supernode: 7 reactiveSuper: 0 superlabel: N008
+B is Number: 1 label: N012 supernode: 1 reactiveSuper: 0 superlabel: N012
+I:I2:N009:N005:5
+A is Number: 12 label: N009 supernode: 14 reactiveSuper: 0 superlabel: N011
+B is Number: 13 label: N005 supernode: 13 reactiveSuper: 0 superlabel: N005
+V:V1:N011:0:5
+A is Number: 14 label: N011 supernode: 14 reactiveSuper: 0 superlabel: N011
+B is Number: 0 label: 0 supernode: 14 reactiveSuper: 0 superlabel: N011
+V:V2:N009:N011:5
+A is Number: 12 label: N009 supernode: 14 reactiveSuper: 0 superlabel: N011
+B is Number: 14 label: N011 supernode: 14 reactiveSuper: 0 superlabel: N011
+V:V5:N003:N002:-5
+A is Number: 6 label: N003 supernode: 8 reactiveSuper: 0 superlabel: N002
+B is Number: 8 label: N002 supernode: 8 reactiveSuper: 0 superlabel: N002
+V:V6:N005:N001:10
+A is Number: 13 label: N005 supernode: 13 reactiveSuper: 0 superlabel: N005
+B is Number: 5 label: N001 supernode: 13 reactiveSuper: 0 superlabel: N005
+V:V7:N013:N003:5
+A is Number: 2 label: N013 supernode: 8 reactiveSuper: 0 superlabel: N002
+B is Number: 6 label: N003 supernode: 8 reactiveSuper: 0 superlabel: N002
+locked 11
+locked 5
+locked 4
+locked 1
+V(N012) : 50
+V(N013) : 1.53846
+V(N007) : 14.0385
+V(N010) : 26.5385
+V(N001) : 39.0385
+V(N003) : -3.46154
+V(N008) : -53.4615
+V(N002) : 1.53846
+V(N004) : -3.07692
+V(N006) : -3.07692
+V(N014) : -1.53846
+V(N009) : 10
+V(N005) : 49.0385
+V(N011) : 5
+I(R1) : 5
+I(R2) : 0.153846
+I(R3) : -1.25
+I(R4) : -1.25
+I(R5) : 5
+I(R6) : -0.5
+I(R7) : 1.25
+I(R8) : -3.75
+I(R9) : 0.0384615
+I(R10) : 0.0384615
+I(R11) : -0.0384615
+I(R12) : 0.0384615
+I(R13) : 0
+I(R14) : 0
+I(R15) : 0.153846
+I(R16) : 0.153846
+I(I1) : 5
+I(I2) : 5
+I(V1) : -5
+I(V2) : -5
+I(V5) : -4.5
+I(V6) : 5
+I(V7) : -0.153846
+

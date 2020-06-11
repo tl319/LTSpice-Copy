@@ -1,8 +1,8 @@
 /*
- * lmao gotem 
+ * lmao gotem
  */
 
-/* 
+/*
  * File:   Circut_Simulator.hpp
  * Author: Jason Tang, David Cormier, Thomas Van Issum
  *
@@ -33,7 +33,7 @@ struct Node
 	Node(int n, string l, int s)
 	{number = n; super = s; label=l;
 	}
-        
+
 
 };
 struct Simulation
@@ -41,7 +41,7 @@ struct Simulation
 	string type;
 	float stop = -1;
     float step = -1;
-        
+
 	Simulation(){;}
 	Simulation(string t, float stp, float sep)
         {type = t;
@@ -58,7 +58,7 @@ struct Component
 	Node B;
 	float value;
 	bool poser = false;
-        
+
         //no zero when dealing with a time dependent signal
         bool isSignal = false;
         float DCOff=0;
@@ -90,7 +90,7 @@ struct Component
 		frequency=f;
 		isSignal = true;
 	}
-       
+
 };
 
 struct Diode: Component{
@@ -125,7 +125,7 @@ vector<Component> patchComponents(vector<Component> list);
 
 //  *** Matrix Functions ***
 VectorXd matrixSolve(MatrixXd m,VectorXd v);
-//takes in the vector of currents and conductance matrix, and spits out the node voltage vector. 
+//takes in the vector of currents and conductance matrix, and spits out the node voltage vector.
 
 pair<MatrixXd, VectorXd> conductance_current (vector<Component> comps, int noden);
 //return complete conductance matrix and current vector
@@ -136,7 +136,7 @@ void writeFile(float time, float voltage);
 //input of node just writes the header *** NEEDED ***
 //use the function after to write time and voltage.
 
-VectorXd VectorUpdate (const vector<Component> & comps, const int & noden, const float & time, const VectorXd & pastnodes, const VectorXd & component_currents, 
+VectorXd VectorUpdate (const vector<Component> & comps, const int & noden, const float & time, const VectorXd & pastnodes, const VectorXd & component_currents,
 const float & interval, const vector<int> & c_vs_row);
 //updates the rhs ("current") vector during transient simulations
 
@@ -147,7 +147,7 @@ pair<MatrixXd, vector<int>> MatrixUpdate (vector<Component> & comps, const int &
 pair<VectorXd, VectorXd> no_prior_change (const vector<Component> & comps, const vector<Node> & nodes, const int & noden);
 //return voltage and current vectors for operating point or first point of transient analysis
 
-vector<pair<VectorXd, VectorXd>> transient (vector<Component> & comps, const vector<Node> & nodes, const int & noden, const float & duration, 
+vector<pair<VectorXd, VectorXd>> transient (vector<Component> & comps, const vector<Node> & nodes, const int & noden, const float & duration,
 const float & interval, const VectorXd & pastnodes, const VectorXd & pastcurrents);
 
 
@@ -212,12 +212,12 @@ int component_index (const vector<Component> & comps, const Component & C);
 float vs_current (vector<Component> comps, Component C, vector<bool> & computed, VectorXd currents, Node N);
 //used to compute current through voltage sources or capacitors
 
-VectorXd recursive_currents (const vector<Component> & comps, const vector<Node> & nlist, const VectorXd & nodev, VectorXd prevnodev, const float & interval, 
-const VectorXd & past_currents);
+VectorXd recursive_currents (const vector<Component> & comps, const vector<Node> & nlist, const VectorXd & nodev, const VectorXd & prevnodev,
+const float & interval, const VectorXd & past_currents);
 //compute currents accross "insufficient" (V, C, D) components in series with other such components
 
-float recursive_basecase (const int & i, const Component & C, const vector<Component> & comps, const vector<Node> & nlist, VectorXd nodev, 
-const float & interval, vector<bool> & computed, VectorXd & comp_currents, const Node & used_node);
+float recursive_basecase (const int & i, const Component & C, const vector<Component> & comps, const vector<Node> & nlist, const VectorXd & nodev,
+const VectorXd & prevnodev, const float & interval, vector<bool> & computed, VectorXd & comp_currents, const Node & used_node);
 //used in above
 
 vector<bool> incorrect_assumptions(VectorXd comp_currents, vector<Component> comps);

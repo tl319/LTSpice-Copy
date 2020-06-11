@@ -10,7 +10,7 @@ using namespace Eigen;
 //!!
 
 //update the current vector to reflect reactive component behaviour and changes in source values
-VectorXd VectorUpdate (const vector<Component> & comps, const int & noden, const float & time, const VectorXd & pastnodes, const VectorXd & component_currents, 
+VectorXd VectorUpdate (const vector<Component> & comps, const int & noden, const float & time, const VectorXd & pastnodes, const VectorXd & component_currents,
 const float & interval, const vector<int> & c_vs_row)
 {
     //assign the row corresponding to the lowest numbered node as that representing the voltage source
@@ -31,21 +31,21 @@ const float & interval, const vector<int> & c_vs_row)
             val = comps[i].value;
         }
 
-        //dealing with voltage sources              
+        //dealing with voltage sources
         if(comps[i].type == 'V')
         {
             //negative terminal to ground
             if( nB(comps[i]) == 0 && nA(comps[i]) != 0)
             {
                 //write the source voltage to this index in the rhs vector
-                currents(nA(comps[i]) -1) = val; 
+                currents(nA(comps[i]) -1) = val;
             }
 
             //positive terminal to ground
             if(nA(comps[i]) == 0 && nB(comps[i]) != 0)
             {
                 //also write -1* the source voltage to this index in the rhs vector
-                currents(nB(comps[i]) -1) = (-1)*val; 
+                currents(nB(comps[i]) -1) = (-1)*val;
             }
 
             //floating voltage source
@@ -55,8 +55,8 @@ const float & interval, const vector<int> & c_vs_row)
                 row = c_vs_row[i];
 
                 //in that row of the rhs vector, write the current source value
-                currents(row) = val; 
-            }    
+                currents(row) = val;
+            }
         }
 
         //current sources
@@ -93,7 +93,7 @@ const float & interval, const vector<int> & c_vs_row)
             if( nB(comps[i]) == 0 && nA(comps[i]) != 0)
             {
                 //write the source voltage to this index in the rhs vector
-                currents(nA(comps[i]) -1) = nA(comps[i]) - nB(comps[i]) - (component_currents(i))*interval/val; 
+                currents(nA(comps[i]) -1) = nA(comps[i]) - nB(comps[i]) - (component_currents(i))*interval/val;
             }
 
             //positive terminal to ground
@@ -111,7 +111,7 @@ const float & interval, const vector<int> & c_vs_row)
                 row = c_vs_row[i];
 
                 //in that row of the rhs vector, write the current source value
-                currents(row) = (pastnodes(nA(comps[i])-1) - pastnodes(nB(comps[i])-1) - (component_currents(i))*interval/val) ; 
+                currents(row) = (pastnodes(nA(comps[i])-1) - pastnodes(nB(comps[i])-1) - (component_currents(i))*interval/val) ;
                 /*/
                 cout << "VA= " << nA(comps[i]) << endl;
                 cout << "VB= " << nB(comps[i]) << endl;
@@ -119,9 +119,9 @@ const float & interval, const vector<int> & c_vs_row)
                 cout << "cap voltage= " << currents(row) << endl;
                 cout << "cap voltage= " << currents(row) << endl;
                 /*/
-            }    
+            }
         }
-    }    
+    }
     return currents;
 }
 
@@ -145,7 +145,7 @@ vector<bool> incorrect_assumptions(VectorXd component_currents, vector<Component
 }
 
 //return voltage and current vectors for operating point or first point of transient analysis
-pair<VectorXd, VectorXd> no_prior_change (const vector<Component> & comps, const vector<Node> & nodes, const int & noden) 
+pair<VectorXd, VectorXd> no_prior_change (const vector<Component> & comps, const vector<Node> & nodes, const int & noden)
 {
     VectorXd nodev;
     //perhaps avoid creating by separating recursive_currents used for op and trans
@@ -154,7 +154,7 @@ pair<VectorXd, VectorXd> no_prior_change (const vector<Component> & comps, const
     pair<MatrixXd, VectorXd> knowns = conductance_current (comps, noden);
     //test(noden, knowns.first, knowns.second);
 
-    
+
 
     //cerr << "nodev" << endl;
     nodev = matrixSolve(knowns.first, knowns.second);
@@ -168,7 +168,7 @@ pair<VectorXd, VectorXd> no_prior_change (const vector<Component> & comps, const
 
 //might be preferable to cout values directly (using Jason's function) after they're calculated to avoid cycling through the duration twice
 //and have a void function if possible
-vector<pair<VectorXd, VectorXd>> transient (vector<Component> & comps, const vector<Node> & nodes, const int & noden, const float & duration, 
+vector<pair<VectorXd, VectorXd>> transient (vector<Component> & comps, const vector<Node> & nodes, const int & noden, const float & duration,
 const float & interval, const VectorXd & pastnodes, const VectorXd & pastcurrents)
 {
     VectorXd nodev = pastnodes;
@@ -193,7 +193,7 @@ const float & interval, const VectorXd & pastnodes, const VectorXd & pastcurrent
     for(float i = interval; i<duration; i += interval)
     {
         rhs = VectorUpdate (newcomps, noden, i, nodev, component_currents, interval, Mat.second);
-        
+
         //cout << "rhs" << endl;
         //cout << rhs << endl;
         //cout << "done" << endl;
@@ -251,8 +251,8 @@ int component_index (const vector<Component> & comps, const Component & C)
 }
 
 //compute currents accross each component
-VectorXd recursive_currents (const vector<Component> & comps, const vector<Node> & nlist, const VectorXd & nodev, const float & interval, 
-const VectorXd & past_currents)
+VectorXd recursive_currents (const vector<Component> & comps, const vector<Node> & nlist, const VectorXd & nodev, const VectorXd & prevnodev,
+const float & interval, const VectorXd & past_currents)
 {
     //register components take care of, to differetiate non calculated values from 0 currents
     vector<bool> computed (comps.size(), 0);
@@ -265,14 +265,15 @@ const VectorXd & past_currents)
         //{
             if(comps[i].type == 'L')
             {
-                comp_currents( i ) = past_currents(i) + recursive_basecase (i, comps[i], comps, nlist, nodev, interval, computed, comp_currents, comps[i].A);
+                comp_currents( i ) = past_currents(i) + recursive_basecase (i, comps[i], comps, nlist, nodev, prevnodev, interval, computed, comp_currents,
+                comps[i].A);
             } else {
                 //cout << "b4 base" << endl;
-                comp_currents( i ) = recursive_basecase (i, comps[i], comps, nlist, nodev, interval, computed, comp_currents, comps[i].B);
+                comp_currents( i ) = recursive_basecase (i, comps[i], comps, nlist, nodev, prevnodev, interval, computed, comp_currents, comps[i].A);
                 //cout << comp_currents << endl;
                 //cout << "after base" << endl;
             }
-            
+
             //computed[component_index(comps, comps[i])] = 1;
         //}
     }
@@ -280,8 +281,8 @@ const VectorXd & past_currents)
 }
 
 //edits to computed below should be redundant
-float recursive_basecase (const int & i, const Component & C, const vector<Component> & comps, const vector<Node> & nlist, VectorXd nodev, 
-const float & interval, vector<bool> & computed, VectorXd & comp_currents, const Node & used_node)
+float recursive_basecase (const int & i, const Component & C, const vector<Component> & comps, const vector<Node> & nlist, const VectorXd & nodev,
+const VectorXd & prevnodev, const float & interval, vector<bool> & computed, VectorXd & comp_currents, const Node & used_node)
 {
 
     vector<Component> same_node;
@@ -350,7 +351,7 @@ const float & interval, vector<bool> & computed, VectorXd & comp_currents, const
     if(C.type == 'V' || C.type == 'C')
     {
         //cout << "ree" << endl;
-        total_current = 0; 
+        total_current = 0;
 
         same_node = common_node(comps, C, used_node);
 
@@ -433,9 +434,9 @@ const float & interval, vector<bool> & computed, VectorXd & comp_currents, const
 
                 if(used_node.label == same_node[j].A.label)
                 {
-                    current = (-1)*recursive_basecase (i, same_node[j], comps, nlist, nodev, interval, computed, comp_currents, rec_used);
+                    current = (-1)*recursive_basecase (i, same_node[j], comps, nlist, nodev, prevnodev, interval, computed, comp_currents, rec_used);
                 } else {
-                    current = recursive_basecase (i, same_node[j], comps, nlist, nodev, interval, computed, comp_currents, rec_used);
+                    current = recursive_basecase (i, same_node[j], comps, nlist, nodev, prevnodev, interval, computed, comp_currents, rec_used);
                 }
 
                 if(used_node.label == C.A)
@@ -448,11 +449,10 @@ const float & interval, vector<bool> & computed, VectorXd & comp_currents, const
             }
         }
         //cout << "eer" << endl;
-       computed[ component_index(comps, C) ] = 1; 
+       computed[ component_index(comps, C) ] = 1;
     }
 
     //cout << C.name << " " << total_current << endl;
     comp_currents(component_index(comps, C)) = total_current;
     return total_current;
 }
-
