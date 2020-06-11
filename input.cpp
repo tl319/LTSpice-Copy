@@ -307,11 +307,11 @@ pair<vector<Component>, Simulation> readInput()
 			if(isalnum((properties[0])[1])){name = properties[0];}
 			else{name =(properties[0]).substr (3,(properties[0].length())-1);}
                         if((properties[0])[0]=='D'||(properties[0])[0]=='d'){
-                            Diode d1((properties[0])[0],name,properties[1],properties[2],properties[3]);
+                            Diode d1('D',name,properties[1],properties[2],properties[3]);
                             components.push_back(d1);
                         }
                         else if((properties[0])[0]=='C'||(properties[0])[0]=='c'){
-                            Component c1((properties[0])[0],name,properties[1],"fakeNode"+to_string(fakeNode),procData(properties[3]));
+                            Component c1('C',name,properties[1],"fakeNode"+to_string(fakeNode),procData(properties[3]));
                             Component c2('R',"fakeRes"+to_string(fakeRes),"fakeNode"+to_string(fakeNode),properties[2],(0.0001/procData(properties[3])));
                             c2.poser=true;
                             components.push_back(c1);
@@ -320,11 +320,11 @@ pair<vector<Component>, Simulation> readInput()
                             fakeRes++;
                         }
                         else if(properties.size()<5){
-			                Component c1((properties[0])[0],name,properties[1],properties[2],procData(properties[3]));
+			                Component c1(toupper((properties[0])[0]),name,properties[1],properties[2],procData(properties[3]));
                             components.push_back(c1);
                         }
                         else{
-			                Component c1((properties[0])[0],name,properties[1],properties[2],procData(properties[3]),procData(properties[4]),procData(properties[5]));
+			                Component c1(toupper((properties[0])[0]),name,properties[1],properties[2],procData(properties[3]),procData(properties[4]),procData(properties[5]));
                             components.push_back(c1);
                         }		
                         
