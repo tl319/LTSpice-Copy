@@ -191,6 +191,9 @@ bool isSci(char c);
 bool isData(char c);
 //used in above function
 
+string nodeName(int i,vector<Component> out);
+vector<Component> patchSupernodeInductor(vector<Component> list);
+
 int compute_noden(vector<Node>  nodes);
 //calculate number of non-ground nodes from node vector
 

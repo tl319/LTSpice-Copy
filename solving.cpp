@@ -111,7 +111,7 @@ const float & interval, const vector<int> & c_vs_row)
                 row = c_vs_row[i];
 
                 //in that row of the rhs vector, write the current source value
-                currents(row) = (pastnodes(nA(comps[i])-1) - pastnodes(nB(comps[i])-1) - (component_currents(i))*interval/val ); 
+                currents(row) = (pastnodes(nA(comps[i])-1) - pastnodes(nB(comps[i])-1) - (component_currents(i))*interval/val) ; 
                 /*/
                 cout << "VA= " << nA(comps[i]) << endl;
                 cout << "VB= " << nB(comps[i]) << endl;
@@ -177,15 +177,22 @@ const float & interval, const VectorXd & pastnodes, const VectorXd & pastcurrent
     VectorXd rhs = VectorXd::Zero (comps.size());
 
     VectorXd prevnodev = VectorXd::Zero(nodev.size());
-    pair<MatrixXd, vector<int>> Mat = MatrixUpdate (comps, noden, interval);
+    vector<Component> newcomps = patchSupernodeInductor(comps);
+    pair<MatrixXd, vector<int>> Mat = MatrixUpdate (newcomps, noden, interval);
     //cerr << Mat.first << endl;
     writeTranHeaders(nodes, comps);
     writeOPZero(pastnodes, pastcurrents);
     //begin one interval after 0
     //i is time in seconds
+       for(auto x : newcomps)
+    {
+        cout << x;
+        cout << "A is "<< x.A << " superlabel: " << nodeName(x.A.super,newcomps) << endl;
+        cout << "B is "<< x.B << " superlabel: " << nodeName(x.B.super,newcomps) << endl;
+    }
     for(float i = interval; i<duration; i += interval)
     {
-        rhs = VectorUpdate (comps, noden, i, nodev, component_currents, interval, Mat.second);
+        rhs = VectorUpdate (newcomps, noden, i, nodev, component_currents, interval, Mat.second);
         
         //cout << "rhs" << endl;
         //cout << rhs << endl;
@@ -202,7 +209,7 @@ const float & interval, const VectorXd & pastnodes, const VectorXd & pastcurrent
 
         prevnodev = nodev;
         nodev = matrixSolve(Mat.first, rhs);
-        component_currents = recursive_currents (comps, nodes, nodev, prevnodev, interval, component_currents);
+        component_currents = recursive_currents (newcomps, nodes, nodev, prevnodev, interval, component_currents);
 
         /*/
         cout << "comp_i" << endl;
