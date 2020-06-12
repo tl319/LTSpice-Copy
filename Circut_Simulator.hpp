@@ -28,6 +28,7 @@ struct Node
 	string label;
 	int super;
 	bool reactiveSuper = false;
+	bool poser = false;
 	Node(){number = -1; label = "N/A"; super = -99;}
 	Node(string l){number = -1; super = -1; label=l;}
 	Node(int n, string l, int s)
@@ -163,10 +164,9 @@ float procData(string x);
 
 void test(int noden, MatrixXd conducts, VectorXd currents);
 //print out conductance matrix and current vector
+void writeTran(const vector<Node>& nlist, const vector<Component>& out,const VectorXd& pastnodes,const VectorXd& component_currents, float time);
 
-void writeTran(const VectorXd& pastnodes,const VectorXd& component_currents, float time);
-
-void writeTranHeaders(const vector<Node>& nlist, const vector<Component>& out);
+void writeTranHeaders(const vector<Node>& nlist, const vector<Component>& out,const VectorXd& pastnodes, const VectorXd& component_currents);
 void writeOPZero(const VectorXd& pastnodes, const VectorXd& component_currents);
 
 void writeOP(const vector<Node>& nlist, const vector<Component>& out,const VectorXd& pastnodes, const VectorXd& component_currents);

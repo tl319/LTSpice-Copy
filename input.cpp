@@ -263,31 +263,53 @@ float procData(string x)
 
 void writeOP(const vector<Node>& nlist, const vector<Component>& out,const VectorXd& pastnodes, const VectorXd& component_currents)
 {
+
+    bool fakes[nlist.size()+out.size()-1] = {false};
+    int count = 0;
     cout << nlist[1].label;
     for(int i = 2;i<nlist.size();i++) {
+        if(!nlist[i].poser){
         cout << '\t' << nlist[i].label;
+        }
+        else{fakes[count]=1;}
+        count ++;
     }
     for(int i = 0;i<out.size();i++) {
+        if(!out[i].poser){
         cout << '\t' << out[i].name;
-    }
-    cout << endl << pastnodes(0);
-    for(int i = 1;i<pastnodes.size();i++) {
-        cout << '\t' << pastnodes(i);
-    } 
-     for(int i = 0;i<component_currents.size();i++) {
-        cout << '\t' << component_currents(i); 
+        }
+        else{fakes[count]=1;}
+        count ++;
     }
     cout << endl;
+    count = 0;
+    for(int i = 0;i<pastnodes.size();i++) {
+        if(!fakes[count]){
+        cout << '\t' << pastnodes(i);
+        }
+        count ++;
+    } 
+     for(int i = 0;i<component_currents.size();i++) {
+        if(!fakes[count]){
+        cout << '\t' << component_currents(i); 
+        }
+        count++;
+     }
+    cout << endl;
+
 }
 void writeOPReadable(const vector<Node>& nlist, const vector<Component>& out,const VectorXd& pastnodes, const VectorXd& component_currents)
 {
     for(int i = 0;i<pastnodes.size();i++) {
+        if(!nlist[i+1].poser){
         cout << "V(" << nlist[i+1].label << ") : ";
-        cout << pastnodes(i) << endl;
+        cout << pastnodes(i) << endl;}
     }
     for(int i = 0;i<out.size();i++) {
+        if(!out[i].poser){
         cout << "I(" << out[i].name << ") : ";
         cout << component_currents(i) << endl; 
+        }
     }
     cout << endl;
 }
@@ -303,29 +325,72 @@ void writeOPZero(const VectorXd& pastnodes, const VectorXd& component_currents)
     cout << endl;
 }
 
-void writeTranHeaders(const vector<Node>& nlist, const vector<Component>& out)
+void writeTranHeaders(const vector<Node>& nlist, const vector<Component>& out,const VectorXd& pastnodes, const VectorXd& component_currents)
 {
+    bool fakes[nlist.size()+out.size()-1] = {false};
+    int count = 0;
     cout << "time";
     for(int i = 1;i<nlist.size();i++) {
+        if(!nlist[i].poser){
         cout << '\t' << nlist[i].label;
+        }
+        else{fakes[count]=1;}
+        count ++;
     }
     for(int i = 0;i<out.size();i++) {
+        if(!out[i].poser){
         cout << '\t' << out[i].name;
+        }
+        else{fakes[count]=1;}
+        count ++;
     }
+    cout << endl;
+    cout << 0;
+    count = 0;
+    for(int i = 0;i<pastnodes.size();i++) {
+        if(!fakes[count]){
+        cout << '\t' << pastnodes(i);
+        }
+        count ++;
+    } 
+     for(int i = 0;i<component_currents.size();i++) {
+        if(!fakes[count]){
+        cout << '\t' << component_currents(i); 
+        }
+        count++;
+     }
     cout << endl;
 
 }
 
-void writeTran(const VectorXd& pastnodes,const VectorXd& component_currents, float time)
+void writeTran(const vector<Node>& nlist, const vector<Component>& out,const VectorXd& pastnodes,const VectorXd& component_currents, float time)
 {
-    //cout << "it " << component_currents << endl; 
-    cout << time;
-    for(int i = 0;i<pastnodes.size();i++) {
-        cout << '\t' << pastnodes(i);
-    } 
-    for(int i = 0;i<component_currents.size();i++) {
-        cout << '\t' << component_currents(i); 
+     bool fakes[nlist.size()+out.size()-1] = {false};
+    int count = 0;
+    for(int i = 1;i<nlist.size();i++) {
+        if(!nlist[i].poser){;}
+        else{fakes[count]=1;}
+        count ++;
     }
+    for(int i = 0;i<out.size();i++) {
+        if(!out[i].poser){;}
+        else{fakes[count]=1;}
+        count ++;
+    }
+    cout << time;
+    count = 0;
+    for(int i = 0;i<pastnodes.size();i++) {
+        if(!fakes[count]){
+        cout << '\t' << pastnodes(i);
+        }
+        count ++;
+    } 
+     for(int i = 0;i<component_currents.size();i++) {
+        if(!fakes[count]){
+        cout << '\t' << component_currents(i); 
+        }
+        count++;
+     }
     cout << endl;
 }
 
@@ -362,6 +427,8 @@ pair<vector<Component>, Simulation> readInput()
                             Component c1('C',name,properties[1],"fakeNode"+to_string(fakeNode),procData(properties[3]));
                             Component c2('R',"fakeRes"+to_string(fakeRes),"fakeNode"+to_string(fakeNode),properties[2],(0.0001/procData(properties[3])));
                             c2.poser=true;
+                            c1.B.poser=true;
+                            c2.A.poser=true;
                             components.push_back(c1);
                             components.push_back(c2);
                             fakeNode++;
@@ -441,9 +508,9 @@ int main()
     //cerr << endl;
     for(auto x : out)
     {
-        cout << x;
-        cout << "A is "<< x.A << " superlabel: " << nodeName(x.A.super,out) << endl;
-        cout << "B is "<< x.B << " superlabel: " << nodeName(x.B.super,out) << endl;
+        cerr << x;
+        cerr << "A is "<< x.A << " superlabel: " << nodeName(x.A.super,out) << endl;
+        cerr << "B is "<< x.B << " superlabel: " << nodeName(x.B.super,out) << endl;
     }
 
     int noden = compute_noden(nlist);
