@@ -263,21 +263,40 @@ float procData(string x)
 
 void writeOP(const vector<Node>& nlist, const vector<Component>& out,const VectorXd& pastnodes, const VectorXd& component_currents)
 {
+
+    bool fakes[nlist.size()+out.size()-1] = {false};
+    int count = 0;
     cout << nlist[1].label;
     for(int i = 2;i<nlist.size();i++) {
+        if(!nlist[i].poser){
         cout << '\t' << nlist[i].label;
+        }
+        else{fakes[count]=1;}
+        count ++;
     }
     for(int i = 0;i<out.size();i++) {
+        if(!out[i].poser){
         cout << '\t' << out[i].name;
-    }
-    cout << endl << pastnodes(0);
-    for(int i = 1;i<pastnodes.size();i++) {
-        cout << '\t' << pastnodes(i);
-    } 
-     for(int i = 0;i<component_currents.size();i++) {
-        cout << '\t' << component_currents(i); 
+        }
+        else{fakes[count]=1;}
+        count ++;
     }
     cout << endl;
+    count = 0;
+    for(int i = 0;i<pastnodes.size();i++) {
+        if(!fakes[count]){
+        cout << '\t' << pastnodes(i);
+        }
+        count ++;
+    } 
+     for(int i = 0;i<component_currents.size();i++) {
+        if(!fakes[count]){
+        cout << '\t' << component_currents(i); 
+        }
+        count++;
+     }
+    cout << endl;
+
 }
 void writeOPReadable(const vector<Node>& nlist, const vector<Component>& out,const VectorXd& pastnodes, const VectorXd& component_currents)
 {
