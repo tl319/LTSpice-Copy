@@ -270,6 +270,7 @@ pair<MatrixXd, VectorXd> conductance_current(vector<Component> comps, int noden)
         //inductors
         if(comps[i].type == 'L')
         {
+            /*/
             //assign the row corresponding to the lowest numbered node as that representing the voltage source
             int row;
 
@@ -294,6 +295,41 @@ pair<MatrixXd, VectorXd> conductance_current(vector<Component> comps, int noden)
                         conducts (row, j) = (-1);
                     } else {
                         conducts (row, j) = 0;
+                    }
+                }
+            }
+            /*/
+
+            //LTSpice treats inductors as 1mOhm resistors in DC coditions
+            conductance = 1000;
+
+            if(SnA(comps[i]) != 0)
+            {
+                if(locked[ SnA(comps[i])-1] == 0)
+                {
+                    if( nA(comps[i]) != 0)
+                    {
+                        conducts ( SnA(comps[i]) -1, nA(comps[i]) -1) += conductance;
+                    }
+                    if( nA(comps[i]) != 0 && nB(comps[i]) != 0)
+                    {
+                        conducts ( SnA(comps[i]) -1, nB(comps[i]) -1) -= conductance;
+                    }
+                }
+            }
+
+            if(SnB(comps[i]) != 0)
+            {
+                //Ditto for nB
+                if(locked[ SnB(comps[i])-1] == 0)
+                {
+                    if( nB(comps[i]) != 0)
+                    {
+                        conducts ( SnB(comps[i]) -1, nB(comps[i]) -1) += conductance;
+                    }
+                    if( nA(comps[i]) != 0 && nB(comps[i]) != 0)
+                    {
+                        conducts ( SnB(comps[i]) -1, nA(comps[i]) -1) -= conductance;
                     }
                 }
             }
@@ -485,6 +521,7 @@ pair<MatrixXd, vector<int>> MatrixUpdate (vector<Component> & comps, const int &
                 //B is the supernode, remove from A
                 comps[i].A.super = nA(comps[i]);
             }
+            /*/
 
             //rearrange nodes to correct inductor current sign
             fakeswitch = comps[i].A;
@@ -527,41 +564,7 @@ pair<MatrixXd, vector<int>> MatrixUpdate (vector<Component> & comps, const int &
                     }
                 }
             }
-            /*/
 
-            //LTSpice treats inductors as 1mOhm resistors in DC coditions
-            conductance = 1000;
-
-            if(SnA(comps[i]) != 0)
-            {
-                if(locked[ SnA(comps[i])-1] == 0)
-                {
-                    if( nA(comps[i]) != 0)
-                    {
-                        conducts ( SnA(comps[i]) -1, nA(comps[i]) -1) += conductance;
-                    }
-                    if( nA(comps[i]) != 0 && nB(comps[i]) != 0)
-                    {
-                        conducts ( SnA(comps[i]) -1, nB(comps[i]) -1) -= conductance;
-                    }
-                }
-            }
-
-            if(SnB(comps[i]) != 0)
-            {
-                //Ditto for nB
-                if(locked[ SnB(comps[i])-1] == 0)
-                {
-                    if( nB(comps[i]) != 0)
-                    {
-                        conducts ( SnB(comps[i]) -1, nB(comps[i]) -1) += conductance;
-                    }
-                    if( nA(comps[i]) != 0 && nB(comps[i]) != 0)
-                    {
-                        conducts ( SnB(comps[i]) -1, nA(comps[i]) -1) -= conductance;
-                    }
-                }
-            }
 
         }
 

@@ -3,9 +3,9 @@ R1 d 0 6
 R2 a c 2
 L1 b a 4
 L2 d a 3
-V1 c 0 10
 L4 d b 5
 R3 0 d 7
-.op
+V1 c 0 SINE(0 1 1K)
+.tran 10m
 .backanno
 .end
