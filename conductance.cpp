@@ -473,6 +473,7 @@ pair<MatrixXd, vector<int>> MatrixUpdate (vector<Component> & comps, const int &
 
         if(comps[i].type == 'L')
         {
+            /*/
             //first, remove "super node" to turn the inductor from an open circuit to a current source with infinite impedance
             //what if the supernode is involved in another supernode (conflict)
             if( nA(comps[i]) > nB(comps[i]) )
@@ -526,6 +527,42 @@ pair<MatrixXd, vector<int>> MatrixUpdate (vector<Component> & comps, const int &
                     }
                 }
             }
+            /*/
+
+            //LTSpice treats inductors as 1mOhm resistors in DC coditions
+            conductance = 1000;
+
+            if(SnA(comps[i]) != 0)
+            {
+                if(locked[ SnA(comps[i])-1] == 0)
+                {
+                    if( nA(comps[i]) != 0)
+                    {
+                        conducts ( SnA(comps[i]) -1, nA(comps[i]) -1) += conductance;
+                    }
+                    if( nA(comps[i]) != 0 && nB(comps[i]) != 0)
+                    {
+                        conducts ( SnA(comps[i]) -1, nB(comps[i]) -1) -= conductance;
+                    }
+                }
+            }
+
+            if(SnB(comps[i]) != 0)
+            {
+                //Ditto for nB
+                if(locked[ SnB(comps[i])-1] == 0)
+                {
+                    if( nB(comps[i]) != 0)
+                    {
+                        conducts ( SnB(comps[i]) -1, nB(comps[i]) -1) += conductance;
+                    }
+                    if( nA(comps[i]) != 0 && nB(comps[i]) != 0)
+                    {
+                        conducts ( SnB(comps[i]) -1, nA(comps[i]) -1) -= conductance;
+                    }
+                }
+            }
+
         }
 
         if(comps[i].type == 'C')

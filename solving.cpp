@@ -157,13 +157,13 @@ pair<VectorXd, VectorXd> no_prior_change (const vector<Component> & comps, const
     //perhaps avoid creating by separating recursive_currents used for op and trans
     VectorXd component_currents = VectorXd::Zero (comps.size());
 
+    //generate conductance matrix and rhs vector
     pair<MatrixXd, VectorXd> knowns = conductance_current (comps, noden);
     //test(noden, knowns.first, knowns.second);
 
-
-
-    //cerr << "nodev" << endl;
+    //compute node voltages
     nodev = matrixSolve(knowns.first, knowns.second);
+    //generate
     VectorXd prevnodev = VectorXd::Zero(nodev.size());
     //cerr << "comp I" << endl;
     component_currents = recursive_currents (comps, nodes, nodev, prevnodev, 0, component_currents, true);
@@ -199,29 +199,9 @@ const float & interval, const VectorXd & pastnodes, const VectorXd & pastcurrent
     for(float i = interval; i<duration; i += interval)
     {
         rhs = VectorUpdate (newcomps, noden, i, nodev, component_currents, interval, Mat.second);
-
-        //cout << "rhs" << endl;
-        //cout << rhs << endl;
-        //cout << "done" << endl;
-
-        /*/
-        cout << "rhs:" << endl;
-        for(int i = 0; i<rhs.size(); i++)
-        {
-            cout << rhs[i] << endl;
-        }
-        cout << "f" << endl;
-        /*/
-
         prevnodev = nodev;
         nodev = matrixSolve(Mat.first, rhs);
         component_currents = recursive_currents (newcomps, nodes, nodev, prevnodev, interval, component_currents, false);
-
-        /*/
-        cout << "comp_i" << endl;
-        cout << component_currents << "e" << endl;
-        /*/
-
         values.push_back( {nodev, component_currents} );
         writeTran(nodes, comps, nodev, component_currents, i);
     }
@@ -304,13 +284,17 @@ const VectorXd & prevnodev, const float & interval, vector<bool> & computed, Vec
     float VA;
     float VB;
 
+    //in DC operation, LT spice treats inductors as 1mOhm resistors
+    //computers are bad at dividing by small numbers so we're directly defining the conductance
+    float gl = 1000;
+
     if(C.type == 'I')
     {
         total_current = C.value;
         computed[ component_index(comps, C) ] = 1;
     }
 
-    if(C.type == 'R' || C.type == 'L' && op == false)
+    if(C.type == 'R' || C.type == 'L')
     {
         if(nA(C) != 0)
         {
@@ -333,15 +317,22 @@ const VectorXd & prevnodev, const float & interval, vector<bool> & computed, Vec
             computed[ component_index(comps, C) ] = 1;
         }
 
-        if(C.type == 'L')
+        if(C.type == 'L' && op == false)
         {
             total_current = comp_currents( component_index( comps, C ) )+( prevnodev(nB(C) - 1) - prevnodev(nA(C) - 1) )*interval/(C.value);
+            computed[ component_index(comps, C) ] = 1;
+        }
+
+        if(C.type == 'L' && op == true)
+        {
+            total_current = ( VA - VB )*gl;
+            cerr << C.name << " " << VA << " " << VB << ' ' << total_current << endl;
             computed[ component_index(comps, C) ] = 1;
         }
     }
 
     //probably can replace some common_node calls with i
-    if(C.type == 'V' || C.type == 'C' || C.type == 'L' && op == true)
+    if(C.type == 'V' || C.type == 'C' )
     {
         //cout << "ree" << endl;
         total_current = 0;

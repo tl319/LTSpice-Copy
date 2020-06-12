@@ -1,82 +1,12 @@
-R:R1:N004:N003:10
-A is Number: 1 label: N004 supernode: 1 reactiveSuper: 0 superlabel: N004
-B is Number: 2 label: N003 supernode: 20 reactiveSuper: 0 superlabel: N011
-R:R2:N008:N007:10
-A is Number: 3 label: N008 supernode: 16 reactiveSuper: 1 superlabel: fakeNode1
-B is Number: 4 label: N007 supernode: 4 reactiveSuper: 0 superlabel: N007
-R:R3:N007:N001:10
-A is Number: 4 label: N007 supernode: 4 reactiveSuper: 0 superlabel: N007
-B is Number: 5 label: N001 supernode: 5 reactiveSuper: 0 superlabel: N001
-R:R4:N004:N005:10
-A is Number: 1 label: N004 supernode: 1 reactiveSuper: 0 superlabel: N004
-B is Number: 6 label: N005 supernode: 6 reactiveSuper: 0 superlabel: N005
-R:R5:N005:N006:10
-A is Number: 6 label: N005 supernode: 6 reactiveSuper: 0 superlabel: N005
-B is Number: 7 label: N006 supernode: 19 reactiveSuper: 0 superlabel: N009
-R:R10:N016:0:10
-A is Number: 8 label: N016 supernode: 8 reactiveSuper: 0 superlabel: N016
-B is Number: 0 label: 0 supernode: 20 reactiveSuper: 0 superlabel: N011
-R:R11:N002:N017:10
-A is Number: 9 label: N002 supernode: 9 reactiveSuper: 0 superlabel: N002
-B is Number: 10 label: N017 supernode: 10 reactiveSuper: 0 superlabel: N017
-R:R12:N002:N013:10
-A is Number: 9 label: N002 supernode: 9 reactiveSuper: 0 superlabel: N002
-B is Number: 11 label: N013 supernode: 11 reactiveSuper: 0 superlabel: N013
-R:R13:N013:N017:10
-A is Number: 11 label: N013 supernode: 11 reactiveSuper: 0 superlabel: N013
-B is Number: 10 label: N017 supernode: 10 reactiveSuper: 0 superlabel: N017
-R:R14:N005:N010:10
-A is Number: 6 label: N005 supernode: 6 reactiveSuper: 0 superlabel: N005
-B is Number: 12 label: N010 supernode: 18 reactiveSuper: 1 superlabel: fakeNode3
-R:R6:N012:N016:10
-A is Number: 13 label: N012 supernode: 16 reactiveSuper: 0 superlabel: fakeNode1
-B is Number: 8 label: N016 supernode: 8 reactiveSuper: 0 superlabel: N016
-R:R7:N014:N016:10
-A is Number: 14 label: N014 supernode: 14 reactiveSuper: 0 superlabel: N014
-B is Number: 8 label: N016 supernode: 8 reactiveSuper: 0 superlabel: N016
-R:R8:N015:N017:10
-A is Number: 15 label: N015 supernode: 19 reactiveSuper: 0 superlabel: N009
-B is Number: 10 label: N017 supernode: 10 reactiveSuper: 0 superlabel: N017
-R:R9:N017:N016:10
-A is Number: 10 label: N017 supernode: 10 reactiveSuper: 0 superlabel: N017
-B is Number: 8 label: N016 supernode: 8 reactiveSuper: 0 superlabel: N016
-C:C4:N008:fakeNode1:1
-A is Number: 3 label: N008 supernode: 16 reactiveSuper: 1 superlabel: fakeNode1
-B is Number: 16 label: fakeNode1 supernode: 16 reactiveSuper: 0 superlabel: fakeNode1
-R:fakeRes1:fakeNode1:N012:0.0001
-A is Number: 16 label: fakeNode1 supernode: 16 reactiveSuper: 0 superlabel: fakeNode1
-B is Number: 13 label: N012 supernode: 16 reactiveSuper: 0 superlabel: fakeNode1
-C:C3:N006:fakeNode2:1
-A is Number: 7 label: N006 supernode: 19 reactiveSuper: 0 superlabel: N009
-B is Number: 17 label: fakeNode2 supernode: 19 reactiveSuper: 0 superlabel: N009
-R:fakeRes2:fakeNode2:N014:0.0001
-A is Number: 17 label: fakeNode2 supernode: 19 reactiveSuper: 0 superlabel: N009
-B is Number: 14 label: N014 supernode: 14 reactiveSuper: 0 superlabel: N014
-C:C5:N010:fakeNode3:1
-A is Number: 12 label: N010 supernode: 18 reactiveSuper: 1 superlabel: fakeNode3
-B is Number: 18 label: fakeNode3 supernode: 18 reactiveSuper: 0 superlabel: fakeNode3
-R:fakeRes3:fakeNode3:N016:0.0001
-A is Number: 18 label: fakeNode3 supernode: 18 reactiveSuper: 0 superlabel: fakeNode3
-B is Number: 8 label: N016 supernode: 8 reactiveSuper: 0 superlabel: N016
-L:L1:N006:N009:1
-A is Number: 7 label: N006 supernode: 19 reactiveSuper: 0 superlabel: N009
-B is Number: 19 label: N009 supernode: 19 reactiveSuper: 0 superlabel: N009
-L:L2:N006:N009:1
-A is Number: 7 label: N006 supernode: 19 reactiveSuper: 0 superlabel: N009
-B is Number: 19 label: N009 supernode: 19 reactiveSuper: 0 superlabel: N009
-L:L3:N009:N015:1
-A is Number: 19 label: N009 supernode: 19 reactiveSuper: 0 superlabel: N009
-B is Number: 15 label: N015 supernode: 19 reactiveSuper: 0 superlabel: N009
-L:L4:N008:N012:1
-A is Number: 3 label: N008 supernode: 16 reactiveSuper: 1 superlabel: fakeNode1
-B is Number: 13 label: N012 supernode: 16 reactiveSuper: 0 superlabel: fakeNode1
-I:I1:N002:N001:1
-A is Number: 9 label: N002 supernode: 9 reactiveSuper: 0 superlabel: N002
-B is Number: 5 label: N001 supernode: 5 reactiveSuper: 0 superlabel: N001
-V:V1:N011:0:10
-A is Number: 20 label: N011 supernode: 20 reactiveSuper: 0 superlabel: N011
-B is Number: 0 label: 0 supernode: 20 reactiveSuper: 0 superlabel: N011
-V:V2:N003:N011:0:5:10
-A is Number: 2 label: N003 supernode: 20 reactiveSuper: 0 superlabel: N011
-B is Number: 20 label: N011 supernode: 20 reactiveSuper: 0 superlabel: N011
-locked 1
+V(d) : 6.17647
+V(a) : 6.17647
+V(c) : 10
+V(b) : 6.17647
+I(R1) : 1.02941
+I(R2) : -1.91176
+I(L1) : 0
+I(L2) : 0
+I(V1) : -1.91176
+I(L4) : 0
+I(R3) : -0.882353
+
