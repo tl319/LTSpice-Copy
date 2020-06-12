@@ -213,11 +213,11 @@ float vs_current (vector<Component> comps, Component C, vector<bool> & computed,
 //used to compute current through voltage sources or capacitors
 
 VectorXd recursive_currents (const vector<Component> & comps, const vector<Node> & nlist, const VectorXd & nodev, const VectorXd & prevnodev,
-const float & interval, const VectorXd & past_currents);
+const float & interval, const VectorXd & past_currents, const bool & op);
 //compute currents accross "insufficient" (V, C, D) components in series with other such components
 
 float recursive_basecase (const int & i, const Component & C, const vector<Component> & comps, const vector<Node> & nlist, const VectorXd & nodev,
-const VectorXd & prevnodev, const float & interval, vector<bool> & computed, VectorXd & comp_currents, const Node & used_node);
+const VectorXd & prevnodev, const float & interval, vector<bool> & computed, VectorXd & comp_currents, const Node & used_node, const bool & op);
 //used in above
 
 vector<bool> incorrect_assumptions(VectorXd comp_currents, vector<Component> comps);
