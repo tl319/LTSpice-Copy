@@ -180,15 +180,15 @@ const float & interval, const VectorXd & pastnodes, const VectorXd & pastcurrent
     vector<Component> newcomps = patchSupernodeInductor(comps);
     pair<MatrixXd, vector<int>> Mat = MatrixUpdate (newcomps, noden, interval);
     //cerr << Mat.first << endl;
-    writeTranHeaders(nodes, comps);
-    writeOPZero(pastnodes, pastcurrents);
+    writeTranHeaders(nodes, comps,pastnodes,pastcurrents);
+
     //begin one interval after 0
     //i is time in seconds
        for(auto x : newcomps)
     {
-        cout << x;
-        cout << "A is "<< x.A << " superlabel: " << nodeName(x.A.super,newcomps) << endl;
-        cout << "B is "<< x.B << " superlabel: " << nodeName(x.B.super,newcomps) << endl;
+        cerr << x;
+        cerr << "A is "<< x.A << " superlabel: " << nodeName(x.A.super,newcomps) << endl;
+        cerr << "B is "<< x.B << " superlabel: " << nodeName(x.B.super,newcomps) << endl;
     }
     for(float i = interval; i<duration; i += interval)
     {
@@ -217,7 +217,7 @@ const float & interval, const VectorXd & pastnodes, const VectorXd & pastcurrent
         /*/
 
         values.push_back( {nodev, component_currents} );
-        writeTran(nodev, component_currents, i);
+        writeTran(nodes, comps, nodev, component_currents, i);
     }
 
     return values;
