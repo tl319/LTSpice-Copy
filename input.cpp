@@ -32,7 +32,7 @@ VectorXd matrixSolve(MatrixXd m,VectorXd v)
 ostream& operator<<(ostream& os, const Node& c)
 {
 
-    os << "Number: " << c.number  << " label: "<< c.label << " supernode: "<< c.super << " reactiveSuper: " << c.reactiveSuper;
+    os << "Number: " << c.number  << " label: "<< c.label << " supernode: "<< c.super ;
     return os;
 }
 
@@ -193,7 +193,7 @@ vector<Component> patchComponents(vector<Component> list)
 			if ((out[j].A.label)==nodes[i].label){
 				out[j].A.number=i;
                                 out[j].A.super=i;
-				//cout << "set " << out[j].A.label <<  " " << out[j].A.number << endl;
+				cout << "set " << out[j].A.label <<  " " << out[j].A.number << endl;
 			}
 			if ((out[j].B.label)==nodes[i].label){
                                 out[j].B.number=i;
@@ -429,31 +429,25 @@ vector<Component> reorderVoltages(const vector<Component> &in)
 
 int main()
 {
-    pair<vector<Component>, Simulation> testm = readInput();
-    Simulation sim =testm.second;
-    vector<Component> gator = patchComponents(testm.first);
-    vector<Component> out = patchComponents(gator);
+    pair<vector<Component>, Simulation> compsandsim = readInput();
+    vector<Component> out = patchComponents(compsandsim.first);
+    Simulation sim =compsandsim.second;
     vector<Node> nlist = findNodes(out);
-    for(auto x : nlist)
-    {
-        //cerr << x << endl;
+    for (auto x: nlist){
+        cerr << x << " Supernode Name: " <<  nodeName(x.super,out) << endl;
     }
-    //cerr << endl;
-    for(auto x : out)
-    {
-        cout << x;
-        cout << "A is "<< x.A << " superlabel: " << nodeName(x.A.super,out) << endl;
-        cout << "B is "<< x.B << " superlabel: " << nodeName(x.B.super,out) << endl;
+    for(auto x : out){
+        cerr << x;
+        cerr << "A is "<< x.A << " superlabel: " << nodeName(x.A.super,out) << endl;
+        cerr << "B is "<< x.B << " superlabel: " << nodeName(x.B.super,out) << endl;
     }
 
     int noden = compute_noden(nlist);
     pair<VectorXd, VectorXd> values = no_prior_change (out, nlist, noden);
 
-
     //main running part
-    if(sim.type=="op")
-    {
-        writeOPReadable(nlist, out, values.first, values.second);
+    if(sim.type=="op"){
+        writeOP(nlist, out, values.first, values.second);
         
     }
     else if (sim.type=="tran"){

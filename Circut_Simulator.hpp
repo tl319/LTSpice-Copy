@@ -28,6 +28,10 @@ struct Node
 	string label;
 	int super;
 	bool reactiveSuper = false;
+
+
+
+	
 	Node(){number = -1; label = "N/A"; super = -99;}
 	Node(string l){number = -1; super = -1; label=l;}
 	Node(int n, string l, int s)
@@ -59,11 +63,15 @@ struct Component
 	float value;
 	bool poser = false;
 
-        //no zero when dealing with a time dependent signal
-        bool isSignal = false;
-        float DCOff=0;
-        float amplitude=0;
-        float frequency=0;
+	//no zero when dealing 
+	//with a time dependent signal
+
+	bool isSignal = false;
+	float DCOff=0;
+	float amplitude=0;
+	float frequency=0;
+
+
 		Component(){type = '0';name ="N/A";A.label="N/A";B.label="N/A";value=0;}
 		Component(char t,string n, string nA,string nB,float v){
 		type = t;

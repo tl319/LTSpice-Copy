@@ -184,12 +184,6 @@ const float & interval, const VectorXd & pastnodes, const VectorXd & pastcurrent
     writeOPZero(pastnodes, pastcurrents);
     //begin one interval after 0
     //i is time in seconds
-       for(auto x : newcomps)
-    {
-        cout << x;
-        cout << "A is "<< x.A << " superlabel: " << nodeName(x.A.super,newcomps) << endl;
-        cout << "B is "<< x.B << " superlabel: " << nodeName(x.B.super,newcomps) << endl;
-    }
     for(float i = interval; i<duration; i += interval)
     {
         rhs = VectorUpdate (newcomps, noden, i, nodev, component_currents, interval, Mat.second);
