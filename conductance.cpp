@@ -37,6 +37,21 @@ void test(int noden, MatrixXd conducts, VectorXd currents)
     //print current vector
     cout << currents << endl;
 }
+void testBetter(int noden, MatrixXd conducts, VectorXd currents, vector<Node> nodes)
+{   
+
+
+
+    //print each line of the matrix
+    cout << conducts << "      *      " << endl;
+
+    for(auto x : nodes)
+    {
+        cout << "("<< x.label << ")        =      " << endl;
+    };
+    //print current vector
+    cout <<  currents << endl;
+}
 
 int nA(Component c)
 {
@@ -371,7 +386,7 @@ pair<MatrixXd, VectorXd> conductance_current(vector<Component> comps, int noden)
           }
         }
         //cerr << comps[i].name << endl;
-        test(noden, conducts, currents);
+        testBetter(noden, conducts, currents, findNodes(comps));
     }
     //cout << "help" << endl;
     return {conducts, currents};
