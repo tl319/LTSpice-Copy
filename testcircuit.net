@@ -1,13 +1,28 @@
-* C:\Users\david\Desktop\École\Université\Undergrad\Work\finalproject\Real\Transients\Draft1.asc
-I1 d e 0.0003
-R1 a b 6k
-R2 a d 5k
-R3 c 0 8k
-R4 e 0 9k
-R5 a 0 7k
-V1 a f SINE(0 1 1K)
-L1 b c 0.004
-V2 f 0 2
-.tran 10m
+* C:\Users\david\Desktop\École\Université\Undergrad\Work\finalproject\Real\Transients\BIGtest-tran.asc
+R1 N004 N003 10
+R2 N008 N007 10
+R3 N007 N001 10
+R4 N004 N005 10
+R5 N005 N006 10
+R10 N016 0 10
+R11 N002 N017 10
+R12 N002 N013 10
+R13 N013 N017 10
+R14 N005 N010 10
+R6 N012 N016 10
+R7 N014 N016 10
+R8 N015 N017 10
+R9 N017 N016 10
+C4 N008 N012 1
+C3 N006 N014 1
+C5 N010 N016 1
+L1 N006 N009 1
+L2 N006 N009 1
+L3 N009 N015 1
+L4 N008 N012 1
+I1 N002 N001 1
+V1 N011 0 10
+V2 N003 N011 SINE(0 5 10)
+.tran 1
 .backanno
 .end

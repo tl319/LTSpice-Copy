@@ -64,12 +64,12 @@ const float & interval, const vector<int> & c_vs_row)
         {
             if(nA(comps[i]) != 0)
             {
-                currents(nA(comps[i]) -1) += val;
+                currents(nA(comps[i]) -1) -= val;
             }
 
             if(nB(comps[i]) != 0)
             {
-                currents(nB(comps[i]) -1) -= val;
+                currents(nB(comps[i]) -1) += val;
             }
         }
 

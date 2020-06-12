@@ -86,6 +86,7 @@ pair<MatrixXd, VectorXd> conductance_current(vector<Component> comps, int noden)
 
     float conductance;
 
+    //semiconductor thermal voltage
     float vt = 0.025;
 
     //"locked" matrix lines so that if they're written to by a v source they aren't written to again
@@ -99,6 +100,7 @@ pair<MatrixXd, VectorXd> conductance_current(vector<Component> comps, int noden)
         if( (comps[i].isSignal == 1) && (comps[i].type == 'V') )
         {
             val = comps[i].DCOff;
+            cerr << "DCoff= " << comps[i].DCOff << " val= " << val << endl;
         } else {
             val = comps[i].value;
         }
