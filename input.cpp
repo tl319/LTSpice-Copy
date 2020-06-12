@@ -439,8 +439,17 @@ pair<vector<Component>, Simulation> readInput()
                             components.push_back(c1);
                         }
                         else{
-			                Component c1(toupper((properties[0])[0]),name,properties[1],properties[2],procData(properties[3]),procData(properties[4]),procData(properties[5]));
+                            cout << endl << endl;
+                            for(auto x : properties)
+                            {
+                                cout  << procData(x) << ":";
+                            }
+                            string DCoff = properties[3].substr(4,properties[3].length()); 
+			                Component c1(toupper((properties[0])[0]),name,properties[1],properties[2],procData(DCoff),procData(properties[4]),procData(properties[5]));
                             components.push_back(c1);
+                            cout << endl;
+                            cout << c1;
+                            cout << "bruh";
                         }		
                         
 		}
@@ -498,8 +507,7 @@ int main()
 {
     pair<vector<Component>, Simulation> testm = readInput();
     Simulation sim =testm.second;
-    vector<Component> gator = patchComponents(testm.first);
-    vector<Component> out = patchComponents(gator);
+    vector<Component> out = patchComponents(testm.first);
     vector<Node> nlist = findNodes(out);
     for(auto x : nlist)
     {

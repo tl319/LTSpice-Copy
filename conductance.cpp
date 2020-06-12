@@ -297,8 +297,49 @@ pair<MatrixXd, VectorXd> conductance_current(vector<Component> comps, int noden)
                     }
                 }
             }
-        }
+            //negative terminal to ground
+            if( nB(comps[i]) == 0 && nA(comps[i]) != 0)
+            {
+                //prevent ulterior editing of the matrix row assigned to represent the voltage source
+                locked[nA(comps[i])-1] = 1;
+                //cycle through all columns to  edit the row corresponding to the positive terminal node
+                for(int j = 0; j<noden; j++)
+                {
+                    //at the column corresponding to the positive terminal, write 1
+                    if(j == (nA(comps[i]) -1))
+                    {
+                        conducts (j, j) = 1;
+                        //also write the source voltage to this index in the rhs vector
+                        currents(j) = 0;
+                    } else {
+                        //other columns are set to 0
+                        conducts (nA(comps[i]) -1, j) = 0;
+                    }
+                }
+            }
+        
 
+            //positive terminal to ground
+            if(nA(comps[i]) == 0 && nB(comps[i]) != 0)
+            {
+                //prevent ulterior editing of the matrix row assigned to represent the voltage source
+                locked[nB(comps[i])-1] = 1;
+                //cycle through all columns to  edit the row corresponding to the negative terminal node
+                for(int j = 0; j<noden; j++)
+                {
+                    //at the column corresponding to the negative terminal, write 1
+                    if(j == (nB(comps[i]) -1))
+                    {
+                        conducts (j, j) = 1;
+                        //also write -1* the source voltage to this index in the rhs vector
+                        currents(j) = 0;
+                    } else {
+                        //other columns are set to 0
+                        conducts (nB(comps[i]) -1, j) = 0;
+                    }
+                }
+            }
+        }
         //initial diode assumption, corrected using the Newton-Raphson method in VectorUpdate
         if(comps[i].type == 'D')
         {
@@ -313,7 +354,7 @@ pair<MatrixXd, VectorXd> conductance_current(vector<Component> comps, int noden)
           }
         }
         //cerr << comps[i].name << endl;
-        //test(noden, conducts, currents);
+        test(noden, conducts, currents);
     }
     //cout << "help" << endl;
     return {conducts, currents};

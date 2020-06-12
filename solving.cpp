@@ -341,7 +341,7 @@ const VectorXd & prevnodev, const float & interval, vector<bool> & computed, Vec
     }
 
     //probably can replace some common_node calls with i
-    if(C.type == 'V' || C.type == 'C' || C.type == 'L' && op == true)
+    if(C.type == 'V' || C.type == 'C' || (C.type == 'L' && op == true))
     {
         //cout << "ree" << endl;
         total_current = 0;
