@@ -121,6 +121,12 @@ const float & interval, const vector<int> & c_vs_row)
                 /*/
             }
         }
+
+
+        if(comps[i].type == 'D')
+        {
+
+        }
     }
     return currents;
 }
@@ -304,7 +310,7 @@ const VectorXd & prevnodev, const float & interval, vector<bool> & computed, Vec
         computed[ component_index(comps, C) ] = 1;
     }
 
-    if(C.type == 'R' || C.type == 'L')
+    if(C.type == 'R' || C.type == 'L' && op == false)
     {
         if(nA(C) != 0)
         {
@@ -329,7 +335,7 @@ const VectorXd & prevnodev, const float & interval, vector<bool> & computed, Vec
 
         if(C.type == 'L')
         {
-            total_current = total_current = comp_currents( component_index( comps, C ) )+( prevnodev(nB(C) - 1) - prevnodev(nA(C) - 1) )*interval/(C.value);
+            total_current = comp_currents( component_index( comps, C ) )+( prevnodev(nB(C) - 1) - prevnodev(nA(C) - 1) )*interval/(C.value);
             computed[ component_index(comps, C) ] = 1;
         }
     }

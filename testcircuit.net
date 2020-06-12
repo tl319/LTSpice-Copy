@@ -1,12 +1,13 @@
 * C:\Users\david\Desktop\École\Université\Undergrad\Work\finalproject\Real\Transients\Draft1.asc
-V1 a 0 2
-I1 d e 3
-R1 a b 6
-R2 a d 5
-R3 c 0 8
-R4 e 0 9
-R5 a 0 7
-L1 c b 10
-.op
+I1 d e 0.0003
+R1 a b 6k
+R2 a d 5k
+R3 c 0 8k
+R4 e 0 9k
+R5 a 0 7k
+V1 a f SINE(0 1 1K)
+L1 b c 0.004
+V2 f 0 2
+.tran 10m
 .backanno
 .end
