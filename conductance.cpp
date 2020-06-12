@@ -268,35 +268,8 @@ pair<MatrixXd, VectorXd> conductance_current(vector<Component> comps, int noden)
 
         //capacitors are open circuits at t = 0/.op so are not processed
         //inductors
-        if(comps[i].type == 'L')
+       if(comps[i].type == 'L')
         {
-            //assign the row corresponding to the lowest numbered node as that representing the voltage source
-            int row;
-
-            if( nA(comps[i]) > nB(comps[i]) && (locked[ nB(comps[i])-1] == 0 || locked[ nA(comps[i])-1] == 1 ))
-            {
-                locked[nB(comps[i])-1] = 1;
-                row = nB(comps[i]) -1;
-            } else {
-                locked[nA(comps[i])-1] = 1;
-                row = nA(comps[i]) -1;
-            }
-
-            //write the 1, -1 and 0s in the appropriate columns
-            for(int j = 0; j<noden; j++)
-            {
-                if(j == (nA(comps[i]) -1))
-                {
-                    conducts (row, j) = 1;
-                } else {
-                    if(j == (nB(comps[i]) -1))
-                    {
-                        conducts (row, j) = (-1);
-                    } else {
-                        conducts (row, j) = 0;
-                    }
-                }
-            }
             //negative terminal to ground
             if( nB(comps[i]) == 0 && nA(comps[i]) != 0)
             {
@@ -317,7 +290,6 @@ pair<MatrixXd, VectorXd> conductance_current(vector<Component> comps, int noden)
                     }
                 }
             }
-        
 
             //positive terminal to ground
             if(nA(comps[i]) == 0 && nB(comps[i]) != 0)
@@ -339,7 +311,52 @@ pair<MatrixXd, VectorXd> conductance_current(vector<Component> comps, int noden)
                     }
                 }
             }
+
+            //floating voltage source
+            if(nA(comps[i]) != 0 && nB(comps[i]) != 0)
+            {
+                //assign the row corresponding to the lowest numbered node as that representing the voltage source
+                int row;
+
+                if( nA(comps[i]) > nB(comps[i]) && (locked[ nB(comps[i])-1] == 0)|| locked[ nA(comps[i])-1] == 1 )
+                {
+                    locked[nB(comps[i])-1] = 1;
+                    cout << "locked " << nB(comps[i])-1 <<endl;
+                    row = nB(comps[i]) -1;
+                } else {
+                    locked[nA(comps[i])-1] = 1;
+                    row = nA(comps[i]) -1;
+                    cout << "locked " << nA(comps[i])-1 <<endl;
+                }
+
+                //in that row of the rhs vector, write the current source value
+                currents(row) = 0;
+
+                //write the 1, -1 and 0s in the appropriate columns
+                for(int j = 0; j<noden; j++)
+                {
+                    if(j == (nA(comps[i]) -1))
+                    {
+                        conducts (row, j) = 1;
+                    } else {
+                        if(j == (nB(comps[i]) -1))
+                        {
+                            conducts (row, j) = (-1);
+                        } else {
+                            conducts (row, j) = 0;
+                        }
+                    }
+                }
+            }
+
+            //short circuit
+            if(nA(comps[i]) ==  nB(comps[i]))
+            {
+                cout << "bruh";
+                assert(0);
+            }
         }
+
         //initial diode assumption, corrected using the Newton-Raphson method in VectorUpdate
         if(comps[i].type == 'D')
         {

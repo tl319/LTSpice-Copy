@@ -212,7 +212,7 @@ bool isData(char c){
     return true;}
 
 bool isSci(char c){
-    if(c == 'p' || c == 'P' ||c == 'N' || c == 'u' || c == 'U' || c == 'm' || c == 'K' || c == 'k' || c == 'M' || c == 'G')
+    if(c == 'p' || c == 'P' ||c == 'N' || c == 'u' || c == 'U' || c == 'm' || c == 'K' || c == 'k' || c == 'M' || c == 'G' || c == 'µ')
         return false;
     return true;}
 
@@ -241,7 +241,7 @@ float procData(string x)
             num = num * pow(10,-12);
         else if(tolower(sci[0]) == tolower('n'))
             num = num * pow(10,-9);
-        else if(tolower(sci[0]) == tolower('u'))
+        else if((tolower(sci[0]) == tolower('u')) || sci[0] == 'µ')
             num = num * pow(10,-6);
         else if(sci[0] == 'm')
             num = num * pow(10,-3);
