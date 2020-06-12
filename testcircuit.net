@@ -1,11 +1,7 @@
-* C:\Users\david\Desktop\École\Université\Undergrad\Work\finalproject\Real\Transients\Draft2.asc
-R1 d 0 6
-R2 a c 2
-L1 b a 4
-L2 d a 3
-L4 d b 5
-R3 0 d 7
-V1 c 0 SINE(0 1 1K)
+* C:\Users\david\Desktop\École\Université\Undergrad\Work\finalproject\Real\Transients\Draft3.asc
+C1 b 0 0.3m
+R1 a b 2k
+V1 a 0 SINE(0 1 1K)
 .tran 10m
 .backanno
 .end

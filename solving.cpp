@@ -284,6 +284,13 @@ const VectorXd & prevnodev, const float & interval, vector<bool> & computed, Vec
     float VA;
     float VB;
 
+    //voltages at each node of a capacitor model resistor
+    float CVA;
+    float CVB;
+
+    //capacitor model resistor
+    Component capr;
+
     //in DC operation, LT spice treats inductors as 1mOhm resistors
     //computers are bad at dividing by small numbers so we're directly defining the conductance
     float gl = 1000;
@@ -331,8 +338,36 @@ const VectorXd & prevnodev, const float & interval, vector<bool> & computed, Vec
         }
     }
 
+    if(C.type == 'C')
+    {
+        cerr << "first" << endl;
+        capr = comps[ component_index( comps, C ) + 1 ];
+        cerr << "second" << endl;
+        if(nA(capr) != 0)
+        {
+            VA = nodev(nA(capr) - 1);
+        } else {
+            VA = 0;
+        }
+
+        cerr << "five halves" << endl;
+
+        if(nB(capr) != 0)
+        {
+            VB = nodev(nB(capr) - 1);
+        } else {
+            VB = 0;
+        }
+        cerr << "third" << endl;
+
+        total_current = ( VA - VB )/capr.value;
+        cerr << "fourth" << endl;
+        computed[ component_index(comps, C) ] = 1;
+        cerr << "fifth" << endl;
+    }
+
     //probably can replace some common_node calls with i
-    if(C.type == 'V' || C.type == 'C' )
+    if(C.type == 'V')
     {
         //cout << "ree" << endl;
         total_current = 0;
