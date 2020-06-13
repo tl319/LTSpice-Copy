@@ -10,7 +10,7 @@
 
 using namespace std;
 using namespace Eigen;
-
+using namespace std::chrono;
 
 bool isComponent(const string & x)
 {
@@ -488,7 +488,7 @@ pair<vector<Component>, Simulation> readInput()
                             sim.isStep = true;
                             Param p1 = {properties[2][0],procData(properties[3]),procData(properties[4]),procData(properties[5])};
                             sim.steps.push_back(p1);
-                          //  cerr << "Pusshed back";
+                            //cerr << "Pusshed back";
                         }
 
                         if(type == "tran"){
@@ -579,6 +579,8 @@ void stepTran(vector<Component> &list, const Simulation & sim, const int & i, co
 }
 int main()
 {
+		auto mainstart = high_resolution_clock::now();
+
     pair<vector<Component>, Simulation> testm = readInput();
     Simulation sim =testm.second;
     vector<Component> out = patchComponents(testm.first);
@@ -636,4 +638,8 @@ int main()
     {
         cout << "Invalid simulation command";
     }
+
+		auto mainstop = high_resolution_clock::now();
+		auto mainduration = duration_cast<microseconds>(mainstop - mainstart);
+		cerr << "main duration: " << mainduration.count() << endl;
 }

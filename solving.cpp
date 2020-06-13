@@ -2,6 +2,7 @@
 
 using namespace std;
 using namespace Eigen;
+using namespace std::chrono;
 
 //!!
 //remember to change all arguments to const refs when possible
@@ -134,6 +135,8 @@ const float & interval, const vector<int> & c_vs_row)
 //return voltage and current vectors for operating point or first point of transient analysis
 pair<VectorXd, VectorXd> no_prior_change (const vector<Component> & comps, const vector<Node> & nodes, const int & noden)
 {
+    auto start = high_resolution_clock::now();
+
     VectorXd nodev;
     //perhaps avoid creating by separating recursive_currents used for op and trans
     VectorXd component_currents = VectorXd::Zero (comps.size());
@@ -146,10 +149,13 @@ pair<VectorXd, VectorXd> no_prior_change (const vector<Component> & comps, const
     nodev = matrixSolve(knowns.first, knowns.second);
     //generate
     VectorXd prevnodev = VectorXd::Zero(nodev.size());
-    //cerr << "comp I" << endl;
+
     component_currents = recursive_currents (comps, nodes, nodev, prevnodev, 0, component_currents, true);
 
-    //cerr << "return" << endl;
+    auto stop = high_resolution_clock::now();
+    auto duration = duration_cast<microseconds>(stop - start);
+    cerr << "op duration: " << duration.count() << endl;
+
     return{nodev, component_currents};
 }
 
@@ -158,6 +164,8 @@ pair<VectorXd, VectorXd> no_prior_change (const vector<Component> & comps, const
 void transient (vector<Component> & comps, const vector<Node> & nodes, const int & noden, const float & duration,
 const float & interval, const VectorXd & pastnodes, const VectorXd & pastcurrents)
 {
+    auto start = high_resolution_clock::now();
+
     VectorXd nodev = pastnodes;
     VectorXd component_currents = pastcurrents;
     vector<pair<VectorXd, VectorXd>> values;
@@ -189,7 +197,12 @@ const float & interval, const VectorXd & pastnodes, const VectorXd & pastcurrent
         values.push_back( {nodev, component_currents} );
         writeTran(nodes, comps, nodev, component_currents, i);
     }
+
+    auto stop = high_resolution_clock::now();
+    auto tranduration = duration_cast<microseconds>(stop - start);
+    cerr << "tran duration: " << tranduration.count() << endl;
 }
+
 
 //used in recursive_basecase to determine other components connected to C at A
 vector<Component> common_node (const vector<Component> & comps, const Component & C, const Node & A)
