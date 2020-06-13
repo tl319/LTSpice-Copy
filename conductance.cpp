@@ -87,7 +87,7 @@ pair<MatrixXd, VectorXd> conductance_current(const vector<Component> & comps, co
         if( (comps[i].isSignal == 1) && (comps[i].type == 'V') )
         {
             val = comps[i].DCOff;
-            cerr << "DCoff= " << comps[i].DCOff << " val= " << val << endl;
+            //cerr << "DCoff= " << comps[i].DCOff << " val= " << val << endl;
         } else {
             val = comps[i].value;
         }
@@ -203,12 +203,12 @@ pair<MatrixXd, VectorXd> conductance_current(const vector<Component> & comps, co
                 if( nA(comps[i]) > nB(comps[i]) && (locked[ nB(comps[i])-1] == 0)|| locked[ nA(comps[i])-1] == 1 )
                 {
                     locked[nB(comps[i])-1] = 1;
-                    cerr << "locked " << nB(comps[i])-1 <<endl;
+                    //cerr << "locked " << nB(comps[i])-1 <<endl;
                     row = nB(comps[i]) -1;
                 } else {
                     locked[nA(comps[i])-1] = 1;
                     row = nA(comps[i]) -1;
-                    cerr << "locked " << nA(comps[i])-1 <<endl;
+                    //cerr << "locked " << nA(comps[i])-1 <<endl;
                 }
 
                 //in that row of the rhs vector, write the current source value
@@ -371,11 +371,11 @@ pair<MatrixXd, VectorXd> conductance_current(const vector<Component> & comps, co
 
         if(comps[i].type == 'C')
         {
-          cerr << "cap res val: " << comps[ component_index( comps, comps[i] ) + 1 ].value << endl;
+          //cerr << "cap res val: " << comps[ component_index( comps, comps[i] ) + 1 ].value << endl;
         }
 
-        cerr << comps[i].name << endl;
-        testBetter(noden, conducts, currents, findNodes(comps));
+        //cerr << comps[i].name << endl;
+        //testBetter(noden, conducts, currents, findNodes(comps));
     }
     //cout << "help" << endl;
     return {conducts, currents};
@@ -626,8 +626,8 @@ pair<MatrixXd, vector<int>> MatrixUpdate (vector<Component> & comps, const int &
                 }
             }
         }
-        cerr << "tran " << comps[i].name << endl;
-        cerr << conducts << endl;
+        //cerr << "tran " << comps[i].name << endl;
+        //cerr << conducts << endl;
     }
     return {conducts, c_vs_row};
 }

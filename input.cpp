@@ -136,11 +136,11 @@ vector<Node> findNodes(const vector<Component> & list)
         if(find (Nodes.begin(), Nodes.end(), x) != Nodes.end()){
                 Nodes.erase(std::remove(Nodes.begin(), Nodes.end(), x), Nodes.end());
                 Nodes.insert(Nodes.begin()+1,x);
-                cerr << "inserted " << x.label <<endl;
+                //cerr << "inserted " << x.label <<endl;
             }
         else{
              Nodes.insert(Nodes.begin()+1,x);
-             cerr << "inserted " << x.label << endl;
+             //cerr << "inserted " << x.label << endl;
         }
     }
 	return Nodes;
@@ -195,10 +195,11 @@ vector<Component> patchComponents(const vector<Component> & list)
 {
 	vector<Component> out = list;
 	vector<Node> nodes = findNodes(out);
+	/*/
     for (auto x : nodes)
     {
         cerr << x.label <<endl;
-    }
+    }/*/
         int i;
         if(nodes[0].label=="0")
             i = 0;
@@ -487,7 +488,7 @@ pair<vector<Component>, Simulation> readInput()
                             sim.isStep = true;
                             Param p1 = {properties[2][0],procData(properties[3]),procData(properties[4]),procData(properties[5])};
                             sim.steps.push_back(p1);
-                            cerr << "Pusshed back";
+                            //cerr << "Pusshed back";
                         }
 
                         if(type == "tran"){
@@ -589,12 +590,13 @@ int main()
         //cerr << x << endl;
     }
     //cerr << endl;
+		/*/
     for(auto x : out)
     {
         cerr << x;
         cerr << "A is "<< x.A << " superlabel: " << nodeName(x.A.super,out) << endl;
         cerr << "B is "<< x.B << " superlabel: " << nodeName(x.B.super,out) << endl;
-    }
+    }/*/
 
 
 

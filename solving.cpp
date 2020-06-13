@@ -135,6 +135,8 @@ const float & interval, const vector<int> & c_vs_row)
 //return voltage and current vectors for operating point or first point of transient analysis
 pair<VectorXd, VectorXd> no_prior_change (const vector<Component> & comps, const vector<Node> & nodes, const int & noden)
 {
+    auto start = high_resolution_clock::now();
+
     VectorXd nodev;
     //perhaps avoid creating by separating recursive_currents used for op and trans
     VectorXd component_currents = VectorXd::Zero (comps.size());
@@ -147,10 +149,12 @@ pair<VectorXd, VectorXd> no_prior_change (const vector<Component> & comps, const
     nodev = matrixSolve(knowns.first, knowns.second);
     //generate
     VectorXd prevnodev = VectorXd::Zero(nodev.size());
-    //cerr << "comp I" << endl;
+
     component_currents = recursive_currents (comps, nodes, nodev, prevnodev, 0, component_currents, true);
 
-    //cerr << "return" << endl;
+    auto stop = high_resolution_clock::now();
+    auto duration = duration_cast<microseconds>(stop - start);
+    cerr << "op duration: " << duration.count() << endl;
     return{nodev, component_currents};
 }
 
@@ -159,6 +163,8 @@ pair<VectorXd, VectorXd> no_prior_change (const vector<Component> & comps, const
 void transient (vector<Component> & comps, const vector<Node> & nodes, const int & noden, const float & duration,
 const float & interval, const VectorXd & pastnodes, const VectorXd & pastcurrents)
 {
+    auto start = high_resolution_clock::now();
+
     VectorXd nodev = pastnodes;
     VectorXd component_currents = pastcurrents;
     vector<pair<VectorXd, VectorXd>> values;
@@ -167,18 +173,18 @@ const float & interval, const VectorXd & pastnodes, const VectorXd & pastcurrent
     VectorXd prevnodev = VectorXd::Zero(nodev.size());
     //vector<Component> comps = patchSupernodeInductor(comps);
     pair<MatrixXd, vector<int>> Mat = MatrixUpdate (comps, noden, interval);
-    cerr << "update" << endl;
-    cerr << Mat.first << endl;
+
     writeTranHeaders(nodes, comps,pastnodes,pastcurrents);
 
     //begin one interval after 0
     //i is time in seconds
+    /*/
        for(auto x : comps)
     {
         cerr << x;
         cerr << "A is "<< x.A << " superlabel: " << nodeName(x.A.super,comps) << endl;
         cerr << "B is "<< x.B << " superlabel: " << nodeName(x.B.super,comps) << endl;
-    }
+    }/*/
     for(float i = interval; i<duration; i += interval)
     {
         rhs = VectorUpdate (comps, noden, i, nodev, component_currents, interval, Mat.second);
@@ -190,12 +196,16 @@ const float & interval, const VectorXd & pastnodes, const VectorXd & pastcurrent
         values.push_back( {nodev, component_currents} );
         writeTran(nodes, comps, nodev, component_currents, i);
     }
+
+    auto stop = high_resolution_clock::now();
+    auto countduration = duration_cast<microseconds>(stop - start);
+    cerr << "transient duration: " << countduration.count() << endl;
 }
 
 //used in recursive_basecase to determine other components connected to C at A
 vector<Component> common_node (const vector<Component> & comps, const Component & C, const Node & A)
 {
-  auto commonstart = high_resolution_clock::now();
+  //auto commonstart = high_resolution_clock::now();
     vector<Component> shared_node;
 
     for(int i = 0; i<comps.size(); i++)
@@ -205,33 +215,35 @@ vector<Component> common_node (const vector<Component> & comps, const Component 
             shared_node.push_back(comps[i]);
         }
     }
-    return shared_node;
+    /*/
     auto commonstop = high_resolution_clock::now();
     auto commonduration = duration_cast<microseconds>(commonstop - commonstart);
     cerr << "common_node duration: " << commonduration.count() << endl;
+    /*/
+    return shared_node;
 }
 
 //returns the index of a component in  the component vector
 int component_index (const vector<Component> & comps, const Component & C)
 {
-  auto indexstart = high_resolution_clock::now();
+  //auto indexstart = high_resolution_clock::now();
     for(int i = 0; i<comps.size(); i++)
     {
         if(comps[i].name == C.name)
         {
+          //auto indexstop = high_resolution_clock::now();
+          //auto indexduration = duration_cast<microseconds>(indexstop - indexstart);
+          //cerr << "index duration: " << indexduration.count() << endl;
             return i;
         }
     }
-    auto indexstop = high_resolution_clock::now();
-    auto indexduration = duration_cast<microseconds>(indexstop - indexstart);
-    cerr << "index duration: " << indexduration.count() << endl;
 }
 
 //compute currents accross each component
 VectorXd recursive_currents (const vector<Component> & comps, const vector<Node> & nlist, const VectorXd & nodev, const VectorXd & prevnodev,
 const float & interval, const VectorXd & past_currents, const bool & op)
 {
-  auto interstart = high_resolution_clock::now();
+  //auto interstart = high_resolution_clock::now();
     //register components take care of, to differetiate non calculated values from 0 currents
     vector<bool> computed (comps.size(), 0);
 
@@ -244,17 +256,19 @@ const float & interval, const VectorXd & past_currents, const bool & op)
         comp_currents( i ) = recursive_basecase (i, comps[i], comps, nlist, nodev, prevnodev, interval, computed, comp_currents, comps[i].A, op);
         //}
     }
-    return comp_currents;
+    /*/
     auto interstop = high_resolution_clock::now();
     auto interduration = duration_cast<microseconds>(interstop - interstart);
     cerr << "currents duration: " << interduration.count() << endl;
+    /*/
+    return comp_currents;
 }
 
 //edits to computed below should be redundant
 float recursive_basecase (const int & i, const Component & C, const vector<Component> & comps, const vector<Node> & nlist, const VectorXd & nodev,
 const VectorXd & prevnodev, const float & interval, vector<bool> & computed, VectorXd & comp_currents, const Node & used_node, const bool & op)
 {
-    auto recstart = high_resolution_clock::now();
+    //auto recstart = high_resolution_clock::now();
 
     /*/if( computed[i] == true )
     {
@@ -323,7 +337,7 @@ const VectorXd & prevnodev, const float & interval, vector<bool> & computed, Vec
         if(C.type == 'L' && op == true)
         {
             total_current = ( VA - VB )*gl;
-            cerr << C.name << " " << VA << " " << VB << ' ' << total_current << endl;
+            //cerr << C.name << " " << VA << " " << VB << ' ' << total_current << endl;
             //computed[ component_index(comps, C) ] = 1;
         }
     }
@@ -457,8 +471,8 @@ const VectorXd & prevnodev, const float & interval, vector<bool> & computed, Vec
     //cout << C.name << " " << total_current << endl;
     //comp_currents(component_index(comps, C)) = total_current;
 
-    auto recstop = high_resolution_clock::now();
-    auto recduration = duration_cast<microseconds>(recstop - recstart);
-    cerr << C.name << " basecase duration: " << recduration.count() << endl;
+    //auto recstop = high_resolution_clock::now();
+    //auto recduration = duration_cast<microseconds>(recstop - recstart);
+    //cerr << C.name << " basecase duration: " << recduration.count() << endl;
     return total_current;
 }
