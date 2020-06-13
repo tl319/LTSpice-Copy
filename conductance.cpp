@@ -338,16 +338,57 @@ pair<MatrixXd, VectorXd> conductance_current(vector<Component> comps, int noden)
         //initial diode assumption, corrected using the Newton-Raphson method in VectorUpdate
         if(comps[i].type == 'D')
         {
+          float di = comps[i].value* ( exp( (0.7)/vt ) -1 );
+
+          //Diode d = comps[i];
           if(nA(comps[i]) != 0)
           {
-              //currents(nA(comps[i]) -1) += comps[i].is* ( exp( (0.7)/vt ) -1 );
+              currents(nA(comps[i]) -1) += di;
           }
 
           if(nB(comps[i]) != 0)
           {
-              //currents(nB(comps[i]) -1) -= comps[i].is* ( exp( (0.7)/vt ) -1 );
+              currents(nB(comps[i]) -1) -= di;
           }
+
+          //g = i(vn)/vt = di/(25m)
+          conductance = 40*di/;
+
+          if(SnA(comps[i]) != 0)
+          {
+              if(locked[ SnA(comps[i])-1] == 0)
+              {
+                  if( nA(comps[i]) != 0)
+                  {
+                      conducts ( SnA(comps[i]) -1, nA(comps[i]) -1) += conductance;
+                  }
+                  if( nA(comps[i]) != 0 && nB(comps[i]) != 0)
+                  {
+                      conducts ( SnA(comps[i]) -1, nB(comps[i]) -1) -= conductance;
+                  }
+              }
+          }
+
+          if(SnB(comps[i]) != 0)
+          {
+              //Ditto for nB
+              if(locked[ SnB(comps[i])-1] == 0)
+              {
+                  if( nB(comps[i]) != 0)
+                  {
+                      conducts ( SnB(comps[i]) -1, nB(comps[i]) -1) += conductance;
+                  }
+                  if( nA(comps[i]) != 0 && nB(comps[i]) != 0)
+                  {
+                      conducts ( SnB(comps[i]) -1, nA(comps[i]) -1) -= conductance;
+                  }
+              }
+          }
+
+          
+
         }
+
 
         if(comps[i].type == 'C')
         {
