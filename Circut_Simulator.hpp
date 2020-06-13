@@ -167,24 +167,24 @@ struct Variable: Component{
 pair<vector<Component>, Simulation> readInput();
 //reads a netlist from stdin and sorts them into a vec of components and a simulation;
 
-vector<Node> findNodes(vector<Component> list);
+vector<Node> findNodes(const vector<Component> & list);
 // returns a list of node. Duplicates are not counted and 0 is set to ground if it exits
 
-vector<Component> patchComponents(vector<Component> list);
+vector<Component> patchComponents(const vector<Component> & list);
 // returns a new vector of components that have their number and super vaules updated. Has to be new, as functions take in a copy for the vector.
 
 
 
 
 //  *** Matrix Functions ***
-VectorXd matrixSolve(MatrixXd m,VectorXd v);
+VectorXd matrixSolve(const MatrixXd & m, const VectorXd & v);
 //takes in the vector of currents and conductance matrix, and spits out the node voltage vector.
 
-pair<MatrixXd, VectorXd> conductance_current (vector<Component> comps, int noden);
+pair<MatrixXd, VectorXd> conductance_current (const vector<Component> & comps, const int & noden);
 //return complete conductance matrix and current vector
 
-void writeFile(Node n);
-void writeFile(float time, float voltage);
+void writeFile(const Node & n);
+void writeFile(const float & time, const float & voltage);
 //writes out in the format specified by LTspice/matlab
 //input of node just writes the header *** NEEDED ***
 //use the function after to write time and voltage.
@@ -200,7 +200,7 @@ pair<MatrixXd, vector<int>> MatrixUpdate (vector<Component> & comps, const int &
 pair<VectorXd, VectorXd> no_prior_change (const vector<Component> & comps, const vector<Node> & nodes, const int & noden);
 //return voltage and current vectors for operating point or first point of transient analysis
 
-vector<pair<VectorXd, VectorXd>> transient (vector<Component> & comps, const vector<Node> & nodes, const int & noden, const float & duration,
+void transient (vector<Component> & comps, const vector<Node> & nodes, const int & noden, const float & duration,
 const float & interval, const VectorXd & pastnodes, const VectorXd & pastcurrents);
 
 
@@ -211,10 +211,10 @@ ostream& operator<<(ostream& os, const Component& c);
 ostream& operator<<(ostream& os, const Node& c);
 // allows you to cout both components and nodes.
 
-float procData(string x);
+float procData(const string & x);
 //used to extract data ie. remove braces get K
 
-void test(int noden, MatrixXd conducts, VectorXd currents);
+void testBetter(const int & noden, const MatrixXd & conducts, const VectorXd & currents, const vector<Node> & nodes);
 //print out conductance matrix and current vector
 void writeTran(const vector<Node>& nlist, const vector<Component>& out,const VectorXd& pastnodes,const VectorXd& component_currents, float time);
 
@@ -231,28 +231,28 @@ void writeOPReadable(const vector<Node>& nlist, const vector<Component>& out,con
 bool operator == (Node const &n1, Node const &n2);
 //used in the node finder function.
 
-vector<Component> patchSupernodes(vector<Component> list);
+vector<Component> patchSupernodes(const vector<Component> & list);
 //used in patchNodes to correctly fill out the values of the supernodes after the inital numbering operation
 
-bool isComponent(string x);
+bool isComponent(const string & x);
 //returns true if a line from a string (probs from stdin) is a component or not
 
-string removeChar(string s, char style);
+string removeChar(const string & s, const char & style);
 // removes unused charaters. Input 'D' extracts data input 'S' extracts scientific notation
-bool isSci(char c);
-bool isData(char c);
+bool isSci(const char & c);
+bool isData(const char & c);
 //used in above function
 
-string nodeName(int i,vector<Component> out);
-vector<Component> patchSupernodeInductor(vector<Component> list);
+string nodeName(const int & i, const vector<Component> & out);
+vector<Component> patchSupernodeInductor(const vector<Component> & list);
 
-int compute_noden(vector<Node>  nodes);
+int compute_noden(const vector<Node> & nodes);
 //calculate number of non-ground nodes from node vector
 
-int nA(Component c);
-int nB(Component c);
-int SnA(Component c);
-int SnB(Component c);
+int nA(const Component & c);
+int nB(const Component & c);
+int SnA(const Component & c);
+int SnB(const Component & c);
 //read node/supernode A/B of a given component
 
 vector<Component> common_node (const vector<Component> & comps, const Component & C, const Node & A);
@@ -261,9 +261,6 @@ vector<Component> common_node (const vector<Component> & comps, const Component 
 int component_index (const vector<Component> & comps, const Component & C);
 //returns the index of a component in the component vector, useful since this and component current vector are ordered identically
 
-float vs_current (vector<Component> comps, Component C, vector<bool> & computed, VectorXd currents, Node N);
-//used to compute current through voltage sources or capacitors
-
 VectorXd recursive_currents (const vector<Component> & comps, const vector<Node> & nlist, const VectorXd & nodev, const VectorXd & prevnodev,
 const float & interval, const VectorXd & past_currents, const bool & op);
 //compute currents accross "insufficient" (V, C, D) components in series with other such components
@@ -271,12 +268,5 @@ const float & interval, const VectorXd & past_currents, const bool & op);
 float recursive_basecase (const int & i, const Component & C, const vector<Component> & comps, const vector<Node> & nlist, const VectorXd & nodev,
 const VectorXd & prevnodev, const float & interval, vector<bool> & computed, VectorXd & comp_currents, const Node & used_node, const bool & op);
 //used in above
-
-vector<bool> incorrect_assumptions(VectorXd comp_currents, vector<Component> comps);
-//check currents accross nonlinear components to determine their mode
-
-pair<MatrixXd, vector<int>> CorrectAssumptions (vector<Component> comps, int noden, vector<bool> incorrect_assumptions);
-//rewrite matrix with new assumptions
-//obsolete, change matrix to vector
 
 #endif

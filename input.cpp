@@ -12,18 +12,18 @@ using namespace std;
 using namespace Eigen;
 
 
-bool isComponent(string x)
+bool isComponent(const string & x)
 {
 	if(isalpha(x[0])){
 		return true;}
 	return false;}
-bool isCmd(string x)
+bool isCmd(const string & x)
 {
 	if(x[0] == '.' && x[1]!='e'){
 		return true;}
 	return false;}
 
-VectorXd matrixSolve(MatrixXd m,VectorXd v)
+VectorXd matrixSolve(const MatrixXd & m, const VectorXd & v)
 {
 	MatrixXd inverse = m.inverse();
 	return inverse *v;}
@@ -50,7 +50,7 @@ ostream& operator<<(ostream& os, const Simulation& c)
     os << "Type: " << c.type  << " stop: "<< c.stop << " timestep: "<< c.step << endl;
     return os;
 }
-string nodeName(int i,vector<Component> out)
+string nodeName(const int & i, const vector<Component> & out)
 {
     for(auto x : out){
         if(x.A.number == i)
@@ -67,7 +67,7 @@ bool operator == (Node const &n1, Node const &n2)
      return(n1.label == n2.label);
 }
 
-vector<Node> findNodes(vector<Component> list)
+vector<Node> findNodes(const vector<Component> & list)
 {
 	vector<Node> Nodes;
     vector<Node> children;
@@ -106,7 +106,7 @@ vector<Node> findNodes(vector<Component> list)
 	return Nodes;
 }
 
-vector<Component> patchSupernodes(vector<Component> list)
+vector<Component> patchSupernodes(const vector<Component> & list)
 {
     vector<Component> out = list;
     for(int i=0;i<out.size();i++){
@@ -151,55 +151,7 @@ vector<Component> patchSupernodes(vector<Component> list)
     return out;
 }
 
-vector<Component> patchSupernodeInductor(vector<Component> list)
-{
-    vector<Component> out = list;
-    for(int i=0;i<out.size();i++){
-    out[i].A.super = out[i].A.number;
-    out[i].B.super = out[i].B.number;
-    }
-    for(int i=0;i<out.size();i++){
-            if(out[i].type == 'V' || out[i].type == 'v' || out[i].type == 'C' || out[i].type == 'c'|| out[i].type == 'D' || out[i].type == 'd'){
-                int topnode = 99;
-                int botnode = 99;
-                //cout << out[i].A.number << " b is: " << out[i].B.number << endl;
-                if(out[i].A.super>out[i].B.super)
-                {topnode = out[i].A.super;
-                botnode =out[i].B.super;}
-                else {topnode = out[i].B.super;
-                botnode =out[i].A.super;}
-                //cerr << "topnode is :" << topnode << " botnode is: " << botnode << endl;
-
-                for(int x=0;x<out.size();x++){
-                    //cout << "loop: " << x << endl;
-                    if(out[x].A.super == botnode){
-                    out[x].A.super = topnode;
-                    out[x].A.reactiveSuper=(out[i].type == 'C' || out[i].type == 'c');
-                    //cout << "set " << out[x].name << out[x].A.number << "to " <<  out[x].A.super << endl;
-                    }
-                    else
-                    {//out[x].A.super = out[x].A.super;
-                    //cout <<  out[x].name << "has " << out[x].A.number << " not equal " << botnode << endl;
-                    }
-
-                    if(out[x].B.super == botnode){
-                    out[x].B.super = topnode;
-                    out[x].B.reactiveSuper=(out[i].type == 'C' || out[i].type == 'c');
-                    //cout << "set " << out[x].name << out[x].B.number << " to " <<  out[x].B.super << endl;
-                    }
-                    else
-                    {//out[x].B.super = out[x].A.number;
-                    //cout << out[x].B.number << " not equal " << botnode << endl;
-                    }
-
-                }
-                }
-
-
-            }
-    return out;
-}
-vector<Component> patchComponents(vector<Component> list)
+vector<Component> patchComponents(const vector<Component> & list)
 {
 	vector<Component> out = list;
 	vector<Node> nodes = findNodes(out);
@@ -227,17 +179,17 @@ vector<Component> patchComponents(vector<Component> list)
 	return patchSupernodes(out);
 }
 
-bool isData(char c){
+bool isData(const char & c){
     if(isdigit(c) || c == '.')
         return false;
     return true;}
 
-bool isSci(char c){
+bool isSci(const char & c){
     if(c == 'p' || c == 'P' ||c == 'N' || c == 'u' || c == 'U' || c == 'm' || c == 'K' || c == 'k' || c == 'M' || c == 'G' || c == 'µ')
         return false;
     return true;}
 
-string removeChar(string s, char style)
+string removeChar(const string & s, const char & style)
 {
     string x = s;
     if(style == 'D'){
@@ -249,7 +201,7 @@ string removeChar(string s, char style)
     return x;
 }
 
-float procData(string x)
+float procData(const string & x)
 {
 
     float num = stof(removeChar(x,'D'));
@@ -530,7 +482,7 @@ vector<Component> reorderVoltages(const vector<Component> &in)
     return duo;
 }
 
-void stepOP(vector<Component> &list, Simulation sim, int i, vector<Node> nlist)
+void stepOP(vector<Component> &list, const Simulation & sim, const int & i, const vector<Node> & nlist)
 {
     int j = 0;
     int counter =0;
@@ -553,7 +505,7 @@ void stepOP(vector<Component> &list, Simulation sim, int i, vector<Node> nlist)
         counter = values.start+(values.interval*j);
     }
 }
-void stepTran(vector<Component> &list, Simulation sim, int i, vector<Node> nlist, float duration, float interval)
+void stepTran(vector<Component> &list, const Simulation & sim, const int & i, const vector<Node> & nlist, const float & duration, const float & interval)
 {
     int j = 0;
     int counter =0;
@@ -571,7 +523,7 @@ void stepTran(vector<Component> &list, Simulation sim, int i, vector<Node> nlist
         }
         int noden = compute_noden(nlist);
         pair<VectorXd, VectorXd> knowns = no_prior_change (list, nlist, noden);
-        vector<pair<VectorXd, VectorXd>> transient_values = transient (list, nlist, noden, duration, interval, knowns.first, knowns.second);
+        transient (list, nlist, noden, duration, interval, knowns.first, knowns.second);
         cout << endl << endl;
         j++;
         counter = values.start+(values.interval*j);
@@ -629,7 +581,7 @@ int main()
         pair<VectorXd, VectorXd> knowns = no_prior_change (out, nlist, noden);
         float duration = sim.stop;
         float interval = 0.000001;
-        vector<pair<VectorXd, VectorXd>> transient_values = transient (out, nlist, noden, duration, interval, knowns.first, knowns.second);
+        transient (out, nlist, noden, duration, interval, knowns.first, knowns.second);
     }
     else
     {

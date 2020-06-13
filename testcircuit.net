@@ -2,9 +2,9 @@
 R1 d 0 6k
 R2 a c 2k
 R3 0 d 7k
-L2 d a 400n
-C2 d a 0.3m
 V1 c 0 SINE(0 1 10K)
+C2 d a 0.3m
+C1 d a 0.4m
 .tran 0.1m
 .backanno
 .end

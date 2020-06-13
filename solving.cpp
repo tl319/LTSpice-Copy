@@ -131,25 +131,6 @@ const float & interval, const vector<int> & c_vs_row)
     return currents;
 }
 
-//after calculating voltages and currents assuming all NL components are active, determine which actually are
-vector<bool> incorrect_assumptions(VectorXd component_currents, vector<Component> comps)
-{
-    vector<bool> incorrect_assumptions (comps.size()+1, 0);
-
-    for(int i = 0; i< comps.size(); i++)
-    {
-        //cout << comps[i].name << " " << comp_currents[i] << endl;
-        if(comps[i].type == 'D' && component_currents[i] < 0)
-        {
-            //cerr << "oof" << endl;
-            incorrect_assumptions[comps.size()] = 1;
-            incorrect_assumptions[i] = 1;
-        }
-    }
-
-    return incorrect_assumptions;
-}
-
 //return voltage and current vectors for operating point or first point of transient analysis
 pair<VectorXd, VectorXd> no_prior_change (const vector<Component> & comps, const vector<Node> & nodes, const int & noden)
 {
@@ -174,7 +155,7 @@ pair<VectorXd, VectorXd> no_prior_change (const vector<Component> & comps, const
 
 //might be preferable to cout values directly (using Jason's function) after they're calculated to avoid cycling through the duration twice
 //and have a void function if possible
-vector<pair<VectorXd, VectorXd>> transient (vector<Component> & comps, const vector<Node> & nodes, const int & noden, const float & duration,
+void transient (vector<Component> & comps, const vector<Node> & nodes, const int & noden, const float & duration,
 const float & interval, const VectorXd & pastnodes, const VectorXd & pastcurrents)
 {
     VectorXd nodev = pastnodes;
@@ -183,22 +164,22 @@ const float & interval, const VectorXd & pastnodes, const VectorXd & pastcurrent
     VectorXd rhs = VectorXd::Zero (comps.size());
 
     VectorXd prevnodev = VectorXd::Zero(nodev.size());
-    vector<Component> newcomps = patchSupernodeInductor(comps);
-    pair<MatrixXd, vector<int>> Mat = MatrixUpdate (newcomps, noden, interval);
+    //vector<Component> newcomps = patchSupernodeInductor(comps);
+    pair<MatrixXd, vector<int>> Mat = MatrixUpdate (comps, noden, interval);
     //cerr << Mat.first << endl;
     writeTranHeaders(nodes, comps,pastnodes,pastcurrents);
 
     //begin one interval after 0
     //i is time in seconds
-       for(auto x : newcomps)
+       for(auto x : comps)
     {
         cerr << x;
-        cerr << "A is "<< x.A << " superlabel: " << nodeName(x.A.super,newcomps) << endl;
-        cerr << "B is "<< x.B << " superlabel: " << nodeName(x.B.super,newcomps) << endl;
+        cerr << "A is "<< x.A << " superlabel: " << nodeName(x.A.super,comps) << endl;
+        cerr << "B is "<< x.B << " superlabel: " << nodeName(x.B.super,comps) << endl;
     }
     for(float i = interval; i<duration; i += interval)
     {
-        rhs = VectorUpdate (newcomps, noden, i, nodev, component_currents, interval, Mat.second);
+        rhs = VectorUpdate (comps, noden, i, nodev, component_currents, interval, Mat.second);
 
         //cout << "rhs" << endl;
         //cout << rhs << endl;
@@ -215,7 +196,7 @@ const float & interval, const VectorXd & pastnodes, const VectorXd & pastcurrent
 
         prevnodev = nodev;
         nodev = matrixSolve(Mat.first, rhs);
-        component_currents = recursive_currents (newcomps, nodes, nodev, prevnodev, interval, component_currents, false);
+        component_currents = recursive_currents (comps, nodes, nodev, prevnodev, interval, component_currents, false);
 
         /*/
         cout << "comp_i" << endl;
@@ -225,11 +206,9 @@ const float & interval, const VectorXd & pastnodes, const VectorXd & pastcurrent
         values.push_back( {nodev, component_currents} );
         writeTran(nodes, comps, nodev, component_currents, i);
     }
-
-    return values;
 }
 
-//used in vs_current to determine other components connected to C at A
+//used in recursive_basecase to determine other components connected to C at A
 vector<Component> common_node (const vector<Component> & comps, const Component & C, const Node & A)
 {
     vector<Component> shared_node;

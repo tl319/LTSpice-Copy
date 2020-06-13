@@ -8,40 +8,12 @@
 using namespace Eigen;
 using namespace std;
 
-//calculate number of non-ground nodes from node vector
-int compute_noden(vector<int> nodes);
-
-//return complete conductance matrix and current vector
-pair<MatrixXd, VectorXd> conductance_current (vector<Component> comps, int noden);
-
-//print out conductance matrix and current vector
-void test(int noden, MatrixXd conducts, VectorXd currents);
-
-//read node/supernode A/B of a given component
-int nA(Component c);
-int nB(Component c);
-int SnA(Component c);
-int SnB(Component c);
-
-pair<MatrixXd, vector<int>> MatrixUpdate (vector<Component> comps, int noden);
+pair<MatrixXd, vector<int>> MatrixUpdate (const vector<Component> & comps, const int & noden);
 
 //function declarations
 
-void test(int noden, MatrixXd conducts, VectorXd currents)
+void testBetter(const int & noden, const MatrixXd & conducts, const VectorXd & currents, const vector<Node> & nodes)
 {
-    cerr << "conductance_current " << endl;
-
-    //print each line of the matrix
-    cerr << conducts << endl;
-
-    //print current vector
-    cerr << currents << endl;
-}
-void testBetter(int noden, MatrixXd conducts, VectorXd currents, vector<Node> nodes)
-{
-
-
-
     //print each line of the matrix
     cerr << conducts << "      *      " << endl;
 
@@ -53,28 +25,28 @@ void testBetter(int noden, MatrixXd conducts, VectorXd currents, vector<Node> no
     cerr <<  currents << endl;
 }
 
-int nA(Component c)
+int nA(const Component & c)
 {
     return (c.A.number);
 }
 
-int nB(Component c)
+int nB(const Component & c)
 {
     return (c.B.number);
 }
 
-int SnA(Component c)
+int SnA(const Component & c)
 {
     return (c.A.super);
 }
 
-int SnB(Component c)
+int SnB(const Component & c)
 {
     return (c.B.super);
 }
 
 //compute number of non-ground nodes
-int compute_noden(vector<Node> nodes)
+int compute_noden(const vector<Node> & nodes)
 {
     int noden = nodes.size();
     //loop redundant if vector is ordered
@@ -89,7 +61,7 @@ int compute_noden(vector<Node> nodes)
     return noden;
 }
 
-pair<MatrixXd, VectorXd> conductance_current(vector<Component> comps, int noden)
+pair<MatrixXd, VectorXd> conductance_current(const vector<Component> & comps, const int & noden)
 {
     //value to take from sources
     float val;
@@ -635,11 +607,4 @@ pair<MatrixXd, vector<int>> MatrixUpdate (vector<Component> & comps, const int &
         }
     }
     return {conducts, c_vs_row};
-}
-
-//for operating point, should this and the transient version be separate functions or within he main matrix writing function?
-//recalculate conductance matrix with corrected diode assumptions
-pair<MatrixXd, vector<int>> CorrectAssumptions (vector<Component> comps, int noden, vector<bool> incorrect_assumptions)
-{
-
 }
