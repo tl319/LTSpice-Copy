@@ -93,29 +93,34 @@ vector<Node> findNodes(vector<Component> list)
     vector<Node> children;
 	for (Component part : list){
 		if(find (Nodes.begin(), Nodes.end(), part.A) == Nodes.end()){
-			if (part.A.label=="0")
-				Nodes.insert(Nodes.begin(),part.A);
-            else if (part.type=='C' && find (children.begin(), children.end(), part.A) == children.end())
+			if (part.A.label=="0"){
+				Nodes.insert(Nodes.begin(),part.A);}
+            else
             {
-                children.push_back(part.A);
+                Nodes.push_back(part.A);
+            }
+        }
+		if(find (Nodes.begin(), Nodes.end(), part.B) == Nodes.end()){
+			if (part.B.label=="0"){
+				Nodes.insert(Nodes.begin(),part.B);}
+            else if (part.B.poser && find(children.begin(), children.end(), part.B) == children.end())
+            {
+                children.push_back(part.B);
             }
 			else
-				Nodes.push_back(part.A);}
-		if(find (Nodes.begin(), Nodes.end(), part.B) == Nodes.end()){
-			if (part.B.label=="0")
-				Nodes.insert(Nodes.begin(),part.B);
-			else
-				Nodes.push_back(part.B);}
-
+				{Nodes.push_back(part.B);}
+        }
 	}
     for(auto x : children)
     {
         if(find (Nodes.begin(), Nodes.end(), x) != Nodes.end()){
                 Nodes.erase(std::remove(Nodes.begin(), Nodes.end(), x), Nodes.end());
                 Nodes.insert(Nodes.begin()+1,x);
+                cerr << "inserted " << x.label <<endl; 
             }
         else{
              Nodes.insert(Nodes.begin()+1,x);
+             cerr << "inserted " << x.label << endl; 
         }
     }
 	return Nodes;
@@ -218,6 +223,10 @@ vector<Component> patchComponents(vector<Component> list)
 {
 	vector<Component> out = list;
 	vector<Node> nodes = findNodes(out);
+    for (auto x : nodes)
+    {
+        cerr << x.label <<endl;
+    }
         int i;
         if(nodes[0].label=="0")
             i = 0;
@@ -534,8 +543,7 @@ int main()
 {
     pair<vector<Component>, Simulation> testm = readInput();
     Simulation sim =testm.second;
-    vector<Component> gator = patchComponents(testm.first);
-    vector<Component> out = patchComponents(gator);
+    vector<Component> out = patchComponents(testm.first);
     vector<Node> nlist = findNodes(out);
     for(auto x : nlist)
     {
