@@ -166,18 +166,18 @@ const float & interval, const VectorXd & pastnodes, const VectorXd & pastcurrent
     VectorXd prevnodev = VectorXd::Zero(nodev.size());
     //vector<Component> comps = patchSupernodeInductor(comps);
     pair<MatrixXd, vector<int>> Mat = MatrixUpdate (comps, noden, interval);
-    cerr << "update" << endl;
-    cerr << Mat.first << endl;
+    //cerr << "update" << endl;
+    //cerr << Mat.first << endl;
     writeTranHeaders(nodes, comps,pastnodes,pastcurrents);
 
     //begin one interval after 0
     //i is time in seconds
-       for(auto x : comps)
+  /*/     for(auto x : comps)
     {
         cerr << x;
         cerr << "A is "<< x.A << " superlabel: " << nodeName(x.A.super,comps) << endl;
         cerr << "B is "<< x.B << " superlabel: " << nodeName(x.B.super,comps) << endl;
-    }
+    }/*/
     for(float i = interval; i<duration; i += interval)
     {
         rhs = VectorUpdate (comps, noden, i, nodev, component_currents, interval, Mat.second);
@@ -315,7 +315,7 @@ const VectorXd & prevnodev, const float & interval, vector<bool> & computed, Vec
         if(C.type == 'L' && op == true)
         {
             total_current = ( VA - VB )*gl;
-            cerr << C.name << " " << VA << " " << VB << ' ' << total_current << endl;
+            //cerr << C.name << " " << VA << " " << VB << ' ' << total_current << endl;
             computed[ component_index(comps, C) ] = 1;
         }
     }
