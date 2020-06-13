@@ -2,6 +2,7 @@
 
 using namespace std;
 using namespace Eigen;
+using namespace std::chrono;
 
 //!!
 //remember to change all arguments to const refs when possible
@@ -194,6 +195,7 @@ const float & interval, const VectorXd & pastnodes, const VectorXd & pastcurrent
 //used in recursive_basecase to determine other components connected to C at A
 vector<Component> common_node (const vector<Component> & comps, const Component & C, const Node & A)
 {
+  auto commonstart = high_resolution_clock::now();
     vector<Component> shared_node;
 
     for(int i = 0; i<comps.size(); i++)
@@ -204,11 +206,15 @@ vector<Component> common_node (const vector<Component> & comps, const Component 
         }
     }
     return shared_node;
+    auto commonstop = high_resolution_clock::now();
+    auto commonduration = duration_cast<microseconds>(commonstop - commonstart);
+    cerr << "common_node duration: " << commonduration.count() << endl;
 }
 
 //returns the index of a component in  the component vector
 int component_index (const vector<Component> & comps, const Component & C)
 {
+  auto indexstart = high_resolution_clock::now();
     for(int i = 0; i<comps.size(); i++)
     {
         if(comps[i].name == C.name)
@@ -216,12 +222,16 @@ int component_index (const vector<Component> & comps, const Component & C)
             return i;
         }
     }
+    auto indexstop = high_resolution_clock::now();
+    auto indexduration = duration_cast<microseconds>(indexstop - indexstart);
+    cerr << "index duration: " << indexduration.count() << endl;
 }
 
 //compute currents accross each component
 VectorXd recursive_currents (const vector<Component> & comps, const vector<Node> & nlist, const VectorXd & nodev, const VectorXd & prevnodev,
 const float & interval, const VectorXd & past_currents, const bool & op)
 {
+  auto interstart = high_resolution_clock::now();
     //register components take care of, to differetiate non calculated values from 0 currents
     vector<bool> computed (comps.size(), 0);
 
@@ -231,27 +241,25 @@ const float & interval, const VectorXd & past_currents, const bool & op)
     {
         //if( computed[i] == 0 )
         //{
-            /*/if(comps[i].type == 'L')
-            {
-                comp_currents( i ) = past_currents(i) + recursive_basecase (i, comps[i], comps, nlist, nodev, prevnodev, interval, computed, comp_currents,
-                comps[i].A, op);
-            } else {/*/
-                //cout << "b4 base" << endl;
-                comp_currents( i ) = recursive_basecase (i, comps[i], comps, nlist, nodev, prevnodev, interval, computed, comp_currents, comps[i].A, op);
-                //cout << comp_currents << endl;
-                //cout << "after base" << endl;
-            //}
-
-            //computed[component_index(comps, comps[i])] = 1;
+        comp_currents( i ) = recursive_basecase (i, comps[i], comps, nlist, nodev, prevnodev, interval, computed, comp_currents, comps[i].A, op);
         //}
     }
     return comp_currents;
+    auto interstop = high_resolution_clock::now();
+    auto interduration = duration_cast<microseconds>(interstop - interstart);
+    cerr << "currents duration: " << interduration.count() << endl;
 }
 
 //edits to computed below should be redundant
 float recursive_basecase (const int & i, const Component & C, const vector<Component> & comps, const vector<Node> & nlist, const VectorXd & nodev,
 const VectorXd & prevnodev, const float & interval, vector<bool> & computed, VectorXd & comp_currents, const Node & used_node, const bool & op)
 {
+    auto recstart = high_resolution_clock::now();
+
+    /*/if( computed[i] == true )
+    {
+      return comp_currents(i);
+    }/*/
 
     vector<Component> same_node;
     bool acceptable = 1;
@@ -280,7 +288,7 @@ const VectorXd & prevnodev, const float & interval, vector<bool> & computed, Vec
     if(C.type == 'I')
     {
         total_current = C.value;
-        computed[ component_index(comps, C) ] = 1;
+        //computed[ component_index(comps, C) ] = 1;
     }
 
     if(C.type == 'R' || C.type == 'L')
@@ -303,20 +311,20 @@ const VectorXd & prevnodev, const float & interval, vector<bool> & computed, Vec
         if(C.type == 'R')
         {
             total_current = ( VA - VB )/C.value;
-            computed[ component_index(comps, C) ] = 1;
+            //computed[ component_index(comps, C) ] = 1;
         }
 
         if(C.type == 'L' && op == false)
         {
             total_current = comp_currents( component_index( comps, C ) )+( prevnodev(nB(C) - 1) - prevnodev(nA(C) - 1) )*interval/(C.value);
-            computed[ component_index(comps, C) ] = 1;
+            //computed[ component_index(comps, C) ] = 1;
         }
 
         if(C.type == 'L' && op == true)
         {
             total_current = ( VA - VB )*gl;
             cerr << C.name << " " << VA << " " << VB << ' ' << total_current << endl;
-            computed[ component_index(comps, C) ] = 1;
+            //computed[ component_index(comps, C) ] = 1;
         }
     }
 
@@ -338,7 +346,7 @@ const VectorXd & prevnodev, const float & interval, vector<bool> & computed, Vec
         }
 
         total_current = ( VA - VB )/capr.value;
-        computed[ component_index(comps, C) ] = 1;
+        //computed[ component_index(comps, C) ] = 1;
     }
 
     //probably can replace some common_node calls with i
@@ -353,7 +361,7 @@ const VectorXd & prevnodev, const float & interval, vector<bool> & computed, Vec
         {
             //cout << "for" << endl;
             //cout << C.name << " " << used_node.label << endl;
-            if( computed[component_index(comps, same_node[j])] == 1 )
+            /*/if( computed[component_index(comps, same_node[j])] == 1 )
             {
                 //cout << same_node[j].name << " computed" << endl;
                 if(same_node[j].type == 'R')
@@ -380,14 +388,14 @@ const VectorXd & prevnodev, const float & interval, vector<bool> & computed, Vec
 
                 if(same_node[j].type == 'I' || same_node[j].type == 'L' )
                 {
-                    if(used_node.label == same_node[j].A.label)
+                    if(used_node.number == same_node[j].A.number)
                     {
                         current = (-1)*comp_currents( component_index(comps, same_node[j]) );
                     } else {
                         current = comp_currents( component_index(comps, same_node[j]) );
                     }
 
-                    if(used_node.label == C.A)
+                    if(used_node.number == C.A.number)
                     {
                         total_current += current;
                     } else {
@@ -399,14 +407,14 @@ const VectorXd & prevnodev, const float & interval, vector<bool> & computed, Vec
                 {
                     //cout << "rec V"<< endl;
                     //still some redundant recalculations
-                    if(used_node.label == same_node[j].A.label)
+                    if(used_node.number == same_node[j].A.number)
                     {
                         current = (-1)*comp_currents( component_index(comps, same_node[j]) );
                     } else {
                         current = comp_currents( component_index(comps, same_node[j]) );
                     }
 
-                    if(used_node.label == C.A)
+                    if(used_node.number == C.A.number)
                     {
                         total_current += current;
                     } else {
@@ -414,39 +422,43 @@ const VectorXd & prevnodev, const float & interval, vector<bool> & computed, Vec
                     }
                     //cout << "rec V end"<< endl;
                 }
-            } else {
+            } else {/*/
                 //cout << same_node[j].name << " compute rec" << endl;
                 //cout << "rec else" << endl;
 
                 //switch the used_node to the other node of same_node[j]
-                if(used_node.label == same_node[j].A.label)
+                if(used_node.number == same_node[j].A.number)
                 {
                     rec_used = same_node[j].B;
                 } else {
                     rec_used = same_node[j].A;
                 }
 
-                if(used_node.label == same_node[j].A.label)
+                if(used_node.number == same_node[j].A.number)
                 {
                     current = (-1)*recursive_basecase (i, same_node[j], comps, nlist, nodev, prevnodev, interval, computed, comp_currents, rec_used, op);
                 } else {
                     current = recursive_basecase (i, same_node[j], comps, nlist, nodev, prevnodev, interval, computed, comp_currents, rec_used, op);
                 }
 
-                if(used_node.label == C.A)
+                if(used_node.number == C.A.number)
                 {
                     total_current += current;
                 } else {
                     total_current -= current;
                 }
                 //cout << "rec else end" << endl;
-            }
+            //}
         }
         //cout << "eer" << endl;
-       computed[ component_index(comps, C) ] = 1;
+       //computed[ component_index(comps, C) ] = 1;
     }
 
     //cout << C.name << " " << total_current << endl;
-    comp_currents(component_index(comps, C)) = total_current;
+    //comp_currents(component_index(comps, C)) = total_current;
+
+    auto recstop = high_resolution_clock::now();
+    auto recduration = duration_cast<microseconds>(recstop - recstart);
+    cerr << C.name << " basecase duration: " << recduration.count() << endl;
     return total_current;
 }
