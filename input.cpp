@@ -67,7 +67,47 @@ bool operator == (Node const &n1, Node const &n2)
      return(n1.label == n2.label);
 }
 
-vector<Node> findNodes(const vector<Component> & list)
+/*/
+vector<Node> findNodes(vector<Component> list)
+{
+	vector<Node> Nodes;
+    vector<Node> children;
+	for (Component part : list){
+		if(find (Nodes.begin(), Nodes.end(), part.A) == Nodes.end()){
+			if (part.A.label=="0"){
+				Nodes.insert(Nodes.begin(),part.A);}
+            else
+            {
+                Nodes.push_back(part.A);
+            }
+        }
+		if(find (Nodes.begin(), Nodes.end(), part.B) == Nodes.end()){
+			if (part.B.label=="0"){
+				Nodes.insert(Nodes.begin(),part.B);}
+            else if (part.B.poser && find(children.begin(), children.end(), part.B) == children.end())
+            {
+                children.push_back(part.B);
+            }
+			else
+				{Nodes.push_back(part.B);}
+        }
+	}
+    for(auto x : children)
+    {
+        if(find (Nodes.begin(), Nodes.end(), x) != Nodes.end()){
+                Nodes.erase(std::remove(Nodes.begin(), Nodes.end(), x), Nodes.end());
+                Nodes.insert(Nodes.begin()+1,x);
+                cerr << "inserted " << x.label <<endl;
+            }
+        else{
+             Nodes.insert(Nodes.begin()+1,x);
+             cerr << "inserted " << x.label << endl;
+        }
+    }
+	return Nodes;
+}
+/*/
+vector<Node> findNodes(vector<Component> list)
 {
 	vector<Node> Nodes;
     vector<Node> children;
@@ -106,11 +146,60 @@ vector<Node> findNodes(const vector<Component> & list)
 	return Nodes;
 }
 
-vector<Component> patchSupernodes(const vector<Component> & list)
+vector<Component> patchSupernodes(vector<Component> list)
 {
     vector<Component> out = list;
     for(int i=0;i<out.size();i++){
-            if(out[i].type == 'V' || out[i].type == 'v' || out[i].type == 'C' || out[i].type == 'c'|| out[i].type == 'D' || out[i].type == 'd' || out[i].type == 'L' || out[i].type == 'l'){
+            if(out[i].type == 'V' || out[i].type == 'v' || out[i].type == 'C' || out[i].type == 'c'|| out[i].type == 'D' || out[i].type == 'd'){
+                int topnode = 99;
+                int botnode = 99;
+                //cout << out[i].A.number << " b is: " << out[i].B.number << endl;
+                if(out[i].A.super>out[i].B.super)
+                {topnode = out[i].A.super;
+                botnode =out[i].B.super;}
+                else {topnode = out[i].B.super;
+                botnode =out[i].A.super;}
+                //cerr << "topnode is :" << topnode << " botnode is: " << botnode << endl;
+
+                for(int x=0;x<out.size();x++){
+                    //cout << "loop: " << x << endl;
+                    if(out[x].A.super == botnode){
+                    out[x].A.super = topnode;
+                    out[x].A.reactiveSuper=(out[i].type == 'C' || out[i].type == 'c');
+                    //cout << "set " << out[x].name << out[x].A.number << "to " <<  out[x].A.super << endl;
+                    }
+                    else
+                    {//out[x].A.super = out[x].A.super;
+                    //cout <<  out[x].name << "has " << out[x].A.number << " not equal " << botnode << endl;
+                    }
+
+                    if(out[x].B.super == botnode){
+                    out[x].B.super = topnode;
+                    out[x].B.reactiveSuper=(out[i].type == 'C' || out[i].type == 'c');
+                    //cout << "set " << out[x].name << out[x].B.number << " to " <<  out[x].B.super << endl;
+                    }
+                    else
+                    {//out[x].B.super = out[x].A.number;
+                    //cout << out[x].B.number << " not equal " << botnode << endl;
+                    }
+
+                }
+                }
+
+
+            }
+    return out;
+}
+
+vector<Component> patchSupernodeInductor(vector<Component> list)
+{
+    vector<Component> out = list;
+    for(int i=0;i<out.size();i++){
+    out[i].A.super = out[i].A.number;
+    out[i].B.super = out[i].B.number;
+    }
+    for(int i=0;i<out.size();i++){
+            if(out[i].type == 'V' || out[i].type == 'v' || out[i].type == 'C' || out[i].type == 'c'|| out[i].type == 'D' || out[i].type == 'd'){
                 int topnode = 99;
                 int botnode = 99;
                 //cout << out[i].A.number << " b is: " << out[i].B.number << endl;
@@ -155,6 +244,10 @@ vector<Component> patchComponents(const vector<Component> & list)
 {
 	vector<Component> out = list;
 	vector<Node> nodes = findNodes(out);
+    for (auto x : nodes)
+    {
+        cerr << x.label <<endl;
+    }
         int i;
         if(nodes[0].label=="0")
             i = 0;
@@ -409,7 +502,10 @@ pair<vector<Component>, Simulation> readInput()
                         else if((properties[3]).find('{') != std::string::npos){
                             Component v1(toupper((properties[0])[0]),name,properties[1],properties[2],(properties[3])[1]);
                             components.push_back(v1);
-                            cerr << "variable " << (properties[3])[1];
+                        }
+                        else if((properties[3]).find('{') != std::string::npos){
+                            Component v1(toupper((properties[0])[0]),name,properties[1],properties[2],(properties[3])[1]);
+                            components.push_back(v1);
                         }
 
                         else if(properties.size()<5){
@@ -510,7 +606,7 @@ void stepTran(vector<Component> &list, const Simulation & sim, const int & i, co
     int j = 0;
     int counter =0;
     Param values = sim.steps[i];
-    while(counter<= values.stop){
+    while(j< (ceil((values.stop-values.start)/values.interval))+1){
         cout << "Step Information : " << values.var << "=" << values.start+(values.interval*j);
         cout << " Run : " << j+1<< "/" << (ceil((values.stop-values.start)/values.interval))+1 << endl;
         for(int i =0; i<list.size();i++)

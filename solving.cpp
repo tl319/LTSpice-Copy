@@ -138,13 +138,13 @@ pair<VectorXd, VectorXd> no_prior_change (const vector<Component> & comps, const
     //perhaps avoid creating by separating recursive_currents used for op and trans
     VectorXd component_currents = VectorXd::Zero (comps.size());
 
+    //generate conductance matrix and rhs vector
     pair<MatrixXd, VectorXd> knowns = conductance_current (comps, noden);
     //test(noden, knowns.first, knowns.second);
 
-
-
-    //cerr << "nodev" << endl;
+    //compute node voltages
     nodev = matrixSolve(knowns.first, knowns.second);
+    //generate
     VectorXd prevnodev = VectorXd::Zero(nodev.size());
     //cerr << "comp I" << endl;
     component_currents = recursive_currents (comps, nodes, nodev, prevnodev, 0, component_currents, true);
@@ -164,9 +164,10 @@ const float & interval, const VectorXd & pastnodes, const VectorXd & pastcurrent
     VectorXd rhs = VectorXd::Zero (comps.size());
 
     VectorXd prevnodev = VectorXd::Zero(nodev.size());
-    //vector<Component> newcomps = patchSupernodeInductor(comps);
+    //vector<Component> comps = patchSupernodeInductor(comps);
     pair<MatrixXd, vector<int>> Mat = MatrixUpdate (comps, noden, interval);
-    //cerr << Mat.first << endl;
+    cerr << "update" << endl;
+    cerr << Mat.first << endl;
     writeTranHeaders(nodes, comps,pastnodes,pastcurrents);
 
     //begin one interval after 0
@@ -180,29 +181,11 @@ const float & interval, const VectorXd & pastnodes, const VectorXd & pastcurrent
     for(float i = interval; i<duration; i += interval)
     {
         rhs = VectorUpdate (comps, noden, i, nodev, component_currents, interval, Mat.second);
-
-        //cout << "rhs" << endl;
-        //cout << rhs << endl;
-        //cout << "done" << endl;
-
-        /*/
-        cout << "rhs:" << endl;
-        for(int i = 0; i<rhs.size(); i++)
-        {
-            cout << rhs[i] << endl;
-        }
-        cout << "f" << endl;
-        /*/
-
+        //cerr << "rhs" << endl;
+        //cerr << rhs << endl;
         prevnodev = nodev;
         nodev = matrixSolve(Mat.first, rhs);
         component_currents = recursive_currents (comps, nodes, nodev, prevnodev, interval, component_currents, false);
-
-        /*/
-        cout << "comp_i" << endl;
-        cout << component_currents << "e" << endl;
-        /*/
-
         values.push_back( {nodev, component_currents} );
         writeTran(nodes, comps, nodev, component_currents, i);
     }
