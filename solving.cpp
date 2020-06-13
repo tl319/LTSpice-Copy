@@ -200,6 +200,8 @@ const float & interval, const VectorXd & pastnodes, const VectorXd & pastcurrent
     for(float i = interval; i<duration; i += interval)
     {
         rhs = VectorUpdate (comps, noden, i, nodev, component_currents, interval, Mat.second);
+        //cerr << "rhs" << endl;
+        //cerr << rhs << endl;
         prevnodev = nodev;
         nodev = matrixSolve(Mat.first, rhs);
         component_currents = recursive_currents (comps, nodes, nodev, prevnodev, interval, component_currents, false);

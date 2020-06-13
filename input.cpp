@@ -116,11 +116,11 @@ vector<Node> findNodes(vector<Component> list)
         if(find (Nodes.begin(), Nodes.end(), x) != Nodes.end()){
                 Nodes.erase(std::remove(Nodes.begin(), Nodes.end(), x), Nodes.end());
                 Nodes.insert(Nodes.begin()+1,x);
-                cerr << "inserted " << x.label <<endl; 
+                cerr << "inserted " << x.label <<endl;
             }
         else{
              Nodes.insert(Nodes.begin()+1,x);
-             cerr << "inserted " << x.label << endl; 
+             cerr << "inserted " << x.label << endl;
         }
     }
 	return Nodes;
