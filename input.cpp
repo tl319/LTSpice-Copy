@@ -481,7 +481,10 @@ pair<vector<Component>, Simulation> readInput()
                         else if((properties[3]).find('{') != std::string::npos){
                             Component v1(toupper((properties[0])[0]),name,properties[1],properties[2],(properties[3])[1]);
                             components.push_back(v1);
-                            cerr << "variable " << (properties[3])[1];
+                        }
+                        else if((properties[3]).find('{') != std::string::npos){
+                            Component v1(toupper((properties[0])[0]),name,properties[1],properties[2],(properties[3])[1]);
+                            components.push_back(v1);
                         }
                         
                         else if(properties.size()<5){
@@ -582,7 +585,7 @@ void stepTran(vector<Component> &list, Simulation sim, int i, vector<Node> nlist
     int j = 0;
     int counter =0;
     Param values = sim.steps[i];
-    while(counter<= values.stop){
+    while(j< (ceil((values.stop-values.start)/values.interval))+1){
         cout << "Step Information : " << values.var << "=" << values.start+(values.interval*j);
         cout << " Run : " << j+1<< "/" << (ceil((values.stop-values.start)/values.interval))+1 << endl;
         for(int i =0; i<list.size();i++)
