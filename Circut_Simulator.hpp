@@ -37,18 +37,32 @@ struct Node
 
 
 };
+
+struct Param
+{
+	char var;
+	float start;
+	float end;
+	float interval;
+
+};
+
 struct Simulation
 {
 	string type;
 	float stop = -1;
     float step = -1;
+	bool isStep =false;
 
 	Simulation(){;}
 	Simulation(string t, float stp, float sep)
-        {type = t;
-        stop = stp;
-        sep = sep;
-        }
+	{type = t;
+	stop = stp;
+	sep = sep;
+	}
+
+	//only used in  step
+	vector<Param> steps;
 };
 
 struct Component
@@ -60,11 +74,14 @@ struct Component
 	float value;
 	bool poser = false;
 
-        //no zero when dealing with a time dependent signal
-        bool isSignal = false;
-        float DCOff=0;
-        float amplitude=0;
-        float frequency=0;
+	//no zero when dealing with a time dependent signal
+	bool isSignal = false;
+	float DCOff=0;
+	float amplitude=0;
+	float frequency=0;
+
+	// used for step param
+	bool isVar = false;
 		Component(){type = '0';name ="N/A";A.label="N/A";B.label="N/A";value=0;}
 		Component(char t,string n, string nA,string nB,float v){
 		type = t;
@@ -105,6 +122,23 @@ struct Diode: Component{
 		if(s=="1N4148"){
 			is = 2.52*pow(2.52,-9);
 		}
+	}
+
+
+};
+
+struct Variable: Component{
+
+	char var;
+
+
+	Variable(char t,string n, string nA,string nB,char s){
+	isVar =true;
+	type = t;
+	name = n;
+	var = s;
+	A.label = nA;
+	B.label = nB;
 	}
 
 

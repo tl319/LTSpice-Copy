@@ -407,7 +407,6 @@ pair<vector<Component>, Simulation> readInput()
 	{
 		strings.push_back(x);
 	}
-
 	for(auto line : strings){
 		if(isComponent(line)){
 			vector<string> properties;
@@ -434,16 +433,18 @@ pair<vector<Component>, Simulation> readInput()
                             fakeNode++;
                             fakeRes++;
                         }
+                        else if((properties[3]).find('{') != std::string::npos){
+                            Variable v1(toupper((properties[0])[0]),name,properties[1],properties[2],(properties[3])[1]);
+                            components.push_back(v1);
+                            cerr << "variable " << (properties[3])[1];
+                        }
+                        
                         else if(properties.size()<5){
 			                Component c1(toupper((properties[0])[0]),name,properties[1],properties[2],procData(properties[3]));
                             components.push_back(c1);
                         }
                         else{
-                            cout << endl << endl;
-                            for(auto x : properties)
-                            {
-                                cout  << procData(x) << ":";
-                            }
+
                             string DCoff = properties[3].substr(4,properties[3].length()); 
 			                Component c1(toupper((properties[0])[0]),name,properties[1],properties[2],procData(DCoff),procData(properties[4]),procData(properties[5]));
                             components.push_back(c1);
@@ -464,6 +465,13 @@ pair<vector<Component>, Simulation> readInput()
                         string type =(properties[0]).substr (1,(properties[0].length())-1);
                         if(type == "op")
                         {sim.type=type;}
+                        if(type == "step")
+                        {
+                            sim.isStep = true;
+                            Param p1 = 
+                        
+                        }
+
                         if(type == "tran"){
                             if(properties.size()>3){
                                 sim.type=type;
