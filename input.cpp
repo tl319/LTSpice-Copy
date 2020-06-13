@@ -467,7 +467,7 @@ pair<vector<Component>, Simulation> readInput()
                             sim.isStep = true;
                             Param p1 = {properties[2][0],procData(properties[3]),procData(properties[4]),procData(properties[5])};
                             sim.steps.push_back(p1);
-                            cout << "Pusshed back";
+                            cerr << "Pusshed back";
                         }
 
                         if(type == "tran"){
@@ -509,17 +509,14 @@ vector<Component> reorderVoltages(const vector<Component> &in)
     return duo;
 }
 
-void updateStep(vector<Component> &list, Simulation sim, int i, vector<Node> nlist)
+void stepOP(vector<Component> &list, Simulation sim, int i, vector<Node> nlist)
 {
     int j = 0;
     Param values = sim.steps[i];
     while(values.start+(values.interval*j) <= values.stop){
-    cout << values.start+(values.interval*j) << endl;
-    cout << values.stop;
         for(int i =0; i<list.size();i++)
         {
             if(list[i].isVar){
-                cout << list[i].var;
                 if(list[i].var == values.var){
                     list[i].value = (values.start + j*values.interval);
                 }
@@ -528,6 +525,25 @@ void updateStep(vector<Component> &list, Simulation sim, int i, vector<Node> nli
         int noden = compute_noden(nlist);
         pair<VectorXd, VectorXd> knowns = no_prior_change (list, nlist, noden);
         writeOPReadable(nlist, list, knowns.first, knowns.second);
+        j++;
+    }
+}
+void stepTran(vector<Component> &list, Simulation sim, int i, vector<Node> nlist, float duration, float interval)
+{
+    int j = 0;
+    Param values = sim.steps[i];
+    while(values.start+(values.interval*j) <= values.stop){
+        for(int i =0; i<list.size();i++)
+        {
+            if(list[i].isVar){
+                if(list[i].var == values.var){
+                    list[i].value = (values.start + j*values.interval);
+                }
+            }
+        }
+        int noden = compute_noden(nlist);
+        pair<VectorXd, VectorXd> knowns = no_prior_change (list, nlist, noden);
+        vector<pair<VectorXd, VectorXd>> transient_values = transient (list, nlist, noden, duration, interval, knowns.first, knowns.second);
         j++;
     }
 }
@@ -556,17 +572,25 @@ int main()
     //main running part
     if(sim.isStep){
         if(sim.type=="op"){
-            updateStep(out,sim,0,nlist);
+            for(int i = 0; i<sim.steps.size();i++){
+                stepOP(out,sim,i,nlist);
+                }
         }
         else if (sim.type=="tran"){
             float duration = sim.stop;
             float interval = 0.000001;
-            //vector<pair<VectorXd, VectorXd>> transient_values = transient (out, nlist, noden, duration, interval, values.first, values.second);
+            for(int i = 0; i<sim.steps.size();i++){
+                stepTran(out,sim,0,nlist,duration,interval);
+            }
+            
+
         }
     }
 
     else if(sim.type=="op"){
-       // writeOPReadable(nlist, out, values.first, values.second);
+        int noden = compute_noden(nlist);
+        pair<VectorXd, VectorXd> knowns = no_prior_change (out, nlist, noden);
+        writeOPReadable(nlist, out, knowns.first, knowns.second);
         
     }
     else if (sim.type=="tran"){
