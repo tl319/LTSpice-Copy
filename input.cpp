@@ -70,10 +70,15 @@ bool operator == (Node const &n1, Node const &n2)
 vector<Node> findNodes(vector<Component> list)
 {
 	vector<Node> Nodes;
+    vector<Node> children;
 	for (Component part : list){
 		if(find (Nodes.begin(), Nodes.end(), part.A) == Nodes.end()){
 			if (part.A.label=="0")
 				Nodes.insert(Nodes.begin(),part.A);
+            else if (part.type=='C' && find (children.begin(), children.end(), part.A) == children.end())
+            {
+                children.push_back(part.A);
+            }
 			else
 				Nodes.push_back(part.A);}
 		if(find (Nodes.begin(), Nodes.end(), part.B) == Nodes.end()){
@@ -83,6 +88,16 @@ vector<Node> findNodes(vector<Component> list)
 				Nodes.push_back(part.B);}
 
 	}
+    for(auto x : children)
+    {
+        if(find (Nodes.begin(), Nodes.end(), x) != Nodes.end()){
+                Nodes.erase(std::remove(Nodes.begin(), Nodes.end(), x), Nodes.end());
+                Nodes.insert(Nodes.begin()+1,x);
+            }
+        else{
+             Nodes.insert(Nodes.begin()+1,x);
+        }
+    }
 	return Nodes;
 }
 vector<Component> patchSupernodes(vector<Component> list)
@@ -201,7 +216,8 @@ vector<Component> patchComponents(vector<Component> list)
                                 //cout << "set " << out[j].B.label <<  " " << out[j].B.number << endl;
 						}
 		}
-	}    
+	}
+        
         //return out;
 	return patchSupernodes(out);
 }
