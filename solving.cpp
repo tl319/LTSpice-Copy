@@ -269,16 +269,16 @@ const float & interval, const VectorXd & past_currents, const bool & op)
     {
         //if( computed[i] == 0 )
         //{
-            if(comps[i].type == 'L')
+            /*/if(comps[i].type == 'L')
             {
                 comp_currents( i ) = past_currents(i) + recursive_basecase (i, comps[i], comps, nlist, nodev, prevnodev, interval, computed, comp_currents,
                 comps[i].A, op);
-            } else {
+            } else {/*/
                 //cout << "b4 base" << endl;
                 comp_currents( i ) = recursive_basecase (i, comps[i], comps, nlist, nodev, prevnodev, interval, computed, comp_currents, comps[i].A, op);
                 //cout << comp_currents << endl;
                 //cout << "after base" << endl;
-            }
+            //}
 
             //computed[component_index(comps, comps[i])] = 1;
         //}
@@ -304,13 +304,24 @@ const VectorXd & prevnodev, const float & interval, vector<bool> & computed, Vec
     float VA;
     float VB;
 
+    //voltages at each node of a capacitor model resistor
+    float CVA;
+    float CVB;
+
+    //capacitor model resistor
+    Component capr;
+
+    //in DC operation, LT spice treats inductors as 1mOhm resistors
+    //computers are bad at dividing by small numbers so we're directly defining the conductance
+    float gl = 1000;
+
     if(C.type == 'I')
     {
         total_current = C.value;
         computed[ component_index(comps, C) ] = 1;
     }
 
-    if(C.type == 'R' || C.type == 'L' && op == false)
+    if(C.type == 'R' || C.type == 'L')
     {
         if(nA(C) != 0)
         {
@@ -333,15 +344,43 @@ const VectorXd & prevnodev, const float & interval, vector<bool> & computed, Vec
             computed[ component_index(comps, C) ] = 1;
         }
 
-        if(C.type == 'L')
+        if(C.type == 'L' && op == false)
         {
             total_current = comp_currents( component_index( comps, C ) )+( prevnodev(nB(C) - 1) - prevnodev(nA(C) - 1) )*interval/(C.value);
             computed[ component_index(comps, C) ] = 1;
         }
+
+        if(C.type == 'L' && op == true)
+        {
+            total_current = ( VA - VB )*gl;
+            cerr << C.name << " " << VA << " " << VB << ' ' << total_current << endl;
+            computed[ component_index(comps, C) ] = 1;
+        }
+    }
+
+    if(C.type == 'C')
+    {
+        capr = comps[ component_index( comps, C ) + 1 ];
+        if(nA(capr) != 0)
+        {
+            VA = nodev(nA(capr) - 1);
+        } else {
+            VA = 0;
+        }
+
+        if(nB(capr) != 0)
+        {
+            VB = nodev(nB(capr) - 1);
+        } else {
+            VB = 0;
+        }
+
+        total_current = ( VA - VB )/capr.value;
+        computed[ component_index(comps, C) ] = 1;
     }
 
     //probably can replace some common_node calls with i
-    if(C.type == 'V' || C.type == 'C' || (C.type == 'L' && op == true))
+    if(C.type == 'V')
     {
         //cout << "ree" << endl;
         total_current = 0;

@@ -57,7 +57,7 @@ string nodeName(int i,vector<Component> out)
             return x.A.label;
         else if(x.B.number == i)
             return x.B.label;
-    } 
+    }
     return "not found node number";
 }
 
@@ -70,21 +70,42 @@ bool operator == (Node const &n1, Node const &n2)
 vector<Node> findNodes(vector<Component> list)
 {
 	vector<Node> Nodes;
+    vector<Node> children;
 	for (Component part : list){
 		if(find (Nodes.begin(), Nodes.end(), part.A) == Nodes.end()){
-			if (part.A.label=="0")
-				Nodes.insert(Nodes.begin(),part.A);
-			else
-				Nodes.push_back(part.A);}
+			if (part.A.label=="0"){
+				Nodes.insert(Nodes.begin(),part.A);}
+            else
+            {
+                Nodes.push_back(part.A);
+            }
+        }
 		if(find (Nodes.begin(), Nodes.end(), part.B) == Nodes.end()){
-			if (part.B.label=="0")
-				Nodes.insert(Nodes.begin(),part.B);
+			if (part.B.label=="0"){
+				Nodes.insert(Nodes.begin(),part.B);}
+            else if (part.B.poser && find(children.begin(), children.end(), part.B) == children.end())
+            {
+                children.push_back(part.B);
+            }
 			else
-				Nodes.push_back(part.B);}
-
+				{Nodes.push_back(part.B);}
+        }
 	}
+    for(auto x : children)
+    {
+        if(find (Nodes.begin(), Nodes.end(), x) != Nodes.end()){
+                Nodes.erase(std::remove(Nodes.begin(), Nodes.end(), x), Nodes.end());
+                Nodes.insert(Nodes.begin()+1,x);
+                cerr << "inserted " << x.label <<endl;
+            }
+        else{
+             Nodes.insert(Nodes.begin()+1,x);
+             cerr << "inserted " << x.label << endl;
+        }
+    }
 	return Nodes;
 }
+
 vector<Component> patchSupernodes(vector<Component> list)
 {
     vector<Component> out = list;
@@ -99,7 +120,7 @@ vector<Component> patchSupernodes(vector<Component> list)
                 else {topnode = out[i].B.super;
                 botnode =out[i].A.super;}
                 //cerr << "topnode is :" << topnode << " botnode is: " << botnode << endl;
-                 
+
                 for(int x=0;x<out.size();x++){
                     //cout << "loop: " << x << endl;
                     if(out[x].A.super == botnode){
@@ -109,9 +130,9 @@ vector<Component> patchSupernodes(vector<Component> list)
                     }
                     else
                     {//out[x].A.super = out[x].A.super;
-                    //cout <<  out[x].name << "has " << out[x].A.number << " not equal " << botnode << endl;       
+                    //cout <<  out[x].name << "has " << out[x].A.number << " not equal " << botnode << endl;
                     }
-                    
+
                     if(out[x].B.super == botnode){
                     out[x].B.super = topnode;
                     out[x].B.reactiveSuper=(out[i].type == 'C' || out[i].type == 'c');
@@ -124,8 +145,8 @@ vector<Component> patchSupernodes(vector<Component> list)
 
                 }
                 }
-                
-                
+
+
             }
     return out;
 }
@@ -148,7 +169,7 @@ vector<Component> patchSupernodeInductor(vector<Component> list)
                 else {topnode = out[i].B.super;
                 botnode =out[i].A.super;}
                 //cerr << "topnode is :" << topnode << " botnode is: " << botnode << endl;
-                 
+
                 for(int x=0;x<out.size();x++){
                     //cout << "loop: " << x << endl;
                     if(out[x].A.super == botnode){
@@ -158,9 +179,9 @@ vector<Component> patchSupernodeInductor(vector<Component> list)
                     }
                     else
                     {//out[x].A.super = out[x].A.super;
-                    //cout <<  out[x].name << "has " << out[x].A.number << " not equal " << botnode << endl;       
+                    //cout <<  out[x].name << "has " << out[x].A.number << " not equal " << botnode << endl;
                     }
-                    
+
                     if(out[x].B.super == botnode){
                     out[x].B.super = topnode;
                     out[x].B.reactiveSuper=(out[i].type == 'C' || out[i].type == 'c');
@@ -173,8 +194,8 @@ vector<Component> patchSupernodeInductor(vector<Component> list)
 
                 }
                 }
-                
-                
+
+
             }
     return out;
 }
@@ -187,7 +208,7 @@ vector<Component> patchComponents(vector<Component> list)
             i = 0;
         else
             i = 1;
-        
+
 	for(i;i<nodes.size();i++){
 		for(int j = 0;j<out.size();j++){
 			if ((out[j].A.label)==nodes[i].label){
@@ -201,7 +222,7 @@ vector<Component> patchComponents(vector<Component> list)
                                 //cout << "set " << out[j].B.label <<  " " << out[j].B.number << endl;
 						}
 		}
-	}    
+	}
         //return out;
 	return patchSupernodes(out);
 }
@@ -219,12 +240,12 @@ bool isSci(char c){
 string removeChar(string s, char style)
 {
     string x = s;
-    if(style == 'D'){   
+    if(style == 'D'){
         x.erase(std::remove_if(x.begin(), x.end(), isData), x.end());}
-    
+
     if(style == 'S'){
     x.erase(std::remove_if(x.begin(), x.end(), isSci), x.end());}
-    
+
     return x;
 }
 
@@ -252,10 +273,10 @@ float procData(string x)
         else{
             return -1;
         }
-               
+
     }
-    size_t found = x.find('-'); 
-    if (found != string::npos)  
+    size_t found = x.find('-');
+    if (found != string::npos)
         {return num * -1;}
     else
         return num;
@@ -288,10 +309,10 @@ void writeOP(const vector<Node>& nlist, const vector<Component>& out,const Vecto
         cout << '\t' << pastnodes(i);
         }
         count ++;
-    } 
+    }
      for(int i = 0;i<component_currents.size();i++) {
         if(!fakes[count]){
-        cout << '\t' << component_currents(i); 
+        cout << '\t' << component_currents(i);
         }
         count++;
      }
@@ -308,7 +329,7 @@ void writeOPReadable(const vector<Node>& nlist, const vector<Component>& out,con
     for(int i = 0;i<out.size();i++) {
         if(!out[i].poser){
         cout << "I(" << out[i].name << ") : ";
-        cout << component_currents(i) << endl; 
+        cout << component_currents(i) << endl;
         }
     }
     cout << endl;
@@ -318,9 +339,9 @@ void writeOPZero(const VectorXd& pastnodes, const VectorXd& component_currents)
     cout << 0;
     for(int i = 0;i<pastnodes.size();i++) {
         cout << '\t' << pastnodes(i);
-    } 
+    }
      for(int i = 0;i<component_currents.size();i++) {
-        cout << '\t' << component_currents(i); 
+        cout << '\t' << component_currents(i);
     }
     cout << endl;
 }
@@ -352,10 +373,10 @@ void writeTranHeaders(const vector<Node>& nlist, const vector<Component>& out,co
         cout << '\t' << pastnodes(i);
         }
         count ++;
-    } 
+    }
      for(int i = 0;i<component_currents.size();i++) {
         if(!fakes[count]){
-        cout << '\t' << component_currents(i); 
+        cout << '\t' << component_currents(i);
         }
         count++;
      }
@@ -384,10 +405,10 @@ void writeTran(const vector<Node>& nlist, const vector<Component>& out,const Vec
         cout << '\t' << pastnodes(i);
         }
         count ++;
-    } 
+    }
      for(int i = 0;i<component_currents.size();i++) {
         if(!fakes[count]){
-        cout << '\t' << component_currents(i); 
+        cout << '\t' << component_currents(i);
         }
         count++;
      }
@@ -438,18 +459,18 @@ pair<vector<Component>, Simulation> readInput()
                             components.push_back(v1);
                             cerr << "variable " << (properties[3])[1];
                         }
-                        
+
                         else if(properties.size()<5){
 			                Component c1(toupper((properties[0])[0]),name,properties[1],properties[2],procData(properties[3]));
                             components.push_back(c1);
                         }
                         else{
 
-                            string DCoff = properties[3].substr(4,properties[3].length()); 
+                            string DCoff = properties[3].substr(4,properties[3].length());
 			                Component c1(toupper((properties[0])[0]),name,properties[1],properties[2],procData(DCoff),procData(properties[4]),procData(properties[5]));
                             components.push_back(c1);
-                        }		
-                        
+                        }
+
 		}
                 if(isCmd(line))
                 {
@@ -458,7 +479,7 @@ pair<vector<Component>, Simulation> readInput()
                     int count=0;
                     while (ss >> x){
                              properties.push_back(x);
-					}   
+					}
                         string type =(properties[0]).substr (1,(properties[0].length())-1);
                         if(type == "op")
                         {sim.type=type;}
@@ -481,7 +502,7 @@ pair<vector<Component>, Simulation> readInput()
                                 sim.stop=(procData(properties[1]));
                                 sim.step = 99999999;
                             }
-                        
+
                         }
 
                 }
@@ -574,8 +595,8 @@ int main()
         cerr << "B is "<< x.B << " superlabel: " << nodeName(x.B.super,out) << endl;
     }
 
-   
-    
+
+
 
 
     //main running part
@@ -591,7 +612,7 @@ int main()
             for(int i = 0; i<sim.steps.size();i++){
                 stepTran(out,sim,0,nlist,duration,interval);
             }
-            
+
 
         }
     }
@@ -600,7 +621,7 @@ int main()
         int noden = compute_noden(nlist);
         pair<VectorXd, VectorXd> knowns = no_prior_change (out, nlist, noden);
         writeOPReadable(nlist, out, knowns.first, knowns.second);
-        
+
     }
     else if (sim.type=="tran"){
 
