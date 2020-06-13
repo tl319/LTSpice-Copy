@@ -203,12 +203,12 @@ pair<MatrixXd, VectorXd> conductance_current(const vector<Component> & comps, co
                 if( nA(comps[i]) > nB(comps[i]) && (locked[ nB(comps[i])-1] == 0)|| locked[ nA(comps[i])-1] == 1 )
                 {
                     locked[nB(comps[i])-1] = 1;
-                    cout << "locked " << nB(comps[i])-1 <<endl;
+                    cerr << "locked " << nB(comps[i])-1 <<endl;
                     row = nB(comps[i]) -1;
                 } else {
                     locked[nA(comps[i])-1] = 1;
                     row = nA(comps[i]) -1;
-                    cout << "locked " << nA(comps[i])-1 <<endl;
+                    cerr << "locked " << nA(comps[i])-1 <<endl;
                 }
 
                 //in that row of the rhs vector, write the current source value
@@ -234,7 +234,7 @@ pair<MatrixXd, VectorXd> conductance_current(const vector<Component> & comps, co
             //short circuit
             if(nA(comps[i]) ==  nB(comps[i]))
             {
-                cout << "bruh";
+                cout << "short circuit";
                 assert(0);
             }
         }

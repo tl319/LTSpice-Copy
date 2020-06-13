@@ -107,7 +107,7 @@ vector<Node> findNodes(vector<Component> list)
 	return Nodes;
 }
 /*/
-vector<Node> findNodes(vector<Component> list)
+vector<Node> findNodes(const vector<Component> & list)
 {
 	vector<Node> Nodes;
     vector<Node> children;
@@ -146,58 +146,9 @@ vector<Node> findNodes(vector<Component> list)
 	return Nodes;
 }
 
-vector<Component> patchSupernodes(vector<Component> list)
+vector<Component> patchSupernodes(const vector<Component> & list)
 {
     vector<Component> out = list;
-    for(int i=0;i<out.size();i++){
-            if(out[i].type == 'V' || out[i].type == 'v' || out[i].type == 'C' || out[i].type == 'c'|| out[i].type == 'D' || out[i].type == 'd'){
-                int topnode = 99;
-                int botnode = 99;
-                //cout << out[i].A.number << " b is: " << out[i].B.number << endl;
-                if(out[i].A.super>out[i].B.super)
-                {topnode = out[i].A.super;
-                botnode =out[i].B.super;}
-                else {topnode = out[i].B.super;
-                botnode =out[i].A.super;}
-                //cerr << "topnode is :" << topnode << " botnode is: " << botnode << endl;
-
-                for(int x=0;x<out.size();x++){
-                    //cout << "loop: " << x << endl;
-                    if(out[x].A.super == botnode){
-                    out[x].A.super = topnode;
-                    out[x].A.reactiveSuper=(out[i].type == 'C' || out[i].type == 'c');
-                    //cout << "set " << out[x].name << out[x].A.number << "to " <<  out[x].A.super << endl;
-                    }
-                    else
-                    {//out[x].A.super = out[x].A.super;
-                    //cout <<  out[x].name << "has " << out[x].A.number << " not equal " << botnode << endl;
-                    }
-
-                    if(out[x].B.super == botnode){
-                    out[x].B.super = topnode;
-                    out[x].B.reactiveSuper=(out[i].type == 'C' || out[i].type == 'c');
-                    //cout << "set " << out[x].name << out[x].B.number << " to " <<  out[x].B.super << endl;
-                    }
-                    else
-                    {//out[x].B.super = out[x].A.number;
-                    //cout << out[x].B.number << " not equal " << botnode << endl;
-                    }
-
-                }
-                }
-
-
-            }
-    return out;
-}
-
-vector<Component> patchSupernodeInductor(vector<Component> list)
-{
-    vector<Component> out = list;
-    for(int i=0;i<out.size();i++){
-    out[i].A.super = out[i].A.number;
-    out[i].B.super = out[i].B.number;
-    }
     for(int i=0;i<out.size();i++){
             if(out[i].type == 'V' || out[i].type == 'v' || out[i].type == 'C' || out[i].type == 'c'|| out[i].type == 'D' || out[i].type == 'd'){
                 int topnode = 99;
