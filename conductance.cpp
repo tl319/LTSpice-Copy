@@ -29,13 +29,13 @@ pair<MatrixXd, vector<int>> MatrixUpdate (vector<Component> comps, int noden);
 
 void test(int noden, MatrixXd conducts, VectorXd currents)
 {
-    cout << "conductance_current " << endl;
+    cerr << "conductance_current " << endl;
 
     //print each line of the matrix
-    cout << conducts << endl;
+    cerr << conducts << endl;
 
     //print current vector
-    cout << currents << endl;
+    cerr << currents << endl;
 }
 
 int nA(Component c)
@@ -348,8 +348,13 @@ pair<MatrixXd, VectorXd> conductance_current(vector<Component> comps, int noden)
               //currents(nB(comps[i]) -1) -= comps[i].is* ( exp( (0.7)/vt ) -1 );
           }
         }
-        //cerr << comps[i].name << endl;
-        //test(noden, conducts, currents);
+
+        if(comps[i].type == 'C')
+        {
+          cerr << "cap res val: " << comps[ component_index( comps, comps[i] ) + 1 ].value << endl;
+        }
+        cerr << comps[i].name << endl;
+        test(noden, conducts, currents);
     }
     //cout << "help" << endl;
     return {conducts, currents};
@@ -600,6 +605,8 @@ pair<MatrixXd, vector<int>> MatrixUpdate (vector<Component> & comps, const int &
                 }
             }
         }
+        cerr << "tran " << comps[i].name << endl;
+        cerr << conducts << endl;
     }
     return {conducts, c_vs_row};
 }

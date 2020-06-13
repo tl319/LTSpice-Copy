@@ -183,25 +183,26 @@ const float & interval, const VectorXd & pastnodes, const VectorXd & pastcurrent
     VectorXd rhs = VectorXd::Zero (comps.size());
 
     VectorXd prevnodev = VectorXd::Zero(nodev.size());
-    vector<Component> newcomps = patchSupernodeInductor(comps);
-    pair<MatrixXd, vector<int>> Mat = MatrixUpdate (newcomps, noden, interval);
-    //cerr << Mat.first << endl;
+    //vector<Component> comps = patchSupernodeInductor(comps);
+    pair<MatrixXd, vector<int>> Mat = MatrixUpdate (comps, noden, interval);
+    cerr << "update" << endl;
+    cerr << Mat.first << endl;
     writeTranHeaders(nodes, comps,pastnodes,pastcurrents);
 
     //begin one interval after 0
     //i is time in seconds
-       for(auto x : newcomps)
+       for(auto x : comps)
     {
         cerr << x;
-        cerr << "A is "<< x.A << " superlabel: " << nodeName(x.A.super,newcomps) << endl;
-        cerr << "B is "<< x.B << " superlabel: " << nodeName(x.B.super,newcomps) << endl;
+        cerr << "A is "<< x.A << " superlabel: " << nodeName(x.A.super,comps) << endl;
+        cerr << "B is "<< x.B << " superlabel: " << nodeName(x.B.super,comps) << endl;
     }
     for(float i = interval; i<duration; i += interval)
     {
-        rhs = VectorUpdate (newcomps, noden, i, nodev, component_currents, interval, Mat.second);
+        rhs = VectorUpdate (comps, noden, i, nodev, component_currents, interval, Mat.second);
         prevnodev = nodev;
         nodev = matrixSolve(Mat.first, rhs);
-        component_currents = recursive_currents (newcomps, nodes, nodev, prevnodev, interval, component_currents, false);
+        component_currents = recursive_currents (comps, nodes, nodev, prevnodev, interval, component_currents, false);
         values.push_back( {nodev, component_currents} );
         writeTran(nodes, comps, nodev, component_currents, i);
     }
@@ -340,9 +341,7 @@ const VectorXd & prevnodev, const float & interval, vector<bool> & computed, Vec
 
     if(C.type == 'C')
     {
-        cerr << "first" << endl;
         capr = comps[ component_index( comps, C ) + 1 ];
-        cerr << "second" << endl;
         if(nA(capr) != 0)
         {
             VA = nodev(nA(capr) - 1);
@@ -350,20 +349,15 @@ const VectorXd & prevnodev, const float & interval, vector<bool> & computed, Vec
             VA = 0;
         }
 
-        cerr << "five halves" << endl;
-
         if(nB(capr) != 0)
         {
             VB = nodev(nB(capr) - 1);
         } else {
             VB = 0;
         }
-        cerr << "third" << endl;
 
         total_current = ( VA - VB )/capr.value;
-        cerr << "fourth" << endl;
         computed[ component_index(comps, C) ] = 1;
-        cerr << "fifth" << endl;
     }
 
     //probably can replace some common_node calls with i
