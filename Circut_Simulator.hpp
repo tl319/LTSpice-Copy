@@ -80,7 +80,7 @@ struct Component
 	Node B;
 	float value;
 	bool poser = false;
-
+	char var;
 	//no zero when dealing with a time dependent signal
 	bool isSignal = false;
 	float DCOff=0;
@@ -115,6 +115,14 @@ struct Component
 		frequency=f;
 		isSignal = true;
 	}
+	Component(char t,string n, string nA,string nB,char s){
+	isVar =true;
+	type = t;
+	name = n;
+	var = s;
+	A.label = nA;
+	B.label = nB;
+	}
 
 };
 
@@ -138,7 +146,6 @@ struct Variable: Component{
 
 	char var;
 
-
 	Variable(char t,string n, string nA,string nB,char s){
 	isVar =true;
 	type = t;
@@ -146,6 +153,10 @@ struct Variable: Component{
 	var = s;
 	A.label = nA;
 	B.label = nB;
+	}
+	char getVar()
+	{
+		return var;
 	}
 
 

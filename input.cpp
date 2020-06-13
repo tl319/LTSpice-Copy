@@ -424,7 +424,7 @@ pair<vector<Component>, Simulation> readInput()
                         }
                         else if((properties[0])[0]=='C'||(properties[0])[0]=='c'){
                             Component c1('C',name,properties[1],"fakeNode"+to_string(fakeNode),procData(properties[3]));
-                            Component c2('R',"fakeRes"+to_string(fakeRes),"fakeNode"+to_string(fakeNode),properties[2],(0.0001/procData(properties[3])));
+                            Component c2('R',"fakeRes"+to_string(fakeRes),"fakeNode"+to_string(fakeNode),properties[2],(float)(0.0001/procData(properties[3])));
                             c2.poser=true;
                             c1.B.poser=true;
                             c2.A.poser=true;
@@ -434,7 +434,7 @@ pair<vector<Component>, Simulation> readInput()
                             fakeRes++;
                         }
                         else if((properties[3]).find('{') != std::string::npos){
-                            Variable v1(toupper((properties[0])[0]),name,properties[1],properties[2],(properties[3])[1]);
+                            Component v1(toupper((properties[0])[0]),name,properties[1],properties[2],(properties[3])[1]);
                             components.push_back(v1);
                             cerr << "variable " << (properties[3])[1];
                         }
@@ -448,9 +448,6 @@ pair<vector<Component>, Simulation> readInput()
                             string DCoff = properties[3].substr(4,properties[3].length()); 
 			                Component c1(toupper((properties[0])[0]),name,properties[1],properties[2],procData(DCoff),procData(properties[4]),procData(properties[5]));
                             components.push_back(c1);
-                            cout << endl;
-                            cout << c1;
-                            cout << "bruh";
                         }		
                         
 		}
@@ -468,8 +465,9 @@ pair<vector<Component>, Simulation> readInput()
                         if(type == "step")
                         {
                             sim.isStep = true;
-                            Param p1 = 
-                        
+                            Param p1 = {properties[2][0],procData(properties[3]),procData(properties[4]),procData(properties[5])};
+                            sim.steps.push_back(p1);
+                            cout << "Pusshed back";
                         }
 
                         if(type == "tran"){
@@ -511,6 +509,28 @@ vector<Component> reorderVoltages(const vector<Component> &in)
     return duo;
 }
 
+void updateStep(vector<Component> &list, Simulation sim, int i, vector<Node> nlist)
+{
+    int j = 0;
+    Param values = sim.steps[i];
+    while(values.start+(values.interval*j) <= values.stop){
+    cout << values.start+(values.interval*j) << endl;
+    cout << values.stop;
+        for(int i =0; i<list.size();i++)
+        {
+            if(list[i].isVar){
+                cout << list[i].var;
+                if(list[i].var == values.var){
+                    list[i].value = (values.start + j*values.interval);
+                }
+            }
+        }
+        int noden = compute_noden(nlist);
+        pair<VectorXd, VectorXd> knowns = no_prior_change (list, nlist, noden);
+        writeOPReadable(nlist, list, knowns.first, knowns.second);
+        j++;
+    }
+}
 int main()
 {
     pair<vector<Component>, Simulation> testm = readInput();
@@ -529,20 +549,30 @@ int main()
         cerr << "B is "<< x.B << " superlabel: " << nodeName(x.B.super,out) << endl;
     }
 
-    int noden = compute_noden(nlist);
-    pair<VectorXd, VectorXd> values = no_prior_change (out, nlist, noden);
+   
+    
 
 
     //main running part
-    if(sim.type=="op")
-    {
-        writeOPReadable(nlist, out, values.first, values.second);
+    if(sim.isStep){
+        if(sim.type=="op"){
+            updateStep(out,sim,0,nlist);
+        }
+        else if (sim.type=="tran"){
+            float duration = sim.stop;
+            float interval = 0.000001;
+            //vector<pair<VectorXd, VectorXd>> transient_values = transient (out, nlist, noden, duration, interval, values.first, values.second);
+        }
+    }
+
+    else if(sim.type=="op"){
+       // writeOPReadable(nlist, out, values.first, values.second);
         
     }
     else if (sim.type=="tran"){
         float duration = sim.stop;
         float interval = 0.000001;
-        vector<pair<VectorXd, VectorXd>> transient_values = transient (out, nlist, noden, duration, interval, values.first, values.second);
+        //vector<pair<VectorXd, VectorXd>> transient_values = transient (out, nlist, noden, duration, interval, values.first, values.second);
     }
     else
     {

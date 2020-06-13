@@ -386,7 +386,7 @@ pair<MatrixXd, VectorXd> conductance_current(vector<Component> comps, int noden)
           }
         }
         //cerr << comps[i].name << endl;
-        testBetter(noden, conducts, currents, findNodes(comps));
+        //testBetter(noden, conducts, currents, findNodes(comps));
     }
     //cout << "help" << endl;
     return {conducts, currents};
