@@ -42,8 +42,15 @@ struct Param
 {
 	char var;
 	float start;
-	float end;
+	float stop;
 	float interval;
+
+	Param(char x, float st, float ed, float inter)
+	{var =x;
+	start= st;
+	stop = ed;
+	interval = inter;
+	}
 
 };
 
