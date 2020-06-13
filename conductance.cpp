@@ -29,13 +29,13 @@ pair<MatrixXd, vector<int>> MatrixUpdate (vector<Component> comps, int noden);
 
 void test(int noden, MatrixXd conducts, VectorXd currents)
 {
-    cout << "conductance_current " << endl;
+    cerr << "conductance_current " << endl;
 
     //print each line of the matrix
-    cout << conducts << endl;
+    cerr << conducts << endl;
 
     //print current vector
-    cout << currents << endl;
+    cerr << currents << endl;
 }
 void testBetter(int noden, MatrixXd conducts, VectorXd currents, vector<Node> nodes)
 {   
@@ -285,26 +285,9 @@ pair<MatrixXd, VectorXd> conductance_current(vector<Component> comps, int noden)
         //inductors
        if(comps[i].type == 'L')
         {
-            //negative terminal to ground
-            if( nB(comps[i]) == 0 && nA(comps[i]) != 0)
-            {
-                //prevent ulterior editing of the matrix row assigned to represent the voltage source
-                locked[nA(comps[i])-1] = 1;
-                //cycle through all columns to  edit the row corresponding to the positive terminal node
-                for(int j = 0; j<noden; j++)
-                {
-                    //at the column corresponding to the positive terminal, write 1
-                    if(j == (nA(comps[i]) -1))
-                    {
-                        conducts (j, j) = 1;
-                        //also write the source voltage to this index in the rhs vector
-                        currents(j) = 0;
-                    } else {
-                        //other columns are set to 0
-                        conducts (nA(comps[i]) -1, j) = 0;
-                    }
-                }
-            }
+            /*/
+            //assign the row corresponding to the lowest numbered node as that representing the voltage source
+            int row;
 
             //positive terminal to ground
             if(nA(comps[i]) == 0 && nB(comps[i]) != 0)
@@ -363,12 +346,40 @@ pair<MatrixXd, VectorXd> conductance_current(vector<Component> comps, int noden)
                     }
                 }
             }
+            /*/
 
-            //short circuit
-            if(nA(comps[i]) ==  nB(comps[i]))
+            //LTSpice treats inductors as 1mOhm resistors in DC coditions
+            conductance = 1000;
+
+            if(SnA(comps[i]) != 0)
             {
-                cout << "bruh";
-                assert(0);
+                if(locked[ SnA(comps[i])-1] == 0)
+                {
+                    if( nA(comps[i]) != 0)
+                    {
+                        conducts ( SnA(comps[i]) -1, nA(comps[i]) -1) += conductance;
+                    }
+                    if( nA(comps[i]) != 0 && nB(comps[i]) != 0)
+                    {
+                        conducts ( SnA(comps[i]) -1, nB(comps[i]) -1) -= conductance;
+                    }
+                }
+            }
+
+            if(SnB(comps[i]) != 0)
+            {
+                //Ditto for nB
+                if(locked[ SnB(comps[i])-1] == 0)
+                {
+                    if( nB(comps[i]) != 0)
+                    {
+                        conducts ( SnB(comps[i]) -1, nB(comps[i]) -1) += conductance;
+                    }
+                    if( nA(comps[i]) != 0 && nB(comps[i]) != 0)
+                    {
+                        conducts ( SnB(comps[i]) -1, nA(comps[i]) -1) -= conductance;
+                    }
+                }
             }
         }
 
@@ -385,8 +396,13 @@ pair<MatrixXd, VectorXd> conductance_current(vector<Component> comps, int noden)
               //currents(nB(comps[i]) -1) -= comps[i].is* ( exp( (0.7)/vt ) -1 );
           }
         }
-        //cerr << comps[i].name << endl;
-        //testBetter(noden, conducts, currents, findNodes(comps));
+
+        if(comps[i].type == 'C')
+        {
+          cerr << "cap res val: " << comps[ component_index( comps, comps[i] ) + 1 ].value << endl;
+        }
+        cerr << comps[i].name << endl;
+        test(noden, conducts, currents);
     }
     //cout << "help" << endl;
     return {conducts, currents};
@@ -546,6 +562,7 @@ pair<MatrixXd, vector<int>> MatrixUpdate (vector<Component> & comps, const int &
 
         if(comps[i].type == 'L')
         {
+            /*/
             //first, remove "super node" to turn the inductor from an open circuit to a current source with infinite impedance
             //what if the supernode is involved in another supernode (conflict)
             if( nA(comps[i]) > nB(comps[i]) )
@@ -557,6 +574,7 @@ pair<MatrixXd, vector<int>> MatrixUpdate (vector<Component> & comps, const int &
                 //B is the supernode, remove from A
                 comps[i].A.super = nA(comps[i]);
             }
+            /*/
 
             //rearrange nodes to correct inductor current sign
             fakeswitch = comps[i].A;
@@ -599,6 +617,8 @@ pair<MatrixXd, vector<int>> MatrixUpdate (vector<Component> & comps, const int &
                     }
                 }
             }
+
+
         }
 
         if(comps[i].type == 'C')
@@ -633,6 +653,8 @@ pair<MatrixXd, vector<int>> MatrixUpdate (vector<Component> & comps, const int &
                 }
             }
         }
+        cerr << "tran " << comps[i].name << endl;
+        cerr << conducts << endl;
     }
     return {conducts, c_vs_row};
 }

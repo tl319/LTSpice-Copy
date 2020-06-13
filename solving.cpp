@@ -157,13 +157,13 @@ pair<VectorXd, VectorXd> no_prior_change (const vector<Component> & comps, const
     //perhaps avoid creating by separating recursive_currents used for op and trans
     VectorXd component_currents = VectorXd::Zero (comps.size());
 
+    //generate conductance matrix and rhs vector
     pair<MatrixXd, VectorXd> knowns = conductance_current (comps, noden);
     //test(noden, knowns.first, knowns.second);
 
-
-
-    //cerr << "nodev" << endl;
+    //compute node voltages
     nodev = matrixSolve(knowns.first, knowns.second);
+    //generate
     VectorXd prevnodev = VectorXd::Zero(nodev.size());
     //cerr << "comp I" << endl;
     component_currents = recursive_currents (comps, nodes, nodev, prevnodev, 0, component_currents, true);
@@ -183,45 +183,28 @@ const float & interval, const VectorXd & pastnodes, const VectorXd & pastcurrent
     VectorXd rhs = VectorXd::Zero (comps.size());
 
     VectorXd prevnodev = VectorXd::Zero(nodev.size());
-    vector<Component> newcomps = patchSupernodeInductor(comps);
-    pair<MatrixXd, vector<int>> Mat = MatrixUpdate (newcomps, noden, interval);
-    //cerr << Mat.first << endl;
+    //vector<Component> comps = patchSupernodeInductor(comps);
+    pair<MatrixXd, vector<int>> Mat = MatrixUpdate (comps, noden, interval);
+    cerr << "update" << endl;
+    cerr << Mat.first << endl;
     writeTranHeaders(nodes, comps,pastnodes,pastcurrents);
 
     //begin one interval after 0
     //i is time in seconds
-       for(auto x : newcomps)
+       for(auto x : comps)
     {
         cerr << x;
-        cerr << "A is "<< x.A << " superlabel: " << nodeName(x.A.super,newcomps) << endl;
-        cerr << "B is "<< x.B << " superlabel: " << nodeName(x.B.super,newcomps) << endl;
+        cerr << "A is "<< x.A << " superlabel: " << nodeName(x.A.super,comps) << endl;
+        cerr << "B is "<< x.B << " superlabel: " << nodeName(x.B.super,comps) << endl;
     }
     for(float i = interval; i<duration; i += interval)
     {
-        rhs = VectorUpdate (newcomps, noden, i, nodev, component_currents, interval, Mat.second);
-
-        //cout << "rhs" << endl;
-        //cout << rhs << endl;
-        //cout << "done" << endl;
-
-        /*/
-        cout << "rhs:" << endl;
-        for(int i = 0; i<rhs.size(); i++)
-        {
-            cout << rhs[i] << endl;
-        }
-        cout << "f" << endl;
-        /*/
-
+        rhs = VectorUpdate (comps, noden, i, nodev, component_currents, interval, Mat.second);
+        //cerr << "rhs" << endl;
+        //cerr << rhs << endl;
         prevnodev = nodev;
         nodev = matrixSolve(Mat.first, rhs);
-        component_currents = recursive_currents (newcomps, nodes, nodev, prevnodev, interval, component_currents, false);
-
-        /*/
-        cout << "comp_i" << endl;
-        cout << component_currents << "e" << endl;
-        /*/
-
+        component_currents = recursive_currents (comps, nodes, nodev, prevnodev, interval, component_currents, false);
         values.push_back( {nodev, component_currents} );
         writeTran(nodes, comps, nodev, component_currents, i);
     }
@@ -304,13 +287,24 @@ const VectorXd & prevnodev, const float & interval, vector<bool> & computed, Vec
     float VA;
     float VB;
 
+    //voltages at each node of a capacitor model resistor
+    float CVA;
+    float CVB;
+
+    //capacitor model resistor
+    Component capr;
+
+    //in DC operation, LT spice treats inductors as 1mOhm resistors
+    //computers are bad at dividing by small numbers so we're directly defining the conductance
+    float gl = 1000;
+
     if(C.type == 'I')
     {
         total_current = C.value;
         computed[ component_index(comps, C) ] = 1;
     }
 
-    if(C.type == 'R' || C.type == 'L' && op == false)
+    if(C.type == 'R' || C.type == 'L')
     {
         if(nA(C) != 0)
         {
@@ -333,15 +327,43 @@ const VectorXd & prevnodev, const float & interval, vector<bool> & computed, Vec
             computed[ component_index(comps, C) ] = 1;
         }
 
-        if(C.type == 'L')
+        if(C.type == 'L' && op == false)
         {
             total_current = comp_currents( component_index( comps, C ) )+( prevnodev(nB(C) - 1) - prevnodev(nA(C) - 1) )*interval/(C.value);
             computed[ component_index(comps, C) ] = 1;
         }
+
+        if(C.type == 'L' && op == true)
+        {
+            total_current = ( VA - VB )*gl;
+            cerr << C.name << " " << VA << " " << VB << ' ' << total_current << endl;
+            computed[ component_index(comps, C) ] = 1;
+        }
+    }
+
+    if(C.type == 'C')
+    {
+        capr = comps[ component_index( comps, C ) + 1 ];
+        if(nA(capr) != 0)
+        {
+            VA = nodev(nA(capr) - 1);
+        } else {
+            VA = 0;
+        }
+
+        if(nB(capr) != 0)
+        {
+            VB = nodev(nB(capr) - 1);
+        } else {
+            VB = 0;
+        }
+
+        total_current = ( VA - VB )/capr.value;
+        computed[ component_index(comps, C) ] = 1;
     }
 
     //probably can replace some common_node calls with i
-    if(C.type == 'V' || C.type == 'C' || (C.type == 'L' && op == true))
+    if(C.type == 'V')
     {
         //cout << "ree" << endl;
         total_current = 0;
