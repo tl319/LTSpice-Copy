@@ -512,8 +512,10 @@ vector<Component> reorderVoltages(const vector<Component> &in)
 void stepOP(vector<Component> &list, Simulation sim, int i, vector<Node> nlist)
 {
     int j = 0;
+    int counter =0;
     Param values = sim.steps[i];
-    while(values.start+(values.interval*j) <= values.stop){
+    while(counter<= values.stop){
+;
         for(int i =0; i<list.size();i++)
         {
             if(list[i].isVar){
@@ -525,14 +527,19 @@ void stepOP(vector<Component> &list, Simulation sim, int i, vector<Node> nlist)
         int noden = compute_noden(nlist);
         pair<VectorXd, VectorXd> knowns = no_prior_change (list, nlist, noden);
         writeOPReadable(nlist, list, knowns.first, knowns.second);
+        cout << endl << endl;
         j++;
+        counter = values.start+(values.interval*j);
     }
 }
 void stepTran(vector<Component> &list, Simulation sim, int i, vector<Node> nlist, float duration, float interval)
 {
     int j = 0;
+    int counter =0;
     Param values = sim.steps[i];
-    while(values.start+(values.interval*j) <= values.stop){
+    while(counter<= values.stop){
+        cout << "Step Information : " << values.var << "=" << values.start+(values.interval*j);
+        cout << " Run : " << j+1<< "/" << (ceil((values.stop-values.start)/values.interval))+1 << endl;
         for(int i =0; i<list.size();i++)
         {
             if(list[i].isVar){
@@ -544,7 +551,9 @@ void stepTran(vector<Component> &list, Simulation sim, int i, vector<Node> nlist
         int noden = compute_noden(nlist);
         pair<VectorXd, VectorXd> knowns = no_prior_change (list, nlist, noden);
         vector<pair<VectorXd, VectorXd>> transient_values = transient (list, nlist, noden, duration, interval, knowns.first, knowns.second);
+        cout << endl << endl;
         j++;
+        counter = values.start+(values.interval*j);
     }
 }
 int main()
@@ -594,9 +603,12 @@ int main()
         
     }
     else if (sim.type=="tran"){
+
+        int noden = compute_noden(nlist);
+        pair<VectorXd, VectorXd> knowns = no_prior_change (out, nlist, noden);
         float duration = sim.stop;
         float interval = 0.000001;
-        //vector<pair<VectorXd, VectorXd>> transient_values = transient (out, nlist, noden, duration, interval, values.first, values.second);
+        vector<pair<VectorXd, VectorXd>> transient_values = transient (out, nlist, noden, duration, interval, knowns.first, knowns.second);
     }
     else
     {
