@@ -1,8 +1,9 @@
-* C:\Users\Jason\Downloads\Real\Real\Transients\TRAN_V-Sine_I-DC_R+L.asc
-V1 N001 0 SINE(0 1 10)
-R1 N001 N002 1
-I1 N001 0 1
-L1 N002 0 1
-.tran 1
+* C:\Users\david\Desktop\École\Université\Undergrad\Work\finalproject\Real\Transients\TRAN_V-Sine_I-DC_R+L.asc
+V1 N001 0 SINE(0 1 1k)
+R1 N001 N002 20k
+I1 N001 0 3
+L1 N002 N003 0.5m
+R2 N003 0 10k
+.tran 10m
 .backanno
 .end
