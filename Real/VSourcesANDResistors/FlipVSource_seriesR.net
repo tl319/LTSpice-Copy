@@ -1,7 +1,0 @@
-* C:\Users\Jason\Downloads\Real\Real\VSourcesANDResistors\FlipVSource_seriesR.asc
-R1 N001 P001 0.5
-R2 P001 0 0.5
-V1 0 N001 1V
-.op
-.backanno
-.end
