@@ -585,6 +585,19 @@ void stepTran(vector<Component> &list, const Simulation & sim, const int & i, co
             }
         }
         int noden = compute_noden(nlist);
+        if(j%2==1)
+        {
+            for(int k =0; k<list.size();k++)
+            {
+                if(list[k].type=='L')
+                {
+                    Node t = list[k].A;
+                    list[k].A=list[k].B;
+                    list[k].B=t;
+                    cerr << "swa[[ed " << t << " : " << list[k].B;
+                }
+            }
+        }
         pair<VectorXd, VectorXd> knowns = no_prior_change (list, nlist, noden);
         transient (list, nlist, noden, duration, interval, knowns.first, knowns.second);
         cout << endl << endl;
