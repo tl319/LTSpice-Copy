@@ -135,8 +135,6 @@ const float & interval, const vector<int> & c_vs_row)
 //return voltage and current vectors for operating point or first point of transient analysis
 pair<VectorXd, VectorXd> no_prior_change (const vector<Component> & comps, const vector<Node> & nodes, const int & noden)
 {
-    auto start = high_resolution_clock::now();
-
     VectorXd nodev;
     //perhaps avoid creating by separating recursive_currents used for op and trans
     VectorXd component_currents = VectorXd::Zero (comps.size());
@@ -152,54 +150,35 @@ pair<VectorXd, VectorXd> no_prior_change (const vector<Component> & comps, const
 
     component_currents = recursive_currents (comps, nodes, nodev, prevnodev, 0, component_currents, true);
 
-    auto stop = high_resolution_clock::now();
-    auto duration = duration_cast<microseconds>(stop - start);
-    cerr << "op duration: " << duration.count() << endl;
     return{nodev, component_currents};
 }
 
-//might be preferable to cout values directly (using Jason's function) after they're calculated to avoid cycling through the duration twice
-//and have a void function if possible
+//the function is a void as the data from transient timesteps is not needed after it is printed to the output file
 void transient (vector<Component> & comps, const vector<Node> & nodes, const int & noden, const float & duration,
 const float & interval, const VectorXd & pastnodes, const VectorXd & pastcurrents)
 {
-    auto start = high_resolution_clock::now();
-
     VectorXd nodev = pastnodes;
+    VectorXd prevnodev = VectorXd::Zero(nodev.size());
     VectorXd component_currents = pastcurrents;
     vector<pair<VectorXd, VectorXd>> values;
     VectorXd rhs = VectorXd::Zero (comps.size());
 
-    VectorXd prevnodev = VectorXd::Zero(nodev.size());
-    //vector<Component> comps = patchSupernodeInductor(comps);
+    //DGenerate a single conductance matrix
     pair<MatrixXd, vector<int>> Mat = MatrixUpdate (comps, noden, interval);
 
     writeTranHeaders(nodes, comps,pastnodes,pastcurrents);
 
-    //begin one interval after 0
-    //i is time in seconds
-    /*/
-       for(auto x : comps)
-    {
-        cerr << x;
-        cerr << "A is "<< x.A << " superlabel: " << nodeName(x.A.super,comps) << endl;
-        cerr << "B is "<< x.B << " superlabel: " << nodeName(x.B.super,comps) << endl;
-    }/*/
+    //cycle through timesteps 1 to n of the simulation
     for(float i = interval; i<duration; i += interval)
     {
         rhs = VectorUpdate (comps, noden, i, nodev, component_currents, interval, Mat.second);
-        //cerr << "rhs" << endl;
-        //cerr << rhs << endl;
+        //store previous node voltages for use in backwards Euler
         prevnodev = nodev;
+        //calculate node voltages and component currents, then print to cout
         nodev = matrixSolve(Mat.first, rhs);
         component_currents = recursive_currents (comps, nodes, nodev, prevnodev, interval, component_currents, false);
-        values.push_back( {nodev, component_currents} );
         writeTran(nodes, comps, nodev, component_currents, i);
     }
-
-    auto stop = high_resolution_clock::now();
-    auto countduration = duration_cast<microseconds>(stop - start);
-    cerr << "transient duration: " << countduration.count() << endl;
 }
 
 
