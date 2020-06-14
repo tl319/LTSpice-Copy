@@ -440,6 +440,17 @@ pair<vector<Component>, Simulation> readInput()
                             Diode d1('D',name,properties[1],properties[2],properties[3]);
                             components.push_back(d1);
                         }
+                          else if((properties[0])[0]=='C' && ((properties[3]).find('{') != std::string::npos)){
+                            Component c1('C',name,properties[1],"fakeNode"+to_string(fakeNode),(properties[3])[1]);
+                            Component c2('R',"fakeRes"+to_string(fakeRes),"fakeNode"+to_string(fakeNode),properties[2],(properties[3])[1]);
+                            c2.poser=true;
+                            c1.B.poser=true;
+                            c2.A.poser=true;
+                            components.push_back(c1);
+                            components.push_back(c2);
+                            fakeNode++;
+                            fakeRes++;
+                          }
                         else if((properties[0])[0]=='C'||(properties[0])[0]=='c'){
                             Component c1('C',name,properties[1],"fakeNode"+to_string(fakeNode),procData(properties[3]));
                             Component c2('R',"fakeRes"+to_string(fakeRes),"fakeNode"+to_string(fakeNode),properties[2],(float)(0.0001/procData(properties[3])));
@@ -566,7 +577,11 @@ void stepTran(vector<Component> &list, const Simulation & sim, const int & i, co
             if(list[i].isVar){
                 if(list[i].var == values.var){
                     list[i].value = (values.start + j*values.interval);
+                    if(list[i].poser){
+                        list[i].value = 0.0001/(values.start + j*values.interval);
+                    }
                 }
+                
             }
         }
         int noden = compute_noden(nlist);
