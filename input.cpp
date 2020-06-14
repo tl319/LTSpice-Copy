@@ -581,7 +581,7 @@ void stepTran(vector<Component> &list, const Simulation & sim, const int & i, co
                         list[i].value = 0.0001/(values.start + j*values.interval);
                     }
                 }
-                
+
             }
         }
         int noden = compute_noden(nlist);
@@ -659,7 +659,7 @@ int main()
         int noden = compute_noden(nlist);
         pair<VectorXd, VectorXd> knowns = no_prior_change (out, nlist, noden);
         float duration = sim.stop;
-        float interval = 0.000001;
+        float interval = 0.0001;
         transient (out, nlist, noden, duration, interval, knowns.first, knowns.second);
     }
     else

@@ -4,12 +4,6 @@ using namespace std;
 using namespace Eigen;
 using namespace std::chrono;
 
-//!!
-//remember to change all arguments to const refs when possible
-//!!
-//"pre-compute" values that are computed more than once per scope
-//!!
-
 //update the current vector to reflect reactive component behaviour and changes in source values
 VectorXd VectorUpdate (const vector<Component> & comps, const int & noden, const float & time, const VectorXd & pastnodes, const VectorXd & component_currents,
 const float & interval, const vector<int> & c_vs_row)
@@ -23,6 +17,11 @@ const float & interval, const vector<int> & c_vs_row)
 
     //component value
     float val;
+
+    //voltages at each node
+    float VA;
+    float VB;
+
     for(int i = 0; i<comps.size(); i++)
     {
         if(comps[i].type == 'V' && comps[i].isSignal == 1)
@@ -90,44 +89,49 @@ const float & interval, const vector<int> & c_vs_row)
 
         if(comps[i].type == 'C')
         {
-            //negative terminal to ground
+            //assign node voltage values
+            //nA/nB read the node number
+            if(nA(comps[i]) != 0)
+            {
+                VA = pastnodes(nA(comps[i])-1);
+            } else {
+                VA = 0;
+            }
+
+            if(nB(comps[i]) != 0)
+            {
+                VB = pastnodes(nB(comps[i])-1);
+            } else {
+                VB = 0;
+            }
+
+            //B to ground
             if( nB(comps[i]) == 0 && nA(comps[i]) != 0)
             {
                 //write the source voltage to this index in the rhs vector
-                currents(nA(comps[i]) -1) = nA(comps[i]) - nB(comps[i]) - (component_currents(i))*interval/val;
+                currents(nA(comps[i]) -1) = VA - VB - component_currents(i)*interval/val;
             }
 
-            //positive terminal to ground
+            //A to ground
             //not too sure about this one
             if(nA(comps[i]) == 0 && nB(comps[i]) != 0)
             {
                 //also write -1* the source voltage to this index in the rhs vector
-                currents(nB(comps[i]) -1) += (-1)*(nA(comps[i]) - nB(comps[i]) - (component_currents(i))*interval/val);
+                currents(nB(comps[i]) -1) += (-1)*(VA - VB - (component_currents(i))*interval/val);
             }
 
-            //floating voltage source
+            //not grounded
             //to optimise, make the row value saved after initial calculation
             if(nA(comps[i]) != 0 && nB(comps[i]) != 0)
             {
                 row = c_vs_row[i];
 
                 //in that row of the rhs vector, write the current source value
-                currents(row) = (pastnodes(nA(comps[i])-1) - pastnodes(nB(comps[i])-1) - (component_currents(i))*interval/val) ;
-                /*/
-                cout << "VA= " << nA(comps[i]) << endl;
-                cout << "VB= " << nB(comps[i]) << endl;
-                cout << "comp current n-1 " << currents(row) << endl;
-                cout << "cap voltage= " << currents(row) << endl;
-                cout << "cap voltage= " << currents(row) << endl;
-                /*/
+                currents(row) = VA - VB - component_currents(i)*interval/val;
             }
         }
-
-
-        if(comps[i].type == 'D')
-        {
-
-        }
+        //cerr << comps[i].name << endl;
+        //cerr << currents << endl;
     }
     return currents;
 }
@@ -141,7 +145,7 @@ pair<VectorXd, VectorXd> no_prior_change (const vector<Component> & comps, const
 
     //generate conductance matrix and rhs vector
     pair<MatrixXd, VectorXd> knowns = conductance_current (comps, noden);
-    //test(noden, knowns.first, knowns.second);
+    //testBetter(noden, knowns.first, knowns.second, nodes);
 
     //compute node voltages
     nodev = matrixSolve(knowns.first, knowns.second);
@@ -165,11 +169,13 @@ const float & interval, const VectorXd & pastnodes, const VectorXd & pastcurrent
 
     //DGenerate a single conductance matrix
     pair<MatrixXd, vector<int>> Mat = MatrixUpdate (comps, noden, interval);
+    //cerr << Mat.first << endl;
+    //cerr << endl;
 
     writeTranHeaders(nodes, comps,pastnodes,pastcurrents);
 
     //cycle through timesteps 1 to n of the simulation
-    for(float i = interval; i<duration; i += interval)
+    for(float i = interval; i<=duration; i += interval)
     {
         rhs = VectorUpdate (comps, noden, i, nodev, component_currents, interval, Mat.second);
         //store previous node voltages for use in backwards Euler

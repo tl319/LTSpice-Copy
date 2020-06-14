@@ -257,69 +257,6 @@ pair<MatrixXd, VectorXd> conductance_current(const vector<Component> & comps, co
         //inductors
        if(comps[i].type == 'L')
         {
-            /*/
-            //assign the row corresponding to the lowest numbered node as that representing the voltage source
-            int row;
-
-            //positive terminal to ground
-            if(nA(comps[i]) == 0 && nB(comps[i]) != 0)
-            {
-                //prevent ulterior editing of the matrix row assigned to represent the voltage source
-                locked[nB(comps[i])-1] = 1;
-                //cycle through all columns to  edit the row corresponding to the negative terminal node
-                for(int j = 0; j<noden; j++)
-                {
-                    //at the column corresponding to the negative terminal, write 1
-                    if(j == (nB(comps[i]) -1))
-                    {
-                        conducts (j, j) = 1;
-                        //also write -1* the source voltage to this index in the rhs vector
-                        currents(j) = 0;
-                    } else {
-                        //other columns are set to 0
-                        conducts (nB(comps[i]) -1, j) = 0;
-                    }
-                }
-            }
-
-            //floating voltage source
-            if(nA(comps[i]) != 0 && nB(comps[i]) != 0)
-            {
-                //assign the row corresponding to the lowest numbered node as that representing the voltage source
-                int row;
-
-                if( nA(comps[i]) > nB(comps[i]) && (locked[ nB(comps[i])-1] == 0)|| locked[ nA(comps[i])-1] == 1 )
-                {
-                    locked[nB(comps[i])-1] = 1;
-                    cout << "locked " << nB(comps[i])-1 <<endl;
-                    row = nB(comps[i]) -1;
-                } else {
-                    locked[nA(comps[i])-1] = 1;
-                    row = nA(comps[i]) -1;
-                    cout << "locked " << nA(comps[i])-1 <<endl;
-                }
-
-                //in that row of the rhs vector, write the current source value
-                currents(row) = 0;
-
-                //write the 1, -1 and 0s in the appropriate columns
-                for(int j = 0; j<noden; j++)
-                {
-                    if(j == (nA(comps[i]) -1))
-                    {
-                        conducts (row, j) = 1;
-                    } else {
-                        if(j == (nB(comps[i]) -1))
-                        {
-                            conducts (row, j) = (-1);
-                        } else {
-                            conducts (row, j) = 0;
-                        }
-                    }
-                }
-            }
-            /*/
-
             //LTSpice treats inductors as 1mOhm resistors in DC coditions
             conductance = 1000;
 
@@ -353,20 +290,6 @@ pair<MatrixXd, VectorXd> conductance_current(const vector<Component> & comps, co
                     }
                 }
             }
-        }
-
-        //initial diode assumption, corrected using the Newton-Raphson method in VectorUpdate
-        if(comps[i].type == 'D')
-        {
-          if(nA(comps[i]) != 0)
-          {
-              //currents(nA(comps[i]) -1) += comps[i].is* ( exp( (0.7)/vt ) -1 );
-          }
-
-          if(nB(comps[i]) != 0)
-          {
-              //currents(nB(comps[i]) -1) -= comps[i].is* ( exp( (0.7)/vt ) -1 );
-          }
         }
 
         //cerr << comps[i].name << endl;
@@ -478,14 +401,6 @@ pair<MatrixXd, vector<int>> MatrixUpdate (vector<Component> & comps, const int &
                     }
                 }
             }
-
-            //short circuit
-            if(nA(comps[i]) == nB(comps[i]) )
-            {
-                cout << "bruh";
-                assert(0);
-            }
-
         }
 
         //dealing with resistors
@@ -530,25 +445,10 @@ pair<MatrixXd, vector<int>> MatrixUpdate (vector<Component> & comps, const int &
 
         if(comps[i].type == 'L')
         {
-            /*/
-            //first, remove "super node" to turn the inductor from an open circuit to a current source with infinite impedance
-            //what if the supernode is involved in another supernode (conflict)
-            if( nA(comps[i]) > nB(comps[i]) )
-            {
-                //A is the supernode, remove from B
-                comps[i].B.super = nB(comps[i]);
-
-            } else {
-                //B is the supernode, remove from A
-                comps[i].A.super = nA(comps[i]);
-            }
-            /*/
-
             //rearrange nodes to correct inductor current sign
             fakeswitch = comps[i].A;
             comps[i].A = comps[i].B;
             comps[i].B = fakeswitch;
-            // ;)
 
             conductance = interval/(comps[i].value);
 
@@ -585,38 +485,79 @@ pair<MatrixXd, vector<int>> MatrixUpdate (vector<Component> & comps, const int &
                     }
                 }
             }
-
-
         }
 
         if(comps[i].type == 'C')
         {
-            //assign the row corresponding to the lowest numbered node as that representing the voltage source
-            int row;
 
-            if( nA(comps[i]) > nB(comps[i]) && locked[ nB(comps[i])-1] == 0 || locked[ nA(comps[i])-1] == 1 )
+            //B to ground
+            if( nB(comps[i]) == 0 && nA(comps[i]) != 0)
             {
-                locked[nB(comps[i])-1] = 1;
-                row = nB(comps[i]) -1;
-            } else {
+                //prevent ulterior editing of the matrix row assigned to represent the voltage source
                 locked[nA(comps[i])-1] = 1;
-                row = nA(comps[i]) -1;
-            }
-            //store the row used to represent the capacitor voltage
-            c_vs_row[i] = row;
-
-            //write the 1, -1 and 0s in the appropriate columns
-            for(int j = 0; j<noden; j++)
-            {
-                if(j == (nA(comps[i]) -1))
+                //cycle through all columns to  edit the row corresponding to the positive terminal node
+                for(int j = 0; j<noden; j++)
                 {
-                    conducts (row, j) = 1;
-                } else {
+                    //at the column corresponding to the positive terminal, write 1
+                    if(j == (nA(comps[i]) -1))
+                    {
+                        conducts (j, j) = 1;
+                    } else {
+                        //other columns are set to 0
+                        conducts (nA(comps[i]) -1, j) = 0;
+                    }
+                }
+            }
+
+            //A to ground
+            if(nA(comps[i]) == 0 && nB(comps[i]) != 0)
+            {
+                //prevent ulterior editing of the matrix row assigned to represent the voltage source
+                locked[nB(comps[i])-1] = 1;
+                //cycle through all columns to  edit the row corresponding to the negative terminal node
+                for(int j = 0; j<noden; j++)
+                {
+                    //at the column corresponding to the negative terminal, write 1
                     if(j == (nB(comps[i]) -1))
                     {
-                        conducts (row, j) = (-1);
+                        conducts (j, j) = 1;
                     } else {
-                        conducts (row, j) = 0;
+                        //other columns are set to 0
+                        conducts (nB(comps[i]) -1, j) = 0;
+                    }
+                }
+            }
+
+            //floating voltage source
+            if(nA(comps[i]) != 0 && nB(comps[i]) != 0)
+            {
+                //assign the row corresponding to the lowest numbered node as that representing the voltage source
+                int row;
+
+                if( nA(comps[i]) > nB(comps[i]) && locked[ nB(comps[i])-1] == 0 || locked[ nA(comps[i])-1] == 1 )
+                {
+                    locked[nB(comps[i])-1] = 1;
+                    row = nB(comps[i]) -1;
+                } else {
+                    locked[nA(comps[i])-1] = 1;
+                    row = nA(comps[i]) -1;
+                }
+                //store the row used to represent the capacitor voltage
+                c_vs_row[i] = row;
+
+                //write the 1, -1 and 0s in the appropriate columns
+                for(int j = 0; j<noden; j++)
+                {
+                    if(j == (nA(comps[i]) -1))
+                    {
+                        conducts (row, j) = 1;
+                    } else {
+                        if(j == (nB(comps[i]) -1))
+                        {
+                            conducts (row, j) = (-1);
+                        } else {
+                            conducts (row, j) = 0;
+                        }
                     }
                 }
             }
